@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,31 +24,43 @@ public class CustomerEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long customerId;
+    @Column(length = 32, precision = 2, nullable = false)
+    private BigDecimal availableBalance;
     @Column(length = 32, nullable = false)
     private String firstName;
     @Column(length = 32, nullable = false)
     private String lastName;
-    @Column(length = 9, nullable = false, unique = true)
-    private String identificationNumber;
-    @Column(length = 8, nullable = false, unique = true)
+    @Column(length = 8, nullable = false)
     private String contactNumber;
     private String addressLine;  // to be added when delievering won bidding item not needed initially
-    @Column(length = 6, nullable = false, unique = true)
+    @Column(length = 6)
     private String postalCode;
     @Column(nullable = false, unique = true, length = 32)
     private String username;
     @Column(nullable = false, length = 32)
     private String password;
+    @Column(nullable = false)
+    private String email;
 
-    public CustomerEntity(Long customerId, String firstName, String lastName, String identificationNumber, String contactNumber, String postalCode) {
+    public CustomerEntity(Long customerId, String firstName, String lastName, String contactNumber, String username, String password, String email) {
         this.customerId = customerId;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.identificationNumber = identificationNumber;
         this.contactNumber = contactNumber;
-        this.postalCode = postalCode;
-    } // constructor without addreses
+        this.username = username;
+        this.password = password;
+        this.email = email;
+    }
 
+    public CustomerEntity(String firstName, String lastName, String contactNumber, String username, String password, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+        this.contactNumber = contactNumber;
+        this.password = password;
+        this.email = email;
+    }
+    
     public Long getCustomerId() {
         return customerId;
     }
@@ -110,20 +123,6 @@ public class CustomerEntity implements Serializable {
     }
 
     /**
-     * @return the identificationNumber
-     */
-    public String getIdentificationNumber() {
-        return identificationNumber;
-    }
-
-    /**
-     * @param identificationNumber the identificationNumber to set
-     */
-    public void setIdentificationNumber(String identificationNumber) {
-        this.identificationNumber = identificationNumber;
-    }
-
-    /**
      * @return the contactNumber
      */
     public String getContactNumber() {
@@ -163,6 +162,62 @@ public class CustomerEntity implements Serializable {
      */
     public void setPostalCode(String postalCode) {
         this.postalCode = postalCode;
+    }
+
+    /**
+     * @return the username
+     */
+    public String getUsername() {
+        return username;
+    }
+
+    /**
+     * @param username the username to set
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    /**
+     * @return the password
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * @param password the password to set
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    /**
+     * @return the availableBalance
+     */
+    public BigDecimal getAvailableBalance() {
+        return availableBalance;
+    }
+
+    /**
+     * @param availableBalance the availableBalance to set
+     */
+    public void setAvailableBalance(BigDecimal availableBalance) {
+        this.availableBalance = availableBalance;
+    }
+
+    /**
+     * @return the email
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * @param email the email to set
+     */
+    public void setEmail(String email) {
+        this.email = email;
     }
 
 }

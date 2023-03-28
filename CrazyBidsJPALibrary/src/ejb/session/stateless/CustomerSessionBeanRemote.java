@@ -7,6 +7,8 @@ package ejb.session.stateless;
 
 import entity.CustomerEntity;
 import javax.ejb.Remote;
+import util.exception.CustomerAlreadyExistException;
+import util.exception.PasswordOrUsernameWrong;
 
 /**
  *
@@ -14,5 +16,12 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface CustomerSessionBeanRemote {
+    
     public Long createNewCustomer(CustomerEntity customer);
+    
+    public CustomerEntity verifyCustomerCredential(String username, String password) throws PasswordOrUsernameWrong;
+    
+    public CustomerEntity verifyRegisteration(String username, String password) throws CustomerAlreadyExistException;
+    
+    public void doUpdate(String firstName, String lastName, String username, String password, String email, String contactNumber);
 }
