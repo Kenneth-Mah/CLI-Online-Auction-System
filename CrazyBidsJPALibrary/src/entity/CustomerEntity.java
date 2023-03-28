@@ -34,6 +34,10 @@ public class CustomerEntity implements Serializable {
     private String addressLine;  // to be added when delievering won bidding item not needed initially
     @Column(length = 6, nullable = false, unique = true)
     private String postalCode;
+    @Column(nullable = false, unique = true, length = 32)
+    private String username;
+    @Column(nullable = false, length = 32)
+    private String password;
 
     public CustomerEntity(Long customerId, String firstName, String lastName, String identificationNumber, String contactNumber, String postalCode) {
         this.customerId = customerId;

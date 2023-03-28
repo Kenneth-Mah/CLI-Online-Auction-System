@@ -8,9 +8,12 @@ package entity;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import util.enumeration.EmployeeTypeEnumeration;
 
 /**
  *
@@ -23,12 +26,19 @@ public class EmployeeEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeId;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EmployeeTypeEnumeration employeeTypeEnum;
     @Column(length = 32, nullable = false)
     private String firstName;
     @Column(length = 32, nullable = false)
     private String lastName;
     @Column(length = 9, nullable = false, unique = true)
     private String identificationNumber;
+    @Column(nullable = false, unique = true, length = 32)
+    private String username;
+    @Column(nullable = false, length = 32)
+    private String password;
 
     public Long getEmployeeId() {
         return employeeId;
