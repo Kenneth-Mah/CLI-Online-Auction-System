@@ -27,7 +27,7 @@ public class CustomerEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long customerId;
-    @Column(length = 32, precision = 2, nullable = false)
+    @Column(length = 32, precision = 4, nullable = false)
     private BigDecimal availableBalance;
     @Column(length = 32, nullable = false)
     private String firstName;
@@ -43,10 +43,19 @@ public class CustomerEntity implements Serializable {
     private String email;
     
     @OneToMany(mappedBy = "customer")
-    private List<String> creditTransactionHist;
+    private List<TransactionEntity> transactions;
+    
+    private List<BidEntity> bids;
+    
+    private List<AddressEntity> addresses;
+    
+    private List<AuctionListingEntity> wonAuctions;
 
     public CustomerEntity() {
-        creditTransactionHist = new ArrayList<>();
+        transactions = new ArrayList<>();
+        bids = new ArrayList<>();
+        addresses = new ArrayList<>();
+        wonAuctions = new ArrayList<>();
     }
 
     public CustomerEntity(String firstName, String lastName, String contactNumber, String username, String password, String email) {
@@ -188,6 +197,62 @@ public class CustomerEntity implements Serializable {
      */
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    /**
+     * @return the transactions
+     */
+    public List<TransactionEntity> getTransactions() {
+        return transactions;
+    }
+
+    /**
+     * @param transactions the transactions to set
+     */
+    public void setTransactions(List<TransactionEntity> transactions) {
+        this.transactions = transactions;
+    }
+
+    /**
+     * @return the bids
+     */
+    public List<BidEntity> getBids() {
+        return bids;
+    }
+
+    /**
+     * @param bids the bids to set
+     */
+    public void setBids(List<BidEntity> bids) {
+        this.bids = bids;
+    }
+
+    /**
+     * @return the addresses
+     */
+    public List<AddressEntity> getAddresses() {
+        return addresses;
+    }
+
+    /**
+     * @param addresses the addresses to set
+     */
+    public void setAddresses(List<AddressEntity> addresses) {
+        this.addresses = addresses;
+    }
+
+    /**
+     * @return the wonAuctions
+     */
+    public List<AuctionListingEntity> getWonAuctions() {
+        return wonAuctions;
+    }
+
+    /**
+     * @param wonAuctions the wonAuctions to set
+     */
+    public void setWonAuctions(List<AuctionListingEntity> wonAuctions) {
+        this.wonAuctions = wonAuctions;
     }
 
 }

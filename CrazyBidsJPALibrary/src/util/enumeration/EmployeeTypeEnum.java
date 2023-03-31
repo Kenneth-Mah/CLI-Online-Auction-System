@@ -9,7 +9,7 @@ package util.enumeration;
  *
  * @author yeowh
  */
-public enum EmployeeTypeEnumeration {
+public enum EmployeeTypeEnum {
     
     ADMIN, FINANCE, SALES
     

@@ -13,7 +13,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import util.enumeration.EmployeeTypeEnumeration;
+import util.enumeration.EmployeeTypeEnum;
 
 /**
  *
@@ -27,18 +27,27 @@ public class EmployeeEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeId;
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EmployeeTypeEnumeration employeeTypeEnum;
     @Column(length = 32, nullable = false)
     private String firstName;
     @Column(length = 32, nullable = false)
     private String lastName;
-    @Column(length = 9, nullable = false, unique = true)
-    private String identificationNumber;
     @Column(nullable = false, unique = true, length = 32)
     private String username;
     @Column(nullable = false, length = 32)
     private String password;
+    @Column(nullable = false)
+    private EmployeeTypeEnum employeeTypeEnum;
+
+    public EmployeeEntity() {
+    }
+
+    public EmployeeEntity(String firstName, String lastName, String username, String password, EmployeeTypeEnum employeeTypeEnum) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+        this.password = password;
+        this.employeeTypeEnum = employeeTypeEnum;
+    }
 
     public Long getEmployeeId() {
         return employeeId;
@@ -102,17 +111,45 @@ public class EmployeeEntity implements Serializable {
     }
 
     /**
-     * @return the identificationNumber
+     * @return the username
      */
-    public String getIdentificationNumber() {
-        return identificationNumber;
+    public String getUsername() {
+        return username;
     }
 
     /**
-     * @param identificationNumber the identificationNumber to set
+     * @param username the username to set
      */
-    public void setIdentificationNumber(String identificationNumber) {
-        this.identificationNumber = identificationNumber;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    /**
+     * @return the password
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * @param password the password to set
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    /**
+     * @return the employeeTypeEnum
+     */
+    public EmployeeTypeEnum getEmployeeTypeEnum() {
+        return employeeTypeEnum;
+    }
+
+    /**
+     * @param employeeTypeEnum the employeeTypeEnum to set
+     */
+    public void setEmployeeTypeEnum(EmployeeTypeEnum employeeTypeEnum) {
+        this.employeeTypeEnum = employeeTypeEnum;
     }
     
 }

@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -20,32 +21,46 @@ public class CreditPackageEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long creditPackageId;
+    private String creditPackageType;
+    private BigDecimal creditPrice;
+    private Integer quantity;
+    private Boolean active;
 
-    public Long getId() {
-        return id;
+    public CreditPackageEntity() {
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public CreditPackageEntity(String creditPackageType, BigDecimal creditPrice, Integer quantity, Boolean active) {
+        this.creditPackageType = creditPackageType;
+        this.creditPrice = creditPrice;
+        this.quantity = quantity;
+        this.active = active;
+    }
+
+    public Long getCreditPackageId() {
+        return creditPackageId;
+    }
+
+    public void setCreditPackageId(Long creditPackageId) {
+        this.creditPackageId = creditPackageId;
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
+        hash += (creditPackageId != null ? creditPackageId.hashCode() : 0);
         return hash;
     }
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
+        // TODO: Warning - this method won't work in the case the creditPackageId fields are not set
         if (!(object instanceof CreditPackageEntity)) {
             return false;
         }
         CreditPackageEntity other = (CreditPackageEntity) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+        if ((this.creditPackageId == null && other.creditPackageId != null) || (this.creditPackageId != null && !this.creditPackageId.equals(other.creditPackageId))) {
             return false;
         }
         return true;
@@ -53,7 +68,63 @@ public class CreditPackageEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.CreditPackageEntity[ id=" + id + " ]";
+        return "entity.CreditPackageEntity[ id=" + creditPackageId + " ]";
+    }
+
+    /**
+     * @return the creditPackageType
+     */
+    public String getCreditPackageType() {
+        return creditPackageType;
+    }
+
+    /**
+     * @param creditPackageType the creditPackageType to set
+     */
+    public void setCreditPackageType(String creditPackageType) {
+        this.creditPackageType = creditPackageType;
+    }
+
+    /**
+     * @return the creditPrice
+     */
+    public BigDecimal getCreditPrice() {
+        return creditPrice;
+    }
+
+    /**
+     * @param creditPrice the creditPrice to set
+     */
+    public void setCreditPrice(BigDecimal creditPrice) {
+        this.creditPrice = creditPrice;
+    }
+
+    /**
+     * @return the quantity
+     */
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    /**
+     * @param quantity the quantity to set
+     */
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    /**
+     * @return the active
+     */
+    public Boolean getActive() {
+        return active;
+    }
+
+    /**
+     * @param active the active to set
+     */
+    public void setActive(Boolean active) {
+        this.active = active;
     }
     
 }
