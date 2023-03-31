@@ -6,7 +6,9 @@
 package oasauctionclient;
 
 import ejb.session.stateless.CustomerSessionBeanRemote;
+import entity.CreditTransactionEntity;
 import entity.CustomerEntity;
+import java.math.BigDecimal;
 import java.util.Scanner;
 import util.exception.CustomerAlreadyExistException;
 import util.exception.InvalidCredentialException;
@@ -45,7 +47,7 @@ public class MainApp {
 
                 response = scanner.nextInt();
 
-                if (response == 1){
+                if (response == 1) {
                     try {
                         doLogin();
                         System.out.println("Login successful!\n");
@@ -79,7 +81,7 @@ public class MainApp {
     private void doLogin() throws PasswordOrUsernameWrong, InvalidCredentialException {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("*** CrazyBids.com ***\n Login");
+        System.out.println("*** CrazyBids.com ***\n Login \n");
         System.out.print("Enter username> ");
         String username = scanner.nextLine().trim();
         System.out.print("Enter password> ");
@@ -98,7 +100,7 @@ public class MainApp {
         Integer response = 0;
 
         while (true) {
-            System.out.println("*** Welcome " + customer.getFirstName() + " " + customer.getLastName());
+            System.out.println("*** Welcome " + customer.getFirstName() + " " + customer.getLastName() + " ***");
             System.out.println("1: Enquire Available Balance");
             System.out.println("2: Update Customer Profile");
             System.out.println("3: View Credit Transaction History");
@@ -113,7 +115,7 @@ public class MainApp {
 
                 response = scanner.nextInt();
 
-                if (response == 1){
+                if (response == 1) {
                     this.customer.getAvailableBalance();
                 } else if (response == 2) {
                     doUpdateProfile();
@@ -138,8 +140,10 @@ public class MainApp {
         }
     }
 
-    public void doRegisteration() throws CustomerAlreadyExistException{
+    public void doRegisteration() throws CustomerAlreadyExistException {
         Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("*** Register ***\n");
         System.out.println("Enter First Name >");
         String firstName = scanner.nextLine().trim();
         System.out.println("Enter Last Name >");
@@ -154,9 +158,11 @@ public class MainApp {
         String contactNumber = scanner.nextLine().trim();
         customer = customerSessionBeanRemote.verifyRegisteration(username, password);
     }
-    
-    public void doUpdateProfile(){
+
+    public void doUpdateProfile() {
         Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("*** Update Profile ***\n");
         System.out.println("Enter First Name >");
         String firstName = scanner.nextLine().trim();
         System.out.println("Enter Last Name >");
@@ -172,4 +178,9 @@ public class MainApp {
         customerSessionBeanRemote.doUpdate(firstName, lastName, username, password, email, contactNumber);
     }
 
+    public void viewTransHist() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("*** View Credit Transaction History ***\n");
+        //System.out.println(customerSessionBeanRemote.getTransHist()); //must make it print line by line per transaction
+    }
 }

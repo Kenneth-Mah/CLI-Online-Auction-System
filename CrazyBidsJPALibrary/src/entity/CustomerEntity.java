@@ -7,11 +7,13 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 /**
  *
@@ -41,6 +43,9 @@ public class CustomerEntity implements Serializable {
     private String password;
     @Column(nullable = false)
     private String email;
+    
+    @OneToMany(mappedBy = "customer")
+    private List<String> creditTransactionHist;
 
     public CustomerEntity(Long customerId, String firstName, String lastName, String contactNumber, String username, String password, String email) {
         this.customerId = customerId;

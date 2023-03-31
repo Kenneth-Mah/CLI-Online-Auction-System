@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.CreditTransactionEntity;
 import entity.CustomerEntity;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -78,6 +79,21 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
             }
         } catch (PasswordOrUsernameWrong ex) {
             throw new PasswordOrUsernameWrong("Customer does not exist!");
+        }
+    }
+    
+    public CreditTransactionEntity getCreditTransactionHist(String accountNumber){
+        try {
+            CreditTransactionEntity creditTransactionHist = retrieveDepositAccountByAccountNumber(accountNumber);
+
+            HashMap<String, BigDecimal> availableBalances = new HashMap<>();
+
+            availableBalances.put("availableBalance", depositAccount.getAvailableBalance());
+
+            return availableBalances;
+
+        } catch (DepositAccountNotFoundException ex) {
+            throw ex;
         }
     }
 
