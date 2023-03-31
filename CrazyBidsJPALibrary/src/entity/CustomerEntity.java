@@ -7,6 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -34,9 +35,6 @@ public class CustomerEntity implements Serializable {
     private String lastName;
     @Column(length = 8, nullable = false)
     private String contactNumber;
-    private String addressLine;  // to be added when delievering won bidding item not needed initially
-    @Column(length = 6)
-    private String postalCode;
     @Column(nullable = false, unique = true, length = 32)
     private String username;
     @Column(nullable = false, length = 32)
@@ -47,17 +45,12 @@ public class CustomerEntity implements Serializable {
     @OneToMany(mappedBy = "customer")
     private List<String> creditTransactionHist;
 
-    public CustomerEntity(Long customerId, String firstName, String lastName, String contactNumber, String username, String password, String email) {
-        this.customerId = customerId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.contactNumber = contactNumber;
-        this.username = username;
-        this.password = password;
-        this.email = email;
+    public CustomerEntity() {
+        creditTransactionHist = new ArrayList<>();
     }
 
     public CustomerEntity(String firstName, String lastName, String contactNumber, String username, String password, String email) {
+        this();
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
@@ -139,34 +132,6 @@ public class CustomerEntity implements Serializable {
      */
     public void setContactNumber(String contactNumber) {
         this.contactNumber = contactNumber;
-    }
-
-    /**
-     * @return the addressLine
-     */
-    public String getAddressLine() {
-        return addressLine;
-    }
-
-    /**
-     * @param addressLine the addressLine to set
-     */
-    public void setAddressLine(String addressLine) {
-        this.addressLine = addressLine;
-    }
-
-    /**
-     * @return the postalCode
-     */
-    public String getPostalCode() {
-        return postalCode;
-    }
-
-    /**
-     * @param postalCode the postalCode to set
-     */
-    public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
     }
 
     /**
