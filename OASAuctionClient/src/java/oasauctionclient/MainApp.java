@@ -198,8 +198,7 @@ public class MainApp {
                 }
             } else {
                 System.out.println("Transaction Type [PURCHASE CREDIT PACKAGE]: " + transactionhist.getTransactionAmount());
-                System.out.println("Quantity: " + transactionhist.getCreditPackage().getQuantity() + 
-                        " of price: " + transactionhist.getCreditPackage().getCreditPrice() + " per unit");
+                System.out.println("Price: " + transactionhist.getCreditPackage().getCreditPrice() + " per unit");
             }
         }
     }
@@ -215,8 +214,6 @@ public class MainApp {
         
         System.out.println("Choose type of credit package to purchase: ");
         System.out.println("or type 'EXIT' to exit");
-        String type = scanner.nextLine().trim();
-        
     }
     
 }
