@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.CreditPackageEntity;
 import java.util.List;
 import javax.ejb.Local;
+import util.exception.CreditPackageNotFoundException;
 
 /**
  *
@@ -16,6 +17,8 @@ import javax.ejb.Local;
 @Local
 public interface CreditPackageSessionBeanLocal {
 
-    public List<CreditPackageEntity> retrieveAllAvailableCreditPacakage();
+    public List<CreditPackageEntity> retrieveAllAvailableCreditPackage();
+
+    public CreditPackageEntity retrieveCreditPackageByCreditPackageType(String creditPackageType) throws CreditPackageNotFoundException;
     
 }

@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.CreditPackageEntity;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.CreditPackageNotFoundException;
 
 /**
  *
@@ -16,5 +17,8 @@ import javax.ejb.Remote;
 @Remote
 public interface CreditPackageSessionBeanRemote {
 
-    public List<CreditPackageEntity> retrieveAllAvailableCreditPacakage();
+    public List<CreditPackageEntity> retrieveAllAvailableCreditPackage();
+    
+    public CreditPackageEntity retrieveCreditPackageByCreditPackageType(String creditPackageType) throws CreditPackageNotFoundException;
+    
 }

@@ -9,8 +9,11 @@ import entity.CreditPackageEntity;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.CreditPackageNotFoundException;
 
 /**
  *
@@ -26,13 +29,21 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
     // "Insert Code > Add Business Method")
     
     @Override
-    public List<CreditPackageEntity> retrieveAllAvailableCreditPacakage() {
-        Query query = em.createQuery("SELECT c FROM CreditPackageEntity c WHERE c.active = true");
+    public List<CreditPackageEntity> retrieveAllAvailableCreditPackage() {
+        Query query = em.createQuery("SELECT c FROM CreditPackageEntity c WHERE c.active = TRUE");
         List<CreditPackageEntity> creditPackages = query.getResultList();
         return creditPackages;
     }
     
-    public void findCreditPackage(){
+    @Override
+    public CreditPackageEntity retrieveCreditPackageByCreditPackageType(String creditPackageType) throws CreditPackageNotFoundException {
+        Query query = em.createQuery("SELECT c FROM CreditPackageEntity c WHERE c.creditPackageType = :inCreditPackageType");
+        query.setParameter("inCreditPackageType", creditPackageType);
         
+        try {
+            return (CreditPackageEntity)query.getSingleResult();
+        } catch (NoResultException | NonUniqueResultException ex) {
+            throw new CreditPackageNotFoundException("Credit Package " + creditPackageType + " does not exist!");
+        }
     }
 }

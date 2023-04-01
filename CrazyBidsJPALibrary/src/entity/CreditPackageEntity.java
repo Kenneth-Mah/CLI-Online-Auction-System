@@ -28,7 +28,7 @@ public class CreditPackageEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long creditPackageId;
-    @Column(nullable = false, length = 32)
+    @Column(nullable = false, unique = true, length = 32)
     @NotNull
     @Size(min = 1, max = 32)
     private String creditPackageType;
