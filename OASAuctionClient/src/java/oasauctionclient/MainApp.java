@@ -6,9 +6,10 @@
 package oasauctionclient;
 
 import ejb.session.stateless.CustomerSessionBeanRemote;
-import entity.CreditTransactionEntity;
+import entity.TransactionEntity;
 import entity.CustomerEntity;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Scanner;
 import util.exception.CustomerAlreadyExistException;
 import util.exception.InvalidCredentialException;
@@ -181,6 +182,28 @@ public class MainApp {
     public void viewTransHist() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("*** View Credit Transaction History ***\n");
+        
+        List<TransactionEntity> customerTransactionHist = this.customer.getTransactions();
         //System.out.println(customerSessionBeanRemote.getTransHist()); //must make it print line by line per transaction
+        for(TransactionEntity transactionhist : customerTransactionHist){
+            
+            System.out.println("Trasaction for " + transactionhist.getTimeOfTransaction());
+            System.out.println("Transaction ID: " + transactionhist.getTransactionid() + "\nAmount: " + transactionhist.getTrasactionAmount());
+            
+            //To check which type it is , we  need to to check if credit Pacakage/Bid entity is NOT NULL;
+            if (transactionhist.getBid() != null){
+                if (transactionhist.getTrasactionAmount().compareTo(BigDecimal.ZERO) < 0) { // NEGATIVE MEANS CUSTOMER SPEAND MONEY TO BID
+                    System.out.println("Transaction Type [BID]: " + transactionhist.getTrasactionAmount());
+                } else {// possitive == refund
+                    System.out.println("Transaction Type [REFUND]: " + transactionhist.getTrasactionAmount());
+                }
+            } else {
+                System.out.println("Transaction Type [PURCHASE CREDIT PACKAGE]: " + transactionhist.getTrasactionAmount());
+                System.out.println("Quantity: " + transactionhist.getCreditPackage().getQuantity() + 
+                        " of price: " + transactionhist.getCreditPackage().getCreditPrice() + " per unit");
+            }
+            
+            
+        }
     }
 }
