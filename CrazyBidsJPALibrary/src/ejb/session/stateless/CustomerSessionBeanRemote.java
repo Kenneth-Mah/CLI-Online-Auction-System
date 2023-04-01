@@ -27,5 +27,4 @@ public interface CustomerSessionBeanRemote {
     
     public void doUpdate(String firstName, String lastName, String username, String password, String email, String contactNumber);
     
-    public List<CreditPackageEntity> retrieveAllAvailableCreditPacakage();
 }

@@ -216,11 +216,11 @@ public class MainApp {
         System.out.println("or type 'EXIT' to exit");
         
         String reply = scanner.nextLine().trim().toUpperCase();
-        if (!reply.equals("EXIT")) {
-        Query query = em.createQuery("SELECT c FROM CreditPackageEntity c WHERE c.creditPackageType = :type");
-        query.setParameter("type", reply);
-        TransactionEntity purchaseCredittransaction = new TransactionEntity(credit);
-        }
+//        if (!reply.equals("EXIT")) {
+//        Query query = em.createQuery("SELECT c FROM CreditPackageEntity c WHERE c.creditPackageType = :type");
+//        query.setParameter("type", reply);
+//        TransactionEntity purchaseCredittransaction = new TransactionEntity(credit);
+//        }
         
     }
     

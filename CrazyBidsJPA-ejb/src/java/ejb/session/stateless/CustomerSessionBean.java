@@ -82,15 +82,4 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
             throw new PasswordOrUsernameWrong("Customer does not exist!");
         }
     }
-
-    @Override
-    public List<CreditPackageEntity> retrieveAllAvailableCreditPacakage() {
-        Query query = em.createQuery("SELECT c FROM CreditPackageEntity c WHERE c.active = true");
-        List<CreditPackageEntity> creditPackages = query.getResultList();
-        return creditPackages;
-    }
-    
-    public CreditPackageEntity findCreditPackage(){
-        
-    }
 }
