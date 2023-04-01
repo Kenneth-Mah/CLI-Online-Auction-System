@@ -5,7 +5,9 @@
  */
 package ejb.session.stateless;
 
+import entity.CreditPackageEntity;
 import entity.CustomerEntity;
+import java.util.List;
 import javax.ejb.Remote;
 import util.exception.CustomerAlreadyExistException;
 import util.exception.PasswordOrUsernameWrong;
@@ -24,4 +26,6 @@ public interface CustomerSessionBeanRemote {
     public CustomerEntity verifyRegisteration(String username, String password) throws CustomerAlreadyExistException;
     
     public void doUpdate(String firstName, String lastName, String username, String password, String email, String contactNumber);
+    
+    public List<CreditPackageEntity> retrieveAllAvailableCreditPacakage();
 }

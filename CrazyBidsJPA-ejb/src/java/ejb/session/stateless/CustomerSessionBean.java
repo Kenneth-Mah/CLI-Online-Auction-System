@@ -5,8 +5,9 @@
  */
 package ejb.session.stateless;
 
-import entity.CreditTransactionEntity;
+import entity.CreditPackageEntity;
 import entity.CustomerEntity;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -52,9 +53,9 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
             throw new CustomerAlreadyExistException("Customer already exist!");
         }
     }
-    
+
     @Override
-    public void doUpdate(String firstName, String lastName, String username, String password, String email, String contactNumber){
+    public void doUpdate(String firstName, String lastName, String username, String password, String email, String contactNumber) {
         CustomerEntity customer = em.find(CustomerEntity.class, username);
         customer.setContactNumber(contactNumber);
         customer.setFirstName(firstName);
@@ -81,20 +82,10 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
             throw new PasswordOrUsernameWrong("Customer does not exist!");
         }
     }
-    
-    public CreditTransactionEntity getCreditTransactionHist(String accountNumber){
-        try {
-            CreditTransactionEntity creditTransactionHist = retrieveDepositAccountByAccountNumber(accountNumber);
 
-            HashMap<String, BigDecimal> availableBalances = new HashMap<>();
-
-            availableBalances.put("availableBalance", depositAccount.getAvailableBalance());
-
-            return availableBalances;
-
-        } catch (DepositAccountNotFoundException ex) {
-            throw ex;
-        }
+    public List<CreditPackageEntity> retrieveAllAvailableCreditPacakage() {
+        Query query = em.createQuery("SELECT c FROM CreditPackageEntity c WHERE c.active = true");
+        List<CreditPackageEntity> creditPackages = query.getResultList();
+        return creditPackages;
     }
-
 }

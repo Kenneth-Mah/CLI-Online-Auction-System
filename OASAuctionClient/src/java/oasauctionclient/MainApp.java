@@ -6,11 +6,13 @@
 package oasauctionclient;
 
 import ejb.session.stateless.CustomerSessionBeanRemote;
+import entity.CreditPackageEntity;
 import entity.TransactionEntity;
 import entity.CustomerEntity;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Scanner;
+import javax.management.Query;
 import util.exception.CustomerAlreadyExistException;
 import util.exception.InvalidCredentialException;
 import util.exception.PasswordOrUsernameWrong;
@@ -65,8 +67,6 @@ public class MainApp {
                     } catch (CustomerAlreadyExistException ex) {
                         System.out.println("Customer Already Exist: " + ex.getMessage() + "\n");
                     }
-                } else if (response == 3) {
-                    break;
                 } else {
                     System.out.println("Invalid option, please try again!\n");
                 }
@@ -105,8 +105,8 @@ public class MainApp {
             System.out.println("1: Enquire Available Balance");
             System.out.println("2: Update Customer Profile");
             System.out.println("3: View Credit Transaction History");
-            System.out.println("4: Purchase Credit Package");
-            System.out.println("5: Browse All Auction Listings");
+            System.out.println("4: View Credit Package"); // not yet done
+            System.out.println("5: Browse All Auction Listings"); 
             System.out.println("6: Browse Won Auction Listings");
             System.out.println("7: Back");
             response = 0;
@@ -121,7 +121,7 @@ public class MainApp {
                 } else if (response == 2) {
                     doUpdateProfile();
                 } else if (response == 3) {
-                    //viewTransHist();
+                    viewTransHist();
                 } else if (response == 4) {
                     //purchaseCreditPacks();
                 } else if (response == 5) {
@@ -180,7 +180,6 @@ public class MainApp {
     }
 
     public void viewTransHist() {
-        Scanner scanner = new Scanner(System.in);
         System.out.println("*** View Credit Transaction History ***\n");
         
         List<TransactionEntity> customerTransactionHist = this.customer.getTransactions();
@@ -202,8 +201,20 @@ public class MainApp {
                 System.out.println("Quantity: " + transactionhist.getCreditPackage().getQuantity() + 
                         " of price: " + transactionhist.getCreditPackage().getCreditPrice() + " per unit");
             }
-            
-            
         }
     }
+
+    public void purchaseCreditPacks() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("*** Current available credit package ***\n");
+        List<CreditPackageEntity> creditPackages = customerSessionBeanRemote.retrieveAllAvailableCreditPacakage();
+        
+        for (CreditPackageEntity creditPackage:creditPackages){
+            System.out.println("Credit Packages for " + creditPackage.getCreditPackageType() + " creditPrice: " + creditPackage.getCreditPrice());
+        }
+        
+        System.out.println("Choose type of credit package to purchase: ");
+        System.out.println("or type "EXIT" to exit");
+    }
+    
 }
