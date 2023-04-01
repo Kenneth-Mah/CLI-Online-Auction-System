@@ -9,6 +9,9 @@ import entity.CreditPackageEntity;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.CreditPackageNotFoundException;
+import util.exception.CreditPackageTypeExistException;
+import util.exception.InputDataValidationException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -16,6 +19,8 @@ import util.exception.CreditPackageNotFoundException;
  */
 @Local
 public interface CreditPackageSessionBeanLocal {
+    
+    public CreditPackageEntity createNewCreditPackage(CreditPackageEntity newCreditPackageEntity) throws CreditPackageTypeExistException, UnknownPersistenceException, InputDataValidationException;
 
     public List<CreditPackageEntity> retrieveAllAvailableCreditPackage();
 
