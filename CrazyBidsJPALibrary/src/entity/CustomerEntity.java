@@ -15,6 +15,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -27,28 +31,47 @@ public class CustomerEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long customerId;
-    @Column(length = 32, precision = 4, nullable = false)
+    @Column(nullable = false, precision = 18, scale = 4)
+    @NotNull
+    @DecimalMin("0.0000")
+    @Digits(integer = 14, fraction = 4)
     private BigDecimal availableBalance;
-    @Column(length = 32, nullable = false)
+    @Column(nullable = false, length = 32)
+    @NotNull
+    @Size(min = 1, max = 32)
     private String firstName;
-    @Column(length = 32, nullable = false)
+    @Column(nullable = false, length = 32)
+    @NotNull
+    @Size(min = 1, max = 32)
     private String lastName;
-    @Column(length = 8, nullable = false)
+    @Column(nullable = false, unique = true, length = 8)
+    @NotNull
+    @Size(min = 8, max = 8)
     private String contactNumber;
     @Column(nullable = false, unique = true, length = 32)
+    @NotNull
+    @Size(min = 6, max = 32)
     private String username;
     @Column(nullable = false, length = 32)
+    @NotNull
+    @Size(min = 8, max = 32)
     private String password;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true, length = 64)
+    @NotNull
+    @Size(min = 6, max = 64)
     private String email;
     
     @OneToMany(mappedBy = "customer")
+    // NOTE: transactions can be null!
     private List<TransactionEntity> transactions;
-    
+    @OneToMany(mappedBy = "customer")
+    // NOTE: bids can be null!
     private List<BidEntity> bids;
-    
+    @OneToMany
+    // NOTE: addresses can be null!
     private List<AddressEntity> addresses;
-    
+    @OneToMany
+    // NOTE: wonAuctions can be null!
     private List<AuctionListingEntity> wonAuctions;
 
     public CustomerEntity() {

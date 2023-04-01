@@ -7,10 +7,19 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -23,19 +32,32 @@ public class TransactionEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transactionid;
-    private BigDecimal trasactionAmount;
+    @Column(nullable = false, precision = 18, scale = 4)
+    @NotNull
+    @Digits(integer = 14, fraction = 4)
+    // NOTE: transactionAmount can be positive AND negative!
+    private BigDecimal transactionAmount;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
+    @NotNull
+    private Date timeOfTransaction;
     
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
     private CustomerEntity customer;
-    
+    @OneToOne
+    // NOTE: creditPackage can be null!
     private CreditPackageEntity creditPackage;
-    
+    @OneToOne
+    // NOTE: bid can be null!
     private BidEntity bid;
 
     public TransactionEntity() {
     }
 
-    public TransactionEntity(BigDecimal trasactionAmount, CustomerEntity customer, CreditPackageEntity creditPackage, BidEntity bid) {
-        this.trasactionAmount = trasactionAmount;
+    public TransactionEntity(BigDecimal transactionAmount, Date timeOfTransaction, CustomerEntity customer, CreditPackageEntity creditPackage, BidEntity bid) {
+        this.transactionAmount = transactionAmount;
+        this.timeOfTransaction = timeOfTransaction;
         this.customer = customer;
         this.creditPackage = creditPackage;
         this.bid = bid;
@@ -75,17 +97,31 @@ public class TransactionEntity implements Serializable {
     }
 
     /**
-     * @return the trasactionAmount
+     * @return the transactionAmount
      */
-    public BigDecimal getTrasactionAmount() {
-        return trasactionAmount;
+    public BigDecimal getTransactionAmount() {
+        return transactionAmount;
+    }
+    
+    /**
+     * @param transactionAmount the transactionAmount to set
+     */
+    public void setTransactionAmount(BigDecimal transactionAmount) {
+        this.transactionAmount = transactionAmount;
     }
 
     /**
-     * @param trasactionAmount the trasactionAmount to set
+     * @return the timeOfTransaction
      */
-    public void setTrasactionAmount(BigDecimal trasactionAmount) {
-        this.trasactionAmount = trasactionAmount;
+    public Date getTimeOfTransaction() {
+        return timeOfTransaction;
+    }
+
+    /**
+     * @param timeOfTransaction the timeOfTransaction to set
+     */
+    public void setTimeOfTransaction(Date timeOfTransaction) {
+        this.timeOfTransaction = timeOfTransaction;
     }
 
     /**

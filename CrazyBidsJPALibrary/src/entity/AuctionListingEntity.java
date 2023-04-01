@@ -10,10 +10,20 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -26,18 +36,43 @@ public class AuctionListingEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long auctionId;
+    @Column(nullable = false, precision = 18, scale = 4)
+    @NotNull
+    @DecimalMin("0.0000")
+    @Digits(integer = 14, fraction = 4)
     private BigDecimal highestBidPrice;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
+    @NotNull
     private Date startDateTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
+    @NotNull
     private Date endDateTime;
+    @Column(nullable = false, precision = 18, scale = 4)
+    @NotNull
+    @DecimalMin("0.0000")
+    @Digits(integer = 14, fraction = 4)
     private BigDecimal reservePrice;
+    @Column(nullable = false, length = 32)
+    @NotNull
+    @Size(min = 1, max = 32)
     private String auctionName;
+    @Column(nullable = false)
+    @NotNull
     private Boolean active;
+    @Column(nullable = false)
+    @NotNull
     private Boolean requiresManualIntervention;
     
+    @OneToOne
+    // NOTE: winningBid can be null!
     private BidEntity winningBid;
-    
+    @ManyToOne
+    // NOTE: address can be null!
     private AddressEntity address;
-    
+    @OneToMany(mappedBy = "auctionListing")
+    // NOTE: bids can be null!
     private List<BidEntity> bids;
 
     public AuctionListingEntity() {
