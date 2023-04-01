@@ -187,19 +187,18 @@ public class MainApp {
         for(TransactionEntity transactionhist : customerTransactionHist){
             
             System.out.println("Trasaction for " + transactionhist.getTimeOfTransaction());
-            System.out.println("Transaction ID: " + transactionhist.getTransactionid() + "\nAmount: " + transactionhist.getTrasactionAmount());
+            System.out.println("Transaction ID: " + transactionhist.getTransactionid() + "\nAmount: " + transactionhist.getTransactionAmount());
             
             //To check which type it is , we  need to to check if credit Pacakage/Bid entity is NOT NULL;
             if (transactionhist.getBid() != null){
-                if (transactionhist.getTrasactionAmount().compareTo(BigDecimal.ZERO) < 0) { // NEGATIVE MEANS CUSTOMER SPEAND MONEY TO BID
-                    System.out.println("Transaction Type [BID]: " + transactionhist.getTrasactionAmount());
+                if (transactionhist.getTransactionAmount().compareTo(BigDecimal.ZERO) < 0) { // NEGATIVE MEANS CUSTOMER SPEAND MONEY TO BID
+                    System.out.println("Transaction Type [BID]: " + transactionhist.getTransactionAmount());
                 } else {// possitive == refund
-                    System.out.println("Transaction Type [REFUND]: " + transactionhist.getTrasactionAmount());
+                    System.out.println("Transaction Type [REFUND]: " + transactionhist.getTransactionAmount());
                 }
             } else {
-                System.out.println("Transaction Type [PURCHASE CREDIT PACKAGE]: " + transactionhist.getTrasactionAmount());
-                System.out.println("Quantity: " + transactionhist.getCreditPackage().getQuantity() + 
-                        " of price: " + transactionhist.getCreditPackage().getCreditPrice() + " per unit");
+                System.out.println("Transaction Type [PURCHASE CREDIT PACKAGE]: " + transactionhist.getTransactionAmount());
+                System.out.println("Price: " + transactionhist.getCreditPackage().getCreditPrice() + " per unit");
             }
         }
     }
@@ -214,7 +213,7 @@ public class MainApp {
         }
         
         System.out.println("Choose type of credit package to purchase: ");
-        System.out.println("or type "EXIT" to exit");
+        System.out.println("or type 'EXIT' to exit");
     }
     
 }

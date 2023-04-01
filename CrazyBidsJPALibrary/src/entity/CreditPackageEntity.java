@@ -14,7 +14,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -40,19 +39,14 @@ public class CreditPackageEntity implements Serializable {
     private BigDecimal creditPrice;
     @Column(nullable = false)
     @NotNull
-    @Min(0)
-    private Integer quantity;
-    @Column(nullable = false)
-    @NotNull
     private Boolean active;
 
     public CreditPackageEntity() {
     }
 
-    public CreditPackageEntity(String creditPackageType, BigDecimal creditPrice, Integer quantity, Boolean active) {
+    public CreditPackageEntity(String creditPackageType, BigDecimal creditPrice, Boolean active) {
         this.creditPackageType = creditPackageType;
         this.creditPrice = creditPrice;
-        this.quantity = quantity;
         this.active = active;
     }
 
@@ -115,20 +109,6 @@ public class CreditPackageEntity implements Serializable {
      */
     public void setCreditPrice(BigDecimal creditPrice) {
         this.creditPrice = creditPrice;
-    }
-
-    /**
-     * @return the quantity
-     */
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    /**
-     * @param quantity the quantity to set
-     */
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
     }
 
     /**
