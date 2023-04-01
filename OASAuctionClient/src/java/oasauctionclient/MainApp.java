@@ -209,11 +209,19 @@ public class MainApp {
         List<CreditPackageEntity> creditPackages = customerSessionBeanRemote.retrieveAllAvailableCreditPacakage();
         
         for (CreditPackageEntity creditPackage:creditPackages){
-            System.out.println("Credit Packages for " + creditPackage.getCreditPackageType() + " creditPrice: " + creditPackage.getCreditPrice());
+            System.out.println("Credit Packages for " + creditPackage.getCreditPackageType() + " type, credit price: " + creditPackage.getCreditPrice());
         }
         
         System.out.println("Choose type of credit package to purchase: ");
         System.out.println("or type 'EXIT' to exit");
+        
+        String reply = scanner.nextLine().trim().toUpperCase();
+        if (!reply.equals("EXIT")) {
+        Query query = em.createQuery("SELECT c FROM CreditPackageEntity c WHERE c.creditPackageType = :type");
+        query.setParameter("type", reply);
+        TransactionEntity purchaseCredittransaction = new TransactionEntity(credit);
+        }
+        
     }
     
 }

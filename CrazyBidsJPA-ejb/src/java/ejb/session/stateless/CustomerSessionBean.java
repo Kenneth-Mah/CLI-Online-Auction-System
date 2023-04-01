@@ -89,4 +89,8 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
         List<CreditPackageEntity> creditPackages = query.getResultList();
         return creditPackages;
     }
+    
+    public CreditPackageEntity findCreditPackage(){
+        
+    }
 }
