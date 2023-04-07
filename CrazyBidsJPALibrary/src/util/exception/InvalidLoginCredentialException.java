@@ -9,12 +9,12 @@ package util.exception;
  *
  * @author yeowh
  */
-public class InvalidCredentialException extends Exception{
+public class InvalidLoginCredentialException extends Exception{
 
-    public InvalidCredentialException() {
+    public InvalidLoginCredentialException() {
     }
 
-    public InvalidCredentialException(String string) {
+    public InvalidLoginCredentialException(String string) {
         super(string);
     }
     

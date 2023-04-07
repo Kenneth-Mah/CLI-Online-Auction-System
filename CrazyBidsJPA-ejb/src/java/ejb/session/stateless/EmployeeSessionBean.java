@@ -21,6 +21,7 @@ import javax.validation.ValidatorFactory;
 import util.exception.EmployeeNotFoundException;
 import util.exception.EmployeeUsernameExistException;
 import util.exception.InputDataValidationException;
+import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -79,6 +80,21 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
             return (EmployeeEntity) query.getSingleResult();
         } catch (NoResultException | NonUniqueResultException ex) {
             throw new EmployeeNotFoundException("Employee Username " + username + " does not exist!");
+        }
+    }
+    
+    @Override
+    public EmployeeEntity employeeLogin(String username, String password) throws InvalidLoginCredentialException {
+        try {
+            EmployeeEntity employeeEntity = retrieveEmployeeByUsername(username);
+
+            if (employeeEntity.getPassword().equals(password)) {
+                return employeeEntity;
+            } else {
+                throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
+            }
+        } catch (EmployeeNotFoundException ex) {
+            throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
         }
     }
     

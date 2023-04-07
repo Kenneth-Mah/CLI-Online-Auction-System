@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Scanner;
 import javax.management.Query;
 import util.exception.CustomerAlreadyExistException;
-import util.exception.InvalidCredentialException;
+import util.exception.InvalidLoginCredentialException;
 import util.exception.PasswordOrUsernameWrong;
 
 /**
@@ -59,7 +59,7 @@ public class MainApp {
                         System.out.println("Login successful!\n");
                         menuCustomer();
 
-                    } catch (PasswordOrUsernameWrong | InvalidCredentialException ex) {
+                    } catch (PasswordOrUsernameWrong | InvalidLoginCredentialException ex) {
                         System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
                     }
                 } else if (response == 2) {
@@ -82,7 +82,7 @@ public class MainApp {
         }
     }
 
-    private void doLogin() throws PasswordOrUsernameWrong, InvalidCredentialException {
+    private void doLogin() throws PasswordOrUsernameWrong, InvalidLoginCredentialException {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("*** CrazyBids.com ***\n Login \n");
@@ -95,7 +95,7 @@ public class MainApp {
                 && password.length() > 5 && password.length() > 32) {
             customer = customerSessionBeanRemote.verifyCustomerCredential(username, password);
         } else {
-            throw new InvalidCredentialException("Invalid Credential!");
+            throw new InvalidLoginCredentialException("Invalid Credential!");
         }
     }
 
