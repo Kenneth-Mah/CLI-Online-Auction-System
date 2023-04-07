@@ -5,12 +5,13 @@
  */
 package ejb.session.stateless;
 
-import entity.CreditPackageEntity;
 import entity.CustomerEntity;
-import java.util.List;
 import javax.ejb.Remote;
-import util.exception.CustomerAlreadyExistException;
-import util.exception.PasswordOrUsernameWrong;
+import util.exception.CustomerNotfoundException;
+import util.exception.CustomerUsernameExistException;
+import util.exception.InputDataValidationException;
+import util.exception.InvalidLoginCredentialException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -19,12 +20,14 @@ import util.exception.PasswordOrUsernameWrong;
 @Remote
 public interface CustomerSessionBeanRemote {
     
-    public Long createNewCustomer(CustomerEntity customer);
+    public Long createNewCustomer(CustomerEntity customer) throws CustomerUsernameExistException, UnknownPersistenceException, InputDataValidationException;
     
-    public CustomerEntity verifyCustomerCredential(String username, String password) throws PasswordOrUsernameWrong;
+    public CustomerEntity retrieveCustomerByUsername(String username) throws CustomerNotfoundException;
     
-    public CustomerEntity verifyRegisteration(String username, String password) throws CustomerAlreadyExistException;
+    public CustomerEntity customerLogin(String username, String password) throws InvalidLoginCredentialException;
     
-    public void doUpdate(String firstName, String lastName, String username, String password, String email, String contactNumber);
+    public CustomerEntity verifyRegisteration(String username, String password) throws CustomerUsernameExistException;
+    
+    public void doUpdate(String firstName, String lastName, String username, String password);
     
 }

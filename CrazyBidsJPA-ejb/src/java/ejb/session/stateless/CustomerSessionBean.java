@@ -5,15 +5,24 @@
  */
 package ejb.session.stateless;
 
-import entity.CreditPackageEntity;
 import entity.CustomerEntity;
-import java.util.List;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
-import util.exception.CustomerAlreadyExistException;
-import util.exception.PasswordOrUsernameWrong;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import util.exception.CustomerNotfoundException;
+import util.exception.CustomerUsernameExistException;
+import util.exception.InputDataValidationException;
+import util.exception.InvalidLoginCredentialException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -24,18 +33,47 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
 
     @PersistenceContext(unitName = "CrazyBidsJPA-ejbPU")
     private EntityManager em;
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+
+    public CustomerSessionBean() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
 
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")
+    
     @Override
-    public Long createNewCustomer(CustomerEntity customer) {
-        em.persist(customer);
-        em.flush();
-        return customer.getCustomerId();
+    public Long createNewCustomer(CustomerEntity newCustomerEntity) throws CustomerUsernameExistException, UnknownPersistenceException, InputDataValidationException {
+        Set<ConstraintViolation<CustomerEntity>> constraintViolations = validator.validate(newCustomerEntity);
+        
+        if (constraintViolations.isEmpty()) {
+            try {
+                em.persist(newCustomerEntity);
+                em.flush();
+                
+                return newCustomerEntity.getCustomerId();
+            } catch (PersistenceException ex) {
+                if (ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
+                    if (ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
+                        throw new CustomerUsernameExistException();
+                    } else {
+                        throw new UnknownPersistenceException(ex.getMessage());
+                    }
+                } else {
+                    throw new UnknownPersistenceException(ex.getMessage());
+                }
+            }
+        } else {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+        }
     }
 
+    // NEED TO FIX THIS
     @Override
-    public CustomerEntity verifyRegisteration(String username, String password) throws CustomerAlreadyExistException {
+    public CustomerEntity verifyRegisteration(String username, String password) throws CustomerUsernameExistException {
         Query query = em.createQuery("SELECT c FROM CustomerEntity c WHERE c.username = :username AND c.password = :password");
         query.setParameter("username", username);
         query.setParameter("password", password);
@@ -47,39 +85,58 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
                 em.flush();
                 return customer;
             } else {
-                throw new CustomerAlreadyExistException("customer already exist!");
+                throw new CustomerUsernameExistException("customer already exist!");
             }
-        } catch (CustomerAlreadyExistException ex) {
-            throw new CustomerAlreadyExistException("Customer already exist!");
+        } catch (CustomerUsernameExistException ex) {
+            throw new CustomerUsernameExistException("Customer already exist!");
         }
     }
 
+    // NEED TO FIX THIS
     @Override
-    public void doUpdate(String firstName, String lastName, String username, String password, String email, String contactNumber) {
+    public void doUpdate(String firstName, String lastName, String username, String password) {
         CustomerEntity customer = em.find(CustomerEntity.class, username);
-        customer.setContactNumber(contactNumber);
         customer.setFirstName(firstName);
         customer.setLastName(lastName);
         customer.setUsername(username);
         customer.setPassword(password);
-        customer.setEmail(email);
+    }
+    
+    @Override
+    public CustomerEntity retrieveCustomerByUsername(String username) throws CustomerNotfoundException {
+        Query query = em.createQuery("SELECT c FROM CustomerEntity c WHERE c.username = :inUsername");
+        query.setParameter("inUsername", username);
+        
+        try {
+            return (CustomerEntity) query.getSingleResult();
+        } catch (NoResultException | NonUniqueResultException ex) {
+            throw new CustomerNotfoundException("Employee Username " + username + " does not exist!");
+        }
     }
 
     @Override
-    public CustomerEntity verifyCustomerCredential(String username, String password) throws PasswordOrUsernameWrong {
-        Query query = em.createQuery("SELECT c FROM CustomerEntity c WHERE c.username = :username AND c.password = :password");
-        query.setParameter("username", username);
-        query.setParameter("password", password);
+    public CustomerEntity customerLogin(String username, String password) throws InvalidLoginCredentialException {
         try {
-            CustomerEntity customer = (CustomerEntity) query.getSingleResult();;
-            if (customer.getUsername().equals(username)
-                    && customer.getPassword().equals(password)) {
-                return customer;
+            CustomerEntity customerEntity = retrieveCustomerByUsername(username);
+
+            if (customerEntity.getPassword().equals(password)) {
+                return customerEntity;
             } else {
-                throw new PasswordOrUsernameWrong("Customer does not exist!");
+                throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
             }
-        } catch (PasswordOrUsernameWrong ex) {
-            throw new PasswordOrUsernameWrong("Customer does not exist!");
+        } catch (CustomerNotfoundException ex) {
+            throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
         }
     }
+    
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<CustomerEntity>> constraintViolations) {
+        String msg = "Input data validation error!:";
+
+        for (ConstraintViolation constraintViolation : constraintViolations) {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+
+        return msg;
+    }
+    
 }

@@ -44,10 +44,6 @@ public class CustomerEntity implements Serializable {
     @NotNull
     @Size(min = 1, max = 32)
     private String lastName;
-    @Column(nullable = false, unique = true, length = 8)
-    @NotNull
-    @Size(min = 8, max = 8)
-    private String contactNumber;
     @Column(nullable = false, unique = true, length = 32)
     @NotNull
     @Size(min = 6, max = 32)
@@ -56,10 +52,6 @@ public class CustomerEntity implements Serializable {
     @NotNull
     @Size(min = 8, max = 32)
     private String password;
-    @Column(nullable = false, unique = true, length = 64)
-    @NotNull
-    @Size(min = 6, max = 64)
-    private String email;
     
     @OneToMany(mappedBy = "customer")
     // NOTE: transactions can be null!
@@ -81,14 +73,12 @@ public class CustomerEntity implements Serializable {
         wonAuctions = new ArrayList<>();
     }
 
-    public CustomerEntity(String firstName, String lastName, String contactNumber, String username, String password, String email) {
+    public CustomerEntity(String firstName, String lastName, String username, String password) {
         this();
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
-        this.contactNumber = contactNumber;
         this.password = password;
-        this.email = email;
     }
     
     public Long getCustomerId() {
@@ -153,20 +143,6 @@ public class CustomerEntity implements Serializable {
     }
 
     /**
-     * @return the contactNumber
-     */
-    public String getContactNumber() {
-        return contactNumber;
-    }
-
-    /**
-     * @param contactNumber the contactNumber to set
-     */
-    public void setContactNumber(String contactNumber) {
-        this.contactNumber = contactNumber;
-    }
-
-    /**
      * @return the username
      */
     public String getUsername() {
@@ -206,20 +182,6 @@ public class CustomerEntity implements Serializable {
      */
     public void setAvailableBalance(BigDecimal availableBalance) {
         this.availableBalance = availableBalance;
-    }
-
-    /**
-     * @return the email
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * @param email the email to set
-     */
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     /**

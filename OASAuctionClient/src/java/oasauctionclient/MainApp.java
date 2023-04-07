@@ -13,10 +13,8 @@ import entity.CustomerEntity;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Scanner;
-import javax.management.Query;
-import util.exception.CustomerAlreadyExistException;
+import util.exception.CustomerUsernameExistException;
 import util.exception.InvalidLoginCredentialException;
-import util.exception.PasswordOrUsernameWrong;
 
 /**
  *
@@ -59,7 +57,7 @@ public class MainApp {
                         System.out.println("Login successful!\n");
                         menuCustomer();
 
-                    } catch (PasswordOrUsernameWrong | InvalidLoginCredentialException ex) {
+                    } catch (InvalidLoginCredentialException ex) {
                         System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
                     }
                 } else if (response == 2) {
@@ -67,7 +65,7 @@ public class MainApp {
                         doRegisteration();
                         System.out.println("Details registered! You can now login! \n");
 
-                    } catch (CustomerAlreadyExistException ex) {
+                    } catch (CustomerUsernameExistException ex) {
                         System.out.println("Customer Already Exist: " + ex.getMessage() + "\n");
                     }
                 } else {
@@ -82,7 +80,7 @@ public class MainApp {
         }
     }
 
-    private void doLogin() throws PasswordOrUsernameWrong, InvalidLoginCredentialException {
+    private void doLogin() throws InvalidLoginCredentialException {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("*** CrazyBids.com ***\n Login \n");
@@ -93,7 +91,7 @@ public class MainApp {
 
         if (username.length() > 12 && password.length() < 32
                 && password.length() > 5 && password.length() > 32) {
-            customer = customerSessionBeanRemote.verifyCustomerCredential(username, password);
+            customer = customerSessionBeanRemote.customerLogin(username, password);
         } else {
             throw new InvalidLoginCredentialException("Invalid Credential!");
         }
@@ -144,7 +142,7 @@ public class MainApp {
         }
     }
 
-    public void doRegisteration() throws CustomerAlreadyExistException {
+    public void doRegisteration() throws CustomerUsernameExistException {
         Scanner scanner = new Scanner(System.in);
         
         System.out.println("*** Register ***\n");
@@ -175,11 +173,7 @@ public class MainApp {
         String username = scanner.nextLine().trim();
         System.out.println("Enter password >");
         String password = scanner.nextLine().trim();
-        System.out.println("Enter email >");
-        String email = scanner.nextLine().trim();
-        System.out.println("Enter Contact number >");
-        String contactNumber = scanner.nextLine().trim(); ///To implement other stuff like number etc
-        customerSessionBeanRemote.doUpdate(firstName, lastName, username, password, email, contactNumber);
+        customerSessionBeanRemote.doUpdate(firstName, lastName, username, password);
     }
 
     public void viewTransHist() {

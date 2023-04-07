@@ -9,12 +9,12 @@ package util.exception;
  *
  * @author yeowh
  */
-public class AuctionListingAlreadyExistException extends Exception{
+public class CustomerUsernameExistException extends Exception{
 
-    public AuctionListingAlreadyExistException() {
+    public CustomerUsernameExistException() {
     }
 
-    public AuctionListingAlreadyExistException(String string) {
+    public CustomerUsernameExistException(String string) {
         super(string);
     }
     
