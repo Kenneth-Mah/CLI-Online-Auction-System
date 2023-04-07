@@ -5,6 +5,7 @@
  */
 package oasauctionclient;
 
+import ejb.session.stateless.CreditPackageSessionBeanRemote;
 import ejb.session.stateless.CustomerSessionBeanRemote;
 import entity.CreditPackageEntity;
 import entity.TransactionEntity;
@@ -24,14 +25,16 @@ import util.exception.PasswordOrUsernameWrong;
 public class MainApp {
 
     private CustomerSessionBeanRemote customerSessionBeanRemote;
+    private CreditPackageSessionBeanRemote creditPackageSessionBeanRemote;
     private CustomerEntity customer;
 
     public MainApp() {
     }
 
-    public MainApp(CustomerSessionBeanRemote customerSessionBeanRemote) {
+    public MainApp(CustomerSessionBeanRemote customerSessionBeanRemote, CreditPackageSessionBeanRemote creditPackageSessionBeanRemote) {
         this();
         this.customerSessionBeanRemote = customerSessionBeanRemote;
+        this.creditPackageSessionBeanRemote = creditPackageSessionBeanRemote;
     }
 
     public void runApp() {
@@ -206,7 +209,7 @@ public class MainApp {
     public void purchaseCreditPacks() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("*** Current available credit package ***\n");
-        List<CreditPackageEntity> creditPackages = customerSessionBeanRemote.retrieveAllAvailableCreditPacakage();
+        List<CreditPackageEntity> creditPackages = creditPackageSessionBeanRemote.retrieveAllAvailableCreditPackage();
         
         for (CreditPackageEntity creditPackage:creditPackages){
             System.out.println("Credit Packages for " + creditPackage.getCreditPackageType() + " type, credit price: " + creditPackage.getCreditPrice());

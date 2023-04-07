@@ -5,12 +5,18 @@
  */
 package ejb.session.singleton;
 
+import ejb.session.stateless.EmployeeSessionBeanLocal;
+import entity.EmployeeEntity;
 import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
 import javax.ejb.Startup;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import util.enumeration.EmployeeTypeEnum;
+import util.exception.EmployeeNotFoundException;
+import util.exception.EmployeeUsernameExistException;
+import util.exception.InputDataValidationException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -21,14 +27,31 @@ import javax.persistence.PersistenceContext;
 @Startup
 
 public class DataInitializationSessionBean {
+    
+    @EJB
+    private EmployeeSessionBeanLocal employeeSessionBeanLocal;
 
-    @PersistenceContext(unitName = "CrazyBidsJPA-ejbPU")
-    private EntityManager em;
+    public DataInitializationSessionBean() {
+    }
+    
+    // Add business logic below. (Right-click in editor and choose
+    // "Insert Code > Add Business Method")
     
     @PostConstruct
     public void postConstruct(){
-        
+        try {
+            employeeSessionBeanLocal.retrieveEmployeeByUsername("manager");
+        } catch (EmployeeNotFoundException ex) {
+            initializeData();
+        }
     }
-    // Add business logic below. (Right-click in editor and choose
-    // "Insert Code > Add Business Method")
+    
+    private void initializeData() {
+        try {
+            employeeSessionBeanLocal.createNewEmployee(new EmployeeEntity("Default", "Manager", "manager", "password", EmployeeTypeEnum.ADMIN));
+        } catch (EmployeeUsernameExistException | UnknownPersistenceException | InputDataValidationException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
 }

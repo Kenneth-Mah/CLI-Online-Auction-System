@@ -34,9 +34,6 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
     @PersistenceContext(unitName = "CrazyBidsJPA-ejbPU")
     private EntityManager em;
     
-    // Add business logic below. (Right-click in editor and choose
-    // "Insert Code > Add Business Method")
-    
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
 
@@ -45,8 +42,11 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
         validator = validatorFactory.getValidator();
     }
     
+    // Add business logic below. (Right-click in editor and choose
+    // "Insert Code > Add Business Method")
+    
     @Override
-    public CreditPackageEntity createNewCreditPackage(CreditPackageEntity newCreditPackageEntity) throws CreditPackageTypeExistException, UnknownPersistenceException, InputDataValidationException {
+    public Long createNewCreditPackage(CreditPackageEntity newCreditPackageEntity) throws CreditPackageTypeExistException, UnknownPersistenceException, InputDataValidationException {
         Set<ConstraintViolation<CreditPackageEntity>> constraintViolations = validator.validate(newCreditPackageEntity);
         
         if (constraintViolations.isEmpty()) {
@@ -54,7 +54,7 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
                 em.persist(newCreditPackageEntity);
                 em.flush();
                 
-                return newCreditPackageEntity;
+                return newCreditPackageEntity.getCreditPackageId();
             } catch (PersistenceException ex) {
                 if (ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
                     if (ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
@@ -99,4 +99,5 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
 
         return msg;
     }
+    
 }

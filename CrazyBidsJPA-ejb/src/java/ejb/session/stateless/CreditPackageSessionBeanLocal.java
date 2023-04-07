@@ -20,7 +20,7 @@ import util.exception.UnknownPersistenceException;
 @Local
 public interface CreditPackageSessionBeanLocal {
     
-    public CreditPackageEntity createNewCreditPackage(CreditPackageEntity newCreditPackageEntity) throws CreditPackageTypeExistException, UnknownPersistenceException, InputDataValidationException;
+    public Long createNewCreditPackage(CreditPackageEntity newCreditPackageEntity) throws CreditPackageTypeExistException, UnknownPersistenceException, InputDataValidationException;
 
     public List<CreditPackageEntity> retrieveAllAvailableCreditPackage();
 

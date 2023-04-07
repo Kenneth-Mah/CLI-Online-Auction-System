@@ -9,12 +9,12 @@ package util.exception;
  *
  * @author yeowh
  */
-public class EmployeeAlreadyExistException extends Exception{
+public class EmployeeUsernameExistException extends Exception{
 
-    public EmployeeAlreadyExistException() {
+    public EmployeeUsernameExistException() {
     }
 
-    public EmployeeAlreadyExistException(String string) {
+    public EmployeeUsernameExistException(String string) {
         super(string);
     }
     
