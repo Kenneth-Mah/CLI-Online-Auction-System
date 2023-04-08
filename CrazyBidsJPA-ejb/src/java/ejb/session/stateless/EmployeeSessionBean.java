@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.EmployeeEntity;
+import java.util.List;
 import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -70,6 +71,13 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
         } else {
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
+    }
+    
+    @Override
+    public List<EmployeeEntity> retrieveAllEmployees() {
+        Query query = em.createQuery("SELECT e FROM EmployeeEntity e");
+        
+        return query.getResultList();
     }
     
     @Override

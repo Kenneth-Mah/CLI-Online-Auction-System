@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.EmployeeEntity;
+import java.util.List;
 import javax.ejb.Local;
 import util.exception.EmployeeNotFoundException;
 import util.exception.EmployeeUsernameExistException;
@@ -23,12 +24,14 @@ public interface EmployeeSessionBeanLocal {
 
     public Long createNewEmployee(EmployeeEntity newEmployeeEntity) throws EmployeeUsernameExistException, UnknownPersistenceException, InputDataValidationException;
 
+    public List<EmployeeEntity> retrieveAllEmployees();
+    
     public EmployeeEntity retrieveEmployeeByEmployeeId(Long employeeId) throws EmployeeNotFoundException;
     
     public EmployeeEntity retrieveEmployeeByUsername(String username) throws EmployeeNotFoundException;
 
     public EmployeeEntity employeeLogin(String username, String password) throws InvalidLoginCredentialException;
 
-    public EmployeeEntity changePassword(EmployeeEntity employeeEntityWithNewPassword) throws EmployeeNotFoundException, UpdateEmployeeException, InputDataValidationException;
+    public EmployeeEntity changePassword(EmployeeEntity employeeEntityWithNewPassword) throws EmployeeNotFoundException, UpdateEmployeeException, InputDataValidationException;    
     
 }

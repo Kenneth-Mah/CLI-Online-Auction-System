@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.EmployeeEntity;
+import java.util.List;
 import javax.ejb.Remote;
 import util.exception.EmployeeNotFoundException;
 import util.exception.EmployeeUsernameExistException;
@@ -22,6 +23,8 @@ import util.exception.UpdateEmployeeException;
 public interface EmployeeSessionBeanRemote {
     
     public Long createNewEmployee(EmployeeEntity newEmployeeEntity) throws EmployeeUsernameExistException, UnknownPersistenceException, InputDataValidationException;
+    
+    public List<EmployeeEntity> retrieveAllEmployees();
     
     public EmployeeEntity retrieveEmployeeByEmployeeId(Long employeeId) throws EmployeeNotFoundException;
     

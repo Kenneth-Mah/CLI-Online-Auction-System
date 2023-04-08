@@ -12,7 +12,6 @@ import util.enumeration.EmployeeTypeEnum;
 import util.exception.EmployeeNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
-import util.exception.InvalidPasswordCredentialException;
 import util.exception.UpdateEmployeeException;
 
 /**
@@ -56,7 +55,7 @@ public class MainApp {
                         doLogin();
                         System.out.println("Login successful!\n");
 
-//                        systemAdministrationModule = new SystemAdministrationModule();
+                        systemAdministrationModule = new SystemAdministrationModule(employeeSessionBeanRemote, currentEmployeeEntity);
 //                        financeAdministrationModule = new FinanceAdministrationModule();
 //                        salesAdministrationModule = new SalesAdministrationModule();
                         menuMain();
@@ -113,7 +112,7 @@ public class MainApp {
 
                 if (response == 1) {
                     if (currentEmployeeEntity.getEmployeeTypeEnum() == EmployeeTypeEnum.ADMIN) {
-//                        systemAdministrationModule.menuSystemAdministration();
+                        systemAdministrationModule.menuSystemAdministration();
                     } else if (currentEmployeeEntity.getEmployeeTypeEnum() == EmployeeTypeEnum.FINANCE) {
 //                        financeAdministrationModule.menuFinanceAdministration();
                     } else if (currentEmployeeEntity.getEmployeeTypeEnum() == EmployeeTypeEnum.SALES) {
