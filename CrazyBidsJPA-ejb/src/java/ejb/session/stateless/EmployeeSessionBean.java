@@ -35,7 +35,7 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
 
     @PersistenceContext(unitName = "CrazyBidsJPA-ejbPU")
     private EntityManager em;
-    
+
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
 
@@ -46,16 +46,15 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
 
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")
-    
     @Override
     public Long createNewEmployee(EmployeeEntity newEmployeeEntity) throws EmployeeUsernameExistException, UnknownPersistenceException, InputDataValidationException {
         Set<ConstraintViolation<EmployeeEntity>> constraintViolations = validator.validate(newEmployeeEntity);
-        
+
         if (constraintViolations.isEmpty()) {
             try {
                 em.persist(newEmployeeEntity);
                 em.flush();
-                
+
                 return newEmployeeEntity.getEmployeeId();
             } catch (PersistenceException ex) {
                 if (ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
@@ -72,37 +71,37 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
-    
+
     @Override
     public List<EmployeeEntity> retrieveAllEmployees() {
         Query query = em.createQuery("SELECT e FROM EmployeeEntity e");
-        
+
         return query.getResultList();
     }
-    
+
     @Override
     public EmployeeEntity retrieveEmployeeByEmployeeId(Long employeeId) throws EmployeeNotFoundException {
         EmployeeEntity employeeEntity = em.find(EmployeeEntity.class, employeeId);
-        
+
         if (employeeEntity != null) {
             return employeeEntity;
         } else {
             throw new EmployeeNotFoundException("Employee ID " + employeeId + " does not exist!");
         }
     }
-    
+
     @Override
     public EmployeeEntity retrieveEmployeeByUsername(String username) throws EmployeeNotFoundException {
         Query query = em.createQuery("SELECT e FROM EmployeeEntity e WHERE e.username = :inUsername");
         query.setParameter("inUsername", username);
-        
+
         try {
             return (EmployeeEntity) query.getSingleResult();
         } catch (NoResultException | NonUniqueResultException ex) {
             throw new EmployeeNotFoundException("Employee Username " + username + " does not exist!");
         }
     }
-    
+
     @Override
     public EmployeeEntity employeeLogin(String username, String password) throws InvalidLoginCredentialException {
         try {
@@ -117,7 +116,7 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
             throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
         }
     }
-    
+
     @Override
     public EmployeeEntity changePassword(EmployeeEntity employeeEntityWithNewPassword) throws EmployeeNotFoundException, UpdateEmployeeException, InputDataValidationException {
         if (employeeEntityWithNewPassword != null && employeeEntityWithNewPassword.getEmployeeId() != null) {
@@ -125,7 +124,7 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
 
             if (constraintViolations.isEmpty()) {
                 EmployeeEntity employeeEntityToUpdate = retrieveEmployeeByEmployeeId(employeeEntityWithNewPassword.getEmployeeId());
-                
+
                 if (employeeEntityToUpdate.getUsername().equals(employeeEntityWithNewPassword.getUsername())) {
                     employeeEntityToUpdate.setPassword(employeeEntityWithNewPassword.getPassword());
                     em.flush();
@@ -140,7 +139,38 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
             throw new EmployeeNotFoundException("Employee ID not provided for employee to be updated");
         }
     }
+
+    @Override
+    public void updateEmployee(EmployeeEntity employeeEntity) throws EmployeeNotFoundException, UpdateEmployeeException, InputDataValidationException {
+        if (employeeEntity != null && employeeEntity.getEmployeeId()!= null) {
+            Set<ConstraintViolation<EmployeeEntity>> constraintViolations = validator.validate(employeeEntity);
+
+            if (constraintViolations.isEmpty()) {
+                EmployeeEntity employeeEntityToUpdate = retrieveEmployeeByEmployeeId(employeeEntity.getEmployeeId());
+
+                if (employeeEntityToUpdate.getUsername().equals(employeeEntity.getUsername())) {
+                    employeeEntityToUpdate.setFirstName(employeeEntity.getFirstName());
+                    employeeEntityToUpdate.setLastName(employeeEntity.getLastName());
+                    employeeEntityToUpdate.setEmployeeTypeEnum(employeeEntity.getEmployeeTypeEnum());
+                    // Username and password are deliberately NOT updated to demonstrate that client is not allowed to update account credential through this business method
+                } else {
+                    throw new UpdateEmployeeException("Username of employee record to be updated does not match the existing record");
+                }
+            } else {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
+        } else {
+            throw new EmployeeNotFoundException("Employee ID not provided for employee to be updated");
+        }
+    }
     
+    @Override
+    public void deleteEmployee(Long employeeId) throws EmployeeNotFoundException {
+        EmployeeEntity employeeEntityToRemove = retrieveEmployeeByEmployeeId(employeeId);
+        
+        em.remove(employeeEntityToRemove);
+    }
+
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<EmployeeEntity>> constraintViolations) {
         String msg = "Input data validation error!:";
 
@@ -150,5 +180,5 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
 
         return msg;
     }
-    
+
 }

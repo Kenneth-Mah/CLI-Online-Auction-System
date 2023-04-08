@@ -55,7 +55,7 @@ public class MainApp {
                         doLogin();
                         System.out.println("Login successful!\n");
 
-                        systemAdministrationModule = new SystemAdministrationModule(employeeSessionBeanRemote, currentEmployeeEntity);
+                        systemAdministrationModule = new SystemAdministrationModule(employeeSessionBeanRemote);
 //                        financeAdministrationModule = new FinanceAdministrationModule();
 //                        salesAdministrationModule = new SalesAdministrationModule();
                         menuMain();

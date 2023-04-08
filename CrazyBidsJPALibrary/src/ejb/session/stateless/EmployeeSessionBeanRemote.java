@@ -34,4 +34,8 @@ public interface EmployeeSessionBeanRemote {
     
     public EmployeeEntity changePassword(EmployeeEntity employeeEntityWithNewPassword) throws EmployeeNotFoundException, UpdateEmployeeException, InputDataValidationException;
 
+    public void updateEmployee(EmployeeEntity employeeEntity) throws EmployeeNotFoundException, UpdateEmployeeException, InputDataValidationException;
+
+    public void deleteEmployee(Long employeeId) throws EmployeeNotFoundException;
+    
 }
