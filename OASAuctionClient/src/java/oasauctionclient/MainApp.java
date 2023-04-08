@@ -203,7 +203,7 @@ public class MainApp {
     public void purchaseCreditPacks() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("*** Current available credit package ***\n");
-        List<CreditPackageEntity> creditPackages = creditPackageSessionBeanRemote.retrieveAllAvailableCreditPackage();
+        List<CreditPackageEntity> creditPackages = creditPackageSessionBeanRemote.retrieveAllAvailableCreditPackages();
         
         for (CreditPackageEntity creditPackage:creditPackages){
             System.out.println("Credit Packages for " + creditPackage.getCreditPackageType() + " type, credit price: " + creditPackage.getCreditPrice());

@@ -22,7 +22,9 @@ public interface CreditPackageSessionBeanLocal {
     
     public Long createNewCreditPackage(CreditPackageEntity newCreditPackageEntity) throws CreditPackageTypeExistException, UnknownPersistenceException, InputDataValidationException;
 
-    public List<CreditPackageEntity> retrieveAllAvailableCreditPackage();
+    public List<CreditPackageEntity> retrieveAllCreditPackages();
+    
+    public List<CreditPackageEntity> retrieveAllAvailableCreditPackages();
 
     public CreditPackageEntity retrieveCreditPackageByCreditPackageType(String creditPackageType) throws CreditPackageNotFoundException;
     

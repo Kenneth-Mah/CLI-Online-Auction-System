@@ -72,10 +72,17 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
     }
     
     @Override
-    public List<CreditPackageEntity> retrieveAllAvailableCreditPackage() {
+    public List<CreditPackageEntity> retrieveAllCreditPackages() {
+        Query query = em.createQuery("SELECT c FROM CreditPackageEntity c");
+        
+        return query.getResultList();
+    }
+    
+    @Override
+    public List<CreditPackageEntity> retrieveAllAvailableCreditPackages() {
         Query query = em.createQuery("SELECT c FROM CreditPackageEntity c WHERE c.active = TRUE");
-        List<CreditPackageEntity> creditPackages = query.getResultList();
-        return creditPackages;
+        
+        return query.getResultList();
     }
     
     @Override
@@ -88,6 +95,14 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
         } catch (NoResultException | NonUniqueResultException ex) {
             throw new CreditPackageNotFoundException("Credit Package " + creditPackageType + " does not exist!");
         }
+    }
+    
+    public void updateCreditPackage(CreditPackageEntity creditPackageEntity) {
+        
+    }
+    
+    public void deleteCreditPackage(Long creditPackageId) {
+        
     }
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<CreditPackageEntity>> constraintViolations) {

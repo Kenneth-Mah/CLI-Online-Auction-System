@@ -5,6 +5,7 @@
  */
 package oasadminpanelclient;
 
+import ejb.session.stateless.CreditPackageSessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import javax.ejb.EJB;
 
@@ -16,13 +17,15 @@ public class Main {
     
     @EJB
     private static EmployeeSessionBeanRemote employeeSessionBeanRemote;
+    @EJB
+    private static CreditPackageSessionBeanRemote creditPackageSessionBeanRemote;
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        MainApp mainApp = new MainApp(employeeSessionBeanRemote);
+        MainApp mainApp = new MainApp(employeeSessionBeanRemote, creditPackageSessionBeanRemote);
         mainApp.runApp();
     }
     

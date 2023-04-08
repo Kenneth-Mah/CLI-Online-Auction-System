@@ -5,6 +5,7 @@
  */
 package oasadminpanelclient;
 
+import ejb.session.stateless.CreditPackageSessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import entity.EmployeeEntity;
 import java.util.Scanner;
@@ -21,6 +22,7 @@ import util.exception.UpdateEmployeeException;
 public class MainApp {
     
     private EmployeeSessionBeanRemote employeeSessionBeanRemote;
+    private CreditPackageSessionBeanRemote creditPackageSessionBeanRemote;
     
     private SystemAdministrationModule systemAdministrationModule;
     private FinanceAdministrationModule financeAdministrationModule;
@@ -31,8 +33,9 @@ public class MainApp {
     public MainApp() {
     }
 
-    public MainApp(EmployeeSessionBeanRemote employeeSessionBeanRemote) {
+    public MainApp(EmployeeSessionBeanRemote employeeSessionBeanRemote, CreditPackageSessionBeanRemote creditPackageSessionBeanRemote) {
         this.employeeSessionBeanRemote = employeeSessionBeanRemote;
+        this.creditPackageSessionBeanRemote = creditPackageSessionBeanRemote;
     }
     
     public void runApp() {
@@ -56,7 +59,7 @@ public class MainApp {
                         System.out.println("Login successful!\n");
 
                         systemAdministrationModule = new SystemAdministrationModule(employeeSessionBeanRemote);
-//                        financeAdministrationModule = new FinanceAdministrationModule();
+                        financeAdministrationModule = new FinanceAdministrationModule(creditPackageSessionBeanRemote);
 //                        salesAdministrationModule = new SalesAdministrationModule();
                         menuMain();
                     } catch (InvalidLoginCredentialException ex) {
@@ -114,7 +117,7 @@ public class MainApp {
                     if (currentEmployeeEntity.getEmployeeTypeEnum() == EmployeeTypeEnum.ADMIN) {
                         systemAdministrationModule.menuSystemAdministration();
                     } else if (currentEmployeeEntity.getEmployeeTypeEnum() == EmployeeTypeEnum.FINANCE) {
-//                        financeAdministrationModule.menuFinanceAdministration();
+                        financeAdministrationModule.menuFinanceAdministration();
                     } else if (currentEmployeeEntity.getEmployeeTypeEnum() == EmployeeTypeEnum.SALES) {
 //                        salesAdministrationModule.menuSalesAdministration();
                     }
