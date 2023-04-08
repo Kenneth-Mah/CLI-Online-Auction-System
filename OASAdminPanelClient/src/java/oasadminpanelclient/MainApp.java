@@ -5,6 +5,7 @@
  */
 package oasadminpanelclient;
 
+import ejb.session.stateless.AuctionListingSessionBeanRemote;
 import ejb.session.stateless.CreditPackageSessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import entity.EmployeeEntity;
@@ -23,6 +24,7 @@ public class MainApp {
     
     private EmployeeSessionBeanRemote employeeSessionBeanRemote;
     private CreditPackageSessionBeanRemote creditPackageSessionBeanRemote;
+    private AuctionListingSessionBeanRemote auctionListingSessionBeanRemote;
     
     private SystemAdministrationModule systemAdministrationModule;
     private FinanceAdministrationModule financeAdministrationModule;
@@ -33,9 +35,10 @@ public class MainApp {
     public MainApp() {
     }
 
-    public MainApp(EmployeeSessionBeanRemote employeeSessionBeanRemote, CreditPackageSessionBeanRemote creditPackageSessionBeanRemote) {
+    public MainApp(EmployeeSessionBeanRemote employeeSessionBeanRemote, CreditPackageSessionBeanRemote creditPackageSessionBeanRemote, AuctionListingSessionBeanRemote auctionListingSessionBeanRemote) {
         this.employeeSessionBeanRemote = employeeSessionBeanRemote;
         this.creditPackageSessionBeanRemote = creditPackageSessionBeanRemote;
+        this.auctionListingSessionBeanRemote = auctionListingSessionBeanRemote;
     }
     
     public void runApp() {
@@ -60,7 +63,7 @@ public class MainApp {
 
                         systemAdministrationModule = new SystemAdministrationModule(employeeSessionBeanRemote);
                         financeAdministrationModule = new FinanceAdministrationModule(creditPackageSessionBeanRemote);
-//                        salesAdministrationModule = new SalesAdministrationModule();
+                        salesAdministrationModule = new SalesAdministrationModule(auctionListingSessionBeanRemote);
                         menuMain();
                     } catch (InvalidLoginCredentialException ex) {
                         System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
@@ -119,7 +122,7 @@ public class MainApp {
                     } else if (currentEmployeeEntity.getEmployeeTypeEnum() == EmployeeTypeEnum.FINANCE) {
                         financeAdministrationModule.menuFinanceAdministration();
                     } else if (currentEmployeeEntity.getEmployeeTypeEnum() == EmployeeTypeEnum.SALES) {
-//                        salesAdministrationModule.menuSalesAdministration();
+                        salesAdministrationModule.menuSalesAdministration();
                     }
                 } else if (response == 2) {
                     doChangePassword(currentEmployeeEntity);
