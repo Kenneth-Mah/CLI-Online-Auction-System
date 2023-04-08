@@ -5,7 +5,11 @@
  */
 package ejb.session.stateless;
 
+import entity.AuctionListingEntity;
 import javax.ejb.Local;
+import util.exception.AuctionListingNameExistException;
+import util.exception.InputDataValidationException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -13,5 +17,7 @@ import javax.ejb.Local;
  */
 @Local
 public interface AuctionListingSessionBeanLocal {
+
+    public Long createNewAuctionListing(AuctionListingEntity newAuctionListingEntity) throws AuctionListingNameExistException, UnknownPersistenceException, InputDataValidationException;
     
 }

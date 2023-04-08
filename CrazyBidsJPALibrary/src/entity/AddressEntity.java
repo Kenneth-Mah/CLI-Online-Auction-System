@@ -40,6 +40,7 @@ public class AddressEntity implements Serializable {
     private List<AuctionListingEntity> wonAuctions;
 
     public AddressEntity() {
+        this.active = true;
         this.wonAuctions = new ArrayList<>();
     }
 

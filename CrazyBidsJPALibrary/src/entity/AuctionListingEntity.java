@@ -22,6 +22,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
+import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -35,32 +36,31 @@ public class AuctionListingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long auctionId;
+    private Long auctionListingId;
+    @Column(nullable = false, unique = true, length = 32)
+    @NotNull
+    @Size(min = 1, max = 32)
+    private String auctionListingName;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Future
+    @Column(nullable = false)
+    @NotNull
+    private Date startDateTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Future
+    @Column(nullable = false)
+    @NotNull
+    private Date endDateTime;
+    @Column(precision = 18, scale = 4)
+    @DecimalMin("0.0000")
+    @Digits(integer = 14, fraction = 4)
+    // NOTE: reservePrice can be null!
+    private BigDecimal reservePrice;
     @Column(nullable = false, precision = 18, scale = 4)
     @NotNull
     @DecimalMin("0.0000")
     @Digits(integer = 14, fraction = 4)
     private BigDecimal highestBidPrice;
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
-    @NotNull
-    private Date startDateTime;
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
-    @NotNull
-    private Date endDateTime;
-    @Column(nullable = false, precision = 18, scale = 4)
-    @NotNull
-    @DecimalMin("0.0000")
-    @Digits(integer = 14, fraction = 4)
-    private BigDecimal reservePrice;
-    @Column(nullable = false, length = 32)
-    @NotNull
-    @Size(min = 1, max = 32)
-    private String auctionName;
-    @Column(nullable = false)
-    @NotNull
-    private Boolean active;
     @Column(nullable = false)
     @NotNull
     private Boolean requiresManualIntervention;
@@ -76,44 +76,45 @@ public class AuctionListingEntity implements Serializable {
     private List<BidEntity> bids;
 
     public AuctionListingEntity() {
-        bids = new ArrayList<>();
+        this.highestBidPrice = new BigDecimal("0.0000");
+        this.requiresManualIntervention = false;
+        this.bids = new ArrayList<>();
     }
 
-    public AuctionListingEntity(BigDecimal highestBidPrice, Date startDateTime, Date endDateTime, BigDecimal reservePrice, String auctionName, Boolean active, Boolean requiresManualIntervention, BidEntity winningBid, AddressEntity address) {
+    public AuctionListingEntity(BigDecimal highestBidPrice, Date startDateTime, Date endDateTime, BigDecimal reservePrice, String auctionName, Boolean requiresManualIntervention, BidEntity winningBid, AddressEntity address) {
         this.highestBidPrice = highestBidPrice;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
         this.reservePrice = reservePrice;
-        this.auctionName = auctionName;
-        this.active = active;
+        this.auctionListingName = auctionName;
         this.requiresManualIntervention = requiresManualIntervention;
         this.winningBid = winningBid;
         this.address = address;
     }
 
-    public Long getAuctionId() {
-        return auctionId;
+    public Long getAuctionListingId() {
+        return auctionListingId;
     }
 
-    public void setAuctionId(Long auctionId) {
-        this.auctionId = auctionId;
+    public void setAuctionListingId(Long auctionListingId) {
+        this.auctionListingId = auctionListingId;
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (auctionId != null ? auctionId.hashCode() : 0);
+        hash += (auctionListingId != null ? auctionListingId.hashCode() : 0);
         return hash;
     }
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the auctionId fields are not set
+        // TODO: Warning - this method won't work in the case the auctionListingId fields are not set
         if (!(object instanceof AuctionListingEntity)) {
             return false;
         }
         AuctionListingEntity other = (AuctionListingEntity) object;
-        if ((this.auctionId == null && other.auctionId != null) || (this.auctionId != null && !this.auctionId.equals(other.auctionId))) {
+        if ((this.auctionListingId == null && other.auctionListingId != null) || (this.auctionListingId != null && !this.auctionListingId.equals(other.auctionListingId))) {
             return false;
         }
         return true;
@@ -121,21 +122,21 @@ public class AuctionListingEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.AuctionListingEntity[ id=" + auctionId + " ]";
+        return "entity.AuctionListingEntity[ id=" + auctionListingId + " ]";
+    }
+    
+    /**
+     * @return the auctionListingName
+     */
+    public String getAuctionListingName() {
+        return auctionListingName;
     }
 
     /**
-     * @return the highestBidPrice
+     * @param auctionListingName the auctionListingName to set
      */
-    public BigDecimal getHighestBidPrice() {
-        return highestBidPrice;
-    }
-
-    /**
-     * @param highestBidPrice the highestBidPrice to set
-     */
-    public void setHighestBidPrice(BigDecimal highestBidPrice) {
-        this.highestBidPrice = highestBidPrice;
+    public void setAuctionListingName(String auctionListingName) {
+        this.auctionListingName = auctionListingName;
     }
 
     /**
@@ -179,33 +180,19 @@ public class AuctionListingEntity implements Serializable {
     public void setReservePrice(BigDecimal reservePrice) {
         this.reservePrice = reservePrice;
     }
-
+    
     /**
-     * @return the auctionName
+     * @return the highestBidPrice
      */
-    public String getAuctionName() {
-        return auctionName;
+    public BigDecimal getHighestBidPrice() {
+        return highestBidPrice;
     }
 
     /**
-     * @param auctionName the auctionName to set
+     * @param highestBidPrice the highestBidPrice to set
      */
-    public void setAuctionName(String auctionName) {
-        this.auctionName = auctionName;
-    }
-
-    /**
-     * @return the active
-     */
-    public Boolean getActive() {
-        return active;
-    }
-
-    /**
-     * @param active the active to set
-     */
-    public void setActive(Boolean active) {
-        this.active = active;
+    public void setHighestBidPrice(BigDecimal highestBidPrice) {
+        this.highestBidPrice = highestBidPrice;
     }
 
     /**
