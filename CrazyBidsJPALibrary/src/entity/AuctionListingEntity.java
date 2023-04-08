@@ -42,9 +42,11 @@ public class AuctionListingEntity implements Serializable {
     @Size(min = 1, max = 32)
     private String auctionListingName;
     @Temporal(TemporalType.TIMESTAMP)
-    @Future
     @Column(nullable = false)
     @NotNull
+    // NOTE: startDateTime cannot be @Future if you want to facilitate Update Auction Listing
+    // Have to check that startDateTime is after currentDateTime upon creation
+    // Have to check that startDateTime is after currentDateTime in order to change startDateTime
     private Date startDateTime;
     @Temporal(TemporalType.TIMESTAMP)
     @Future
@@ -63,6 +65,9 @@ public class AuctionListingEntity implements Serializable {
     private BigDecimal highestBidPrice;
     @Column(nullable = false)
     @NotNull
+    private Boolean disabled;
+    @Column(nullable = false)
+    @NotNull
     private Boolean requiresManualIntervention;
     
     @OneToOne
@@ -77,19 +82,22 @@ public class AuctionListingEntity implements Serializable {
 
     public AuctionListingEntity() {
         this.highestBidPrice = new BigDecimal("0.0000");
+        this.disabled = false;
         this.requiresManualIntervention = false;
         this.bids = new ArrayList<>();
     }
 
-    public AuctionListingEntity(BigDecimal highestBidPrice, Date startDateTime, Date endDateTime, BigDecimal reservePrice, String auctionName, Boolean requiresManualIntervention, BidEntity winningBid, AddressEntity address) {
-        this.highestBidPrice = highestBidPrice;
+    public AuctionListingEntity(String auctionListingName, Date startDateTime, Date endDateTime, BigDecimal reservePrice, BigDecimal highestBidPrice, Boolean disabled, Boolean requiresManualIntervention, BidEntity winningBid, AddressEntity address, List<BidEntity> bids) {
+        this.auctionListingName = auctionListingName;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
         this.reservePrice = reservePrice;
-        this.auctionListingName = auctionName;
+        this.highestBidPrice = highestBidPrice;
+        this.disabled = disabled;
         this.requiresManualIntervention = requiresManualIntervention;
         this.winningBid = winningBid;
         this.address = address;
+        this.bids = bids;
     }
 
     public Long getAuctionListingId() {
@@ -193,6 +201,20 @@ public class AuctionListingEntity implements Serializable {
      */
     public void setHighestBidPrice(BigDecimal highestBidPrice) {
         this.highestBidPrice = highestBidPrice;
+    }
+    
+    /**
+     * @return the disabled
+     */
+    public Boolean getDisabled() {
+        return disabled;
+    }
+
+    /**
+     * @param disabled the disabled to set
+     */
+    public void setDisabled(Boolean disabled) {
+        this.disabled = disabled;
     }
 
     /**

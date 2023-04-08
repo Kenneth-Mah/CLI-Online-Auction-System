@@ -6,9 +6,12 @@
 package ejb.session.stateless;
 
 import entity.AuctionListingEntity;
+import java.util.Date;
+import java.util.List;
 import javax.ejb.Remote;
 import util.exception.AuctionListingNameExistException;
 import util.exception.InputDataValidationException;
+import util.exception.InvalidStartAndEndDatesException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -18,6 +21,8 @@ import util.exception.UnknownPersistenceException;
 @Remote
 public interface AuctionListingSessionBeanRemote {
     
-    public Long createNewAuctionListing(AuctionListingEntity newAuctionListingEntity) throws AuctionListingNameExistException, UnknownPersistenceException, InputDataValidationException;
+    public Long createNewAuctionListing(AuctionListingEntity newAuctionListingEntity, Date currentDateTime) throws AuctionListingNameExistException, UnknownPersistenceException, InputDataValidationException, InvalidStartAndEndDatesException;
+    
+    public List<AuctionListingEntity> retrieveAllAuctionListings();
     
 }

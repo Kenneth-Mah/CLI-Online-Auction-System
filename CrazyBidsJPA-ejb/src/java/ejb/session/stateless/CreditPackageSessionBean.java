@@ -75,14 +75,14 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
     
     @Override
     public List<CreditPackageEntity> retrieveAllCreditPackages() {
-        Query query = em.createQuery("SELECT c FROM CreditPackageEntity c");
+        Query query = em.createQuery("SELECT cp FROM CreditPackageEntity cp");
         
         return query.getResultList();
     }
     
     @Override
     public List<CreditPackageEntity> retrieveAllAvailableCreditPackages() {
-        Query query = em.createQuery("SELECT c FROM CreditPackageEntity c WHERE c.active = TRUE");
+        Query query = em.createQuery("SELECT cp FROM CreditPackageEntity cp WHERE cp.active = TRUE");
         
         return query.getResultList();
     }
@@ -100,7 +100,7 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
     
     @Override
     public CreditPackageEntity retrieveCreditPackageByCreditPackageType(String creditPackageType) throws CreditPackageNotFoundException {
-        Query query = em.createQuery("SELECT c FROM CreditPackageEntity c WHERE c.creditPackageType = :inCreditPackageType");
+        Query query = em.createQuery("SELECT cp FROM CreditPackageEntity cp WHERE cp.creditPackageType = :inCreditPackageType");
         query.setParameter("inCreditPackageType", creditPackageType);
         
         try {

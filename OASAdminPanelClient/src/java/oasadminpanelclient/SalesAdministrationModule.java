@@ -8,8 +8,11 @@ package oasadminpanelclient;
 import ejb.session.stateless.AuctionListingSessionBeanRemote;
 import entity.AuctionListingEntity;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
@@ -18,6 +21,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.AuctionListingNameExistException;
 import util.exception.InputDataValidationException;
+import util.exception.InvalidStartAndEndDatesException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -29,9 +33,12 @@ public class SalesAdministrationModule {
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
     
+    private DecimalFormat decimalFormat;
+    
     private AuctionListingSessionBeanRemote auctionListingSessionBeanRemote;
 
     public SalesAdministrationModule() {
+        decimalFormat = new DecimalFormat("#0.0000");
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
@@ -64,9 +71,9 @@ public class SalesAdministrationModule {
                 } else if (response == 2) {
 //                    doViewAuctionListingDetails();
                 } else if (response == 3) {
-//                    doViewAllAuctionListings();
+                    doViewAllAuctionListings();
                 } else if (response == 4) {
-//                    doViewAllAuctionListingsAlt();
+//                    doViewAllAuctionListingsWithBidsButBelowReservePrice();
                 } else if (response == 5) {
                     break;
                 } else {
@@ -89,22 +96,35 @@ public class SalesAdministrationModule {
         newAuctionListingEntity.setAuctionListingName(scanner.nextLine().trim());
         
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy 'at' HH:mm:ss");
+        // Give 5 minutes grace period to create the auction listing
+        Date currentDateTime = new Date(System.currentTimeMillis() - 5 * 60 * 1000);
         while (true) {
-            System.out.print("Enter Start Date Time (dd/MM/yyyy at HH:mm:ss)> ");
-            try {
-                newAuctionListingEntity.setStartDateTime(sdf.parse(scanner.nextLine().trim()));
-                break;
-            } catch (ParseException ex) {
-                System.out.println("Invalid date, please try again!\n");
+            Date startDateTime = new Date();
+            Date endDateTime = new Date();
+            while (true) {
+                System.out.print("Enter Start Date Time (dd/MM/yyyy at HH:mm:ss)> ");
+                try {
+                    startDateTime = sdf.parse(scanner.nextLine().trim());
+                    break;
+                } catch (ParseException ex) {
+                    System.out.println("Invalid date, please try again!\n");
+                }
             }
-        }
-        while (true) {
-            System.out.print("Enter End Date Time (dd/MM/yyyy at HH:mm:ss)> ");
-            try {
-                newAuctionListingEntity.setEndDateTime(sdf.parse(scanner.nextLine().trim()));
+            while (true) {
+                System.out.print("Enter End Date Time (dd/MM/yyyy at HH:mm:ss)> ");
+                try {
+                    endDateTime = sdf.parse(scanner.nextLine().trim());
+                    break;
+                } catch (ParseException ex) {
+                    System.out.println("Invalid date, please try again!\n");
+                }
+            }
+            if (currentDateTime.compareTo(startDateTime) < 0 && startDateTime.compareTo(endDateTime) < 0) {
+                newAuctionListingEntity.setStartDateTime(startDateTime);
+                newAuctionListingEntity.setEndDateTime(endDateTime);
                 break;
-            } catch (ParseException ex) {
-                System.out.println("Invalid date, please try again!\n");
+            } else {
+                System.out.println("Invalid dates! Start date and end date must be in the future and start date must be before the end date!");
             }
         }
         
@@ -118,8 +138,10 @@ public class SalesAdministrationModule {
 
         if (constraintViolations.isEmpty()) {
             try {
-                Long newAuctionListingId = auctionListingSessionBeanRemote.createNewAuctionListing(newAuctionListingEntity);
+                Long newAuctionListingId = auctionListingSessionBeanRemote.createNewAuctionListing(newAuctionListingEntity, currentDateTime);
                 System.out.println("New auction listing created successfully!: " + newAuctionListingId + "\n");
+            } catch (InvalidStartAndEndDatesException ex) {
+                System.out.println("An error has occurred while creating the new auction listing!: " + ex.getMessage() + "\n");
             } catch (AuctionListingNameExistException ex) {
                 System.out.println("An error has occurred while creating the new auction listing!: The auction listing name already exist\n");
             } catch (UnknownPersistenceException ex) {
@@ -130,6 +152,28 @@ public class SalesAdministrationModule {
         } else {
             showInputDataValidationErrorsForAuctionListingEntity(constraintViolations);
         }
+    }
+    
+    private void doViewAllAuctionListings() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("*** OAS Administration Panel :: Sales Administration :: View All Auction Listings ***\n");
+
+        List<AuctionListingEntity> auctionListingEntities = auctionListingSessionBeanRemote.retrieveAllAuctionListings();
+        System.out.printf("%18s%26s%34s%34s%20s%20s%11s%31s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price", "Disabled", "Requires Manual Intervention");
+
+        for (AuctionListingEntity auctionListingEntity : auctionListingEntities) {
+            String reservePriceString;
+            if (auctionListingEntity.getReservePrice() != null) {
+                reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
+            } else {
+                reservePriceString = "null";
+            }
+            System.out.printf("%18s%26s%34s%34s%20s%20s%11s%31s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()), auctionListingEntity.getDisabled().toString(), auctionListingEntity.getRequiresManualIntervention().toString());
+        }
+
+        System.out.print("Press any key to continue...> ");
+        scanner.nextLine();
     }
     
     private void showInputDataValidationErrorsForAuctionListingEntity(Set<ConstraintViolation<AuctionListingEntity>> constraintViolations) {

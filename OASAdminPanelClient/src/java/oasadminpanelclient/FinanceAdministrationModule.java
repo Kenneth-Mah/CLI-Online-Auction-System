@@ -31,9 +31,12 @@ public class FinanceAdministrationModule {
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
     
+    private DecimalFormat decimalFormat;
+    
     private CreditPackageSessionBeanRemote creditPackageSessionBeanRemote;
 
     public FinanceAdministrationModule() {
+        decimalFormat = new DecimalFormat("#0.0000");
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
@@ -118,7 +121,7 @@ public class FinanceAdministrationModule {
         try {
             CreditPackageEntity creditPackageEntity = creditPackageSessionBeanRemote.retrieveCreditPackageByCreditPackageType(creditPackageType);
             System.out.printf("%17s%22s%21s%9s\n", "Credit Package ID", "Credit Package Type", "Credit Price", "Active");
-            System.out.printf("%17s%22s%21s%9s\n", creditPackageEntity.getCreditPackageId(), creditPackageEntity.getCreditPackageType(), new DecimalFormat("#0.0000").format(creditPackageEntity.getCreditPrice()), creditPackageEntity.getActive().toString());
+            System.out.printf("%17s%22s%21s%9s\n", creditPackageEntity.getCreditPackageId(), creditPackageEntity.getCreditPackageType(), decimalFormat.format(creditPackageEntity.getCreditPrice()), creditPackageEntity.getActive().toString());
             System.out.println("------------------------");
             System.out.println("1: Update Credit Package");
             System.out.println("2: Delete Credit Package");
@@ -205,7 +208,7 @@ public class FinanceAdministrationModule {
         System.out.printf("%17s%22s%21s%9s\n", "Credit Package ID", "Credit Package Type", "Credit Price", "Active");
         
         for (CreditPackageEntity creditPackageEntity : creditPackageEntities) {
-            System.out.printf("%17s%22s%21s%9s\n", creditPackageEntity.getCreditPackageId(), creditPackageEntity.getCreditPackageType(), new DecimalFormat("#0.0000").format(creditPackageEntity.getCreditPrice()), creditPackageEntity.getActive().toString());
+            System.out.printf("%17s%22s%21s%9s\n", creditPackageEntity.getCreditPackageId(), creditPackageEntity.getCreditPackageType(), decimalFormat.format(creditPackageEntity.getCreditPrice()), creditPackageEntity.getActive().toString());
         }
 
         System.out.print("Press any key to continue...> ");

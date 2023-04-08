@@ -6,17 +6,21 @@
 package ejb.session.stateless;
 
 import entity.AuctionListingEntity;
+import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
+import javax.persistence.Query;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.AuctionListingNameExistException;
 import util.exception.InputDataValidationException;
+import util.exception.InvalidStartAndEndDatesException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -40,7 +44,14 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")
 
-    public Long createNewAuctionListing(AuctionListingEntity newAuctionListingEntity) throws AuctionListingNameExistException, UnknownPersistenceException, InputDataValidationException {
+    @Override
+    public Long createNewAuctionListing(AuctionListingEntity newAuctionListingEntity, Date currentDateTime) throws AuctionListingNameExistException, UnknownPersistenceException, InputDataValidationException, InvalidStartAndEndDatesException {
+        Date startDateTime = newAuctionListingEntity.getStartDateTime();
+        Date endDateTime = newAuctionListingEntity.getEndDateTime();
+        if ((startDateTime != null && endDateTime != null) && (currentDateTime.compareTo(startDateTime) >= 0 || startDateTime.compareTo(endDateTime) >= 0)) {
+            throw new InvalidStartAndEndDatesException("Start Datetime and End Datetime must be in the future and Start Datetime must be before the End Datetime");
+        }
+        
         Set<ConstraintViolation<AuctionListingEntity>> constraintViolations = validator.validate(newAuctionListingEntity);
         
         if (constraintViolations.isEmpty()) {
@@ -63,6 +74,13 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
         } else {
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
+    }
+    
+    @Override
+    public List<AuctionListingEntity> retrieveAllAuctionListings() {
+        Query query = em.createQuery("SELECT al FROM AuctionListingEntity al");
+        
+        return query.getResultList();
     }
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<AuctionListingEntity>> constraintViolations) {
