@@ -42,6 +42,7 @@ public class CreditPackageEntity implements Serializable {
     private Boolean active;
 
     public CreditPackageEntity() {
+        this.active = true;
     }
 
     public CreditPackageEntity(String creditPackageType, BigDecimal creditPrice, Boolean active) {

@@ -19,6 +19,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Digits;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -41,6 +42,10 @@ public class TransactionEntity implements Serializable {
     @Column(nullable = false)
     @NotNull
     private Date timeOfTransaction;
+    @Column(nullable = false)
+    @NotNull
+    @Min(1)
+    private Integer quantity;
     
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
@@ -55,9 +60,10 @@ public class TransactionEntity implements Serializable {
     public TransactionEntity() {
     }
 
-    public TransactionEntity(BigDecimal transactionAmount, Date timeOfTransaction, CustomerEntity customer, CreditPackageEntity creditPackage, BidEntity bid) {
+    public TransactionEntity(BigDecimal transactionAmount, Date timeOfTransaction, Integer quantity, CustomerEntity customer, CreditPackageEntity creditPackage, BidEntity bid) {
         this.transactionAmount = transactionAmount;
         this.timeOfTransaction = timeOfTransaction;
+        this.quantity = quantity;
         this.customer = customer;
         this.creditPackage = creditPackage;
         this.bid = bid;
@@ -122,6 +128,20 @@ public class TransactionEntity implements Serializable {
      */
     public void setTimeOfTransaction(Date timeOfTransaction) {
         this.timeOfTransaction = timeOfTransaction;
+    }
+    
+    /**
+     * @return the quantity
+     */
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    /**
+     * @param quantity the quantity to set
+     */
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 
     /**
