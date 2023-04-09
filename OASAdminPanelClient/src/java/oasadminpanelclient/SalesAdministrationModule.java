@@ -20,6 +20,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.AuctionListingNameExistException;
+import util.exception.AuctionListingNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidStartAndEndDatesException;
 import util.exception.UnknownPersistenceException;
@@ -69,7 +70,7 @@ public class SalesAdministrationModule {
                 if (response == 1) {
                     doCreateNewAuctionListing();
                 } else if (response == 2) {
-//                    doViewAuctionListingDetails();
+                    doViewAuctionListingDetails();
                 } else if (response == 3) {
                     doViewAllAuctionListings();
                 } else if (response == 4) {
@@ -151,6 +152,49 @@ public class SalesAdministrationModule {
             }
         } else {
             showInputDataValidationErrorsForAuctionListingEntity(constraintViolations);
+        }
+    }
+    
+    private void doViewAuctionListingDetails() {
+        Scanner scanner = new Scanner(System.in);
+        Integer response = 0;
+
+        System.out.println("*** OAS Administration Panel :: Sales Administration :: View Auction Listing Details ***\n");
+        System.out.print("Enter Auction Listing Name> ");
+        String auctionListingName = scanner.nextLine().trim();
+
+        try {
+            AuctionListingEntity auctionListingEntity = auctionListingSessionBeanRemote.retrieveAuctionListingByAuctionListingName(auctionListingName);
+            System.out.printf("%18s%26s%34s%34s%20s%20s%11s%31s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price", "Disabled", "Requires Manual Intervention");
+            String reservePriceString;
+            if (auctionListingEntity.getReservePrice() != null) {
+                reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
+            } else {
+                reservePriceString = "null";
+            }
+            System.out.printf("%18s%26s%34s%34s%20s%20s%11s%31s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()), auctionListingEntity.getDisabled().toString(), auctionListingEntity.getRequiresManualIntervention().toString());
+            System.out.println("------------------------");
+            System.out.println("1: Update Auction Listing");
+            System.out.println("2: Delete Auction Listing");
+            System.out.println("3: Back\n");
+            System.out.print("> ");
+            response = scanner.nextInt();
+
+            if (response == 1) {
+//                if (!creditPackageSessionBeanRemote.isCreditPackageInUse(creditPackageEntity.getCreditPackageId())) {
+//                    doUpdateCreditPackage(creditPackageEntity);
+//                } else {
+//                    System.out.println("This credit package is in use and cannot be modified!");
+//                }
+            } else if (response == 2) {
+//                if (creditPackageEntity.getActive()) {
+//                    doDeleteCreditPackage(creditPackageEntity);
+//                } else {
+//                    System.out.println("This credit package cannot be removed as it is in use! However, it has already been marked as disabled!");
+//                }
+            }
+        } catch (AuctionListingNotFoundException ex) {
+            System.out.println("An error has occurred while retrieving auction listing: " + ex.getMessage() + "\n");
         }
     }
     

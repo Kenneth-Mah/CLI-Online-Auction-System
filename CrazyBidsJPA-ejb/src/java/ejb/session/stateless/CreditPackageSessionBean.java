@@ -35,7 +35,7 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
 
     @PersistenceContext(unitName = "CrazyBidsJPA-ejbPU")
     private EntityManager em;
-    
+
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
 
@@ -43,19 +43,18 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
-    
+
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")
-    
     @Override
     public Long createNewCreditPackage(CreditPackageEntity newCreditPackageEntity) throws CreditPackageTypeExistException, UnknownPersistenceException, InputDataValidationException {
         Set<ConstraintViolation<CreditPackageEntity>> constraintViolations = validator.validate(newCreditPackageEntity);
-        
+
         if (constraintViolations.isEmpty()) {
             try {
                 em.persist(newCreditPackageEntity);
                 em.flush();
-                
+
                 return newCreditPackageEntity.getCreditPackageId();
             } catch (PersistenceException ex) {
                 if (ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
@@ -72,63 +71,63 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
-    
+
     @Override
     public List<CreditPackageEntity> retrieveAllCreditPackages() {
         Query query = em.createQuery("SELECT cp FROM CreditPackageEntity cp");
-        
+
         return query.getResultList();
     }
-    
+
     @Override
     public List<CreditPackageEntity> retrieveAllAvailableCreditPackages() {
         Query query = em.createQuery("SELECT cp FROM CreditPackageEntity cp WHERE cp.active = TRUE");
-        
+
         return query.getResultList();
     }
-    
+
     @Override
     public CreditPackageEntity retrieveCreditPackageByCreditPackageId(Long creditPackageId) throws CreditPackageNotFoundException {
         CreditPackageEntity creditPackageEntity = em.find(CreditPackageEntity.class, creditPackageId);
-        
+
         if (creditPackageEntity != null) {
             return creditPackageEntity;
         } else {
             throw new CreditPackageNotFoundException("Credit Package ID " + creditPackageId + " does not exist!");
         }
     }
-    
+
     @Override
     public CreditPackageEntity retrieveCreditPackageByCreditPackageType(String creditPackageType) throws CreditPackageNotFoundException {
         Query query = em.createQuery("SELECT cp FROM CreditPackageEntity cp WHERE cp.creditPackageType = :inCreditPackageType");
         query.setParameter("inCreditPackageType", creditPackageType);
-        
+
         try {
-            return (CreditPackageEntity)query.getSingleResult();
+            return (CreditPackageEntity) query.getSingleResult();
         } catch (NoResultException | NonUniqueResultException ex) {
             throw new CreditPackageNotFoundException("Credit Package " + creditPackageType + " does not exist!");
         }
     }
-    
+
     @Override
     public Boolean isCreditPackageInUse(Long creditPackageId) throws CreditPackageNotFoundException {
         CreditPackageEntity creditPackageEntity = retrieveCreditPackageByCreditPackageId(creditPackageId);
-        
+
         Query query = em.createQuery("SELECT t FROM TransactionEntity t WHERE t.creditPackage = :inCreditPackageEntity");
         query.setParameter("inCreditPackageEntity", creditPackageEntity);
-        
+
         List<TransactionEntity> transactionEntities = query.getResultList();
-        
+
         if (transactionEntities.size() > 0) {
             return true;
         } else {
             return false;
         }
     }
-    
+
     @Override
     public void updateCreditPackage(CreditPackageEntity creditPackageEntity) throws CreditPackageNotFoundException, UpdateCreditPackageException, InputDataValidationException {
-        if (creditPackageEntity != null && creditPackageEntity.getCreditPackageId()!= null) {
+        if (creditPackageEntity != null && creditPackageEntity.getCreditPackageId() != null) {
             Set<ConstraintViolation<CreditPackageEntity>> constraintViolations = validator.validate(creditPackageEntity);
 
             if (constraintViolations.isEmpty()) {
@@ -146,19 +145,19 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
             throw new CreditPackageNotFoundException("Credit Package ID not provided for credit package to be updated");
         }
     }
-    
+
     @Override
     public void deleteCreditPackage(Long creditPackageId) throws CreditPackageNotFoundException {
         if (!isCreditPackageInUse(creditPackageId)) {
             CreditPackageEntity creditPackageEntityToRemove = retrieveCreditPackageByCreditPackageId(creditPackageId);
-            
+
             em.remove(creditPackageEntityToRemove);
         } else {
             CreditPackageEntity creditPackageEntityToDisable = retrieveCreditPackageByCreditPackageId(creditPackageId);
             creditPackageEntityToDisable.setActive(false);
         }
     }
-    
+
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<CreditPackageEntity>> constraintViolations) {
         String msg = "Input data validation error!:";
 
@@ -168,5 +167,5 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
 
         return msg;
     }
-    
+
 }

@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.AuctionListingNameExistException;
+import util.exception.AuctionListingNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidStartAndEndDatesException;
 import util.exception.UnknownPersistenceException;
@@ -24,5 +25,9 @@ public interface AuctionListingSessionBeanRemote {
     public Long createNewAuctionListing(AuctionListingEntity newAuctionListingEntity, Date currentDateTime) throws AuctionListingNameExistException, UnknownPersistenceException, InputDataValidationException, InvalidStartAndEndDatesException;
     
     public List<AuctionListingEntity> retrieveAllAuctionListings();
+    
+    public AuctionListingEntity retrieveAuctionListingByAuctionListingId(Long auctionListingId) throws AuctionListingNotFoundException;
+    
+    public AuctionListingEntity retrieveAuctionListingByAuctionListingName(String auctionListingName) throws AuctionListingNotFoundException;
     
 }
