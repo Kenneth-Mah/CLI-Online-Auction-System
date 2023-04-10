@@ -5,7 +5,11 @@
  */
 package ejb.session.stateless;
 
+import entity.AddressEntity;
 import javax.ejb.Remote;
+import util.exception.AddressNotFoundException;
+import util.exception.InputDataValidationException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -13,5 +17,9 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface AddressSessionBeanRemote {
+    
+    public Long createNewAddress(AddressEntity newAddressEntity) throws UnknownPersistenceException, InputDataValidationException;
+    
+    public AddressEntity retrieveAddressByAddressId(Long addressId) throws AddressNotFoundException;
     
 }
