@@ -70,36 +70,16 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
-
-    // NEED TO FIX THIS
+    
     @Override
-    public CustomerEntity verifyRegisteration(String username, String password) throws CustomerUsernameExistException {
-        Query query = em.createQuery("SELECT c FROM CustomerEntity c WHERE c.username = :username AND c.password = :password");
-        query.setParameter("username", username);
-        query.setParameter("password", password);
-        try {
-            CustomerEntity customer = (CustomerEntity) query.getSingleResult();
+    public CustomerEntity retrieveCustomerByCustomerId(Long customerId) throws CustomerNotfoundException {
+        CustomerEntity customerEntity = em.find(CustomerEntity.class, customerId);
 
-            if (!customer.getUsername().equals(username)) {
-                em.persist(customer);
-                em.flush();
-                return customer;
-            } else {
-                throw new CustomerUsernameExistException("customer already exist!");
-            }
-        } catch (CustomerUsernameExistException ex) {
-            throw new CustomerUsernameExistException("Customer already exist!");
+        if (customerEntity != null) {
+            return customerEntity;
+        } else {
+            throw new CustomerNotfoundException("Customer ID " + customerId + " does not exist!");
         }
-    }
-
-    // NEED TO FIX THIS
-    @Override
-    public void doUpdate(String firstName, String lastName, String username, String password) {
-        CustomerEntity customer = em.find(CustomerEntity.class, username);
-        customer.setFirstName(firstName);
-        customer.setLastName(lastName);
-        customer.setUsername(username);
-        customer.setPassword(password);
     }
     
     @Override
@@ -127,6 +107,16 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
         } catch (CustomerNotfoundException ex) {
             throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
         }
+    }
+    
+    // NEED TO FIX THIS
+    @Override
+    public void updateCustomer(String firstName, String lastName, String username, String password) {
+        CustomerEntity customer = em.find(CustomerEntity.class, username);
+        customer.setFirstName(firstName);
+        customer.setLastName(lastName);
+        customer.setUsername(username);
+        customer.setPassword(password);
     }
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<CustomerEntity>> constraintViolations) {

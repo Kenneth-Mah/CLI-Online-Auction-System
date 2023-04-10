@@ -31,11 +31,6 @@ public class CustomerEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long customerId;
-    @Column(nullable = false, precision = 18, scale = 4)
-    @NotNull
-    @DecimalMin("0.0000")
-    @Digits(integer = 14, fraction = 4)
-    private BigDecimal availableBalance;
     @Column(nullable = false, length = 32)
     @NotNull
     @Size(min = 1, max = 32)
@@ -52,6 +47,11 @@ public class CustomerEntity implements Serializable {
     @NotNull
     @Size(min = 8, max = 32)
     private String password;
+    @Column(nullable = false, precision = 18, scale = 4)
+    @NotNull
+    @DecimalMin("0.0000")
+    @Digits(integer = 14, fraction = 4)
+    private BigDecimal availableBalance;
     
     @OneToMany(mappedBy = "customer")
     // NOTE: transactions can be null!
@@ -67,10 +67,11 @@ public class CustomerEntity implements Serializable {
     private List<AuctionListingEntity> wonAuctions;
 
     public CustomerEntity() {
-        transactions = new ArrayList<>();
-        bids = new ArrayList<>();
-        addresses = new ArrayList<>();
-        wonAuctions = new ArrayList<>();
+        this.availableBalance = new BigDecimal("0.0000");
+        this.transactions = new ArrayList<>();
+        this.bids = new ArrayList<>();
+        this.addresses = new ArrayList<>();
+        this.wonAuctions = new ArrayList<>();
     }
 
     public CustomerEntity(String firstName, String lastName, String username, String password) {

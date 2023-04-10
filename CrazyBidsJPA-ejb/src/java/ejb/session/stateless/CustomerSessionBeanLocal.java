@@ -22,12 +22,12 @@ public interface CustomerSessionBeanLocal {
 
     public Long createNewCustomer(CustomerEntity customer) throws CustomerUsernameExistException, UnknownPersistenceException, InputDataValidationException;
 
+    public CustomerEntity retrieveCustomerByCustomerId(Long customerId) throws CustomerNotfoundException;
+    
     public CustomerEntity retrieveCustomerByUsername(String username) throws CustomerNotfoundException;
     
     public CustomerEntity customerLogin(String username, String password) throws InvalidLoginCredentialException;
 
-    public CustomerEntity verifyRegisteration(String username, String password) throws CustomerUsernameExistException;
-
-    public void doUpdate(String firstName, String lastName, String username, String password);
+    public void updateCustomer(String firstName, String lastName, String username, String password);
     
 }
