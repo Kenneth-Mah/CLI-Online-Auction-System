@@ -14,6 +14,7 @@ import util.exception.AuctionListingNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidStartAndEndDatesException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateAuctionListingException;
 
 /**
  *
@@ -22,12 +23,18 @@ import util.exception.UnknownPersistenceException;
 @Remote
 public interface AuctionListingSessionBeanRemote {
     
-    public Long createNewAuctionListing(AuctionListingEntity newAuctionListingEntity, Date currentDateTime) throws AuctionListingNameExistException, UnknownPersistenceException, InputDataValidationException, InvalidStartAndEndDatesException;
+    public Long createNewAuctionListing(AuctionListingEntity newAuctionListingEntity) throws AuctionListingNameExistException, UnknownPersistenceException, InputDataValidationException, InvalidStartAndEndDatesException;
     
     public List<AuctionListingEntity> retrieveAllAuctionListings();
     
     public AuctionListingEntity retrieveAuctionListingByAuctionListingId(Long auctionListingId) throws AuctionListingNotFoundException;
     
     public AuctionListingEntity retrieveAuctionListingByAuctionListingName(String auctionListingName) throws AuctionListingNotFoundException;
+    
+    public Boolean isAuctionListingInUse(Long auctionListingId) throws AuctionListingNotFoundException;
+    
+    public void updateAuctionListing(AuctionListingEntity auctionListingEntity) throws AuctionListingNotFoundException, InputDataValidationException, UpdateAuctionListingException, InvalidStartAndEndDatesException;
+    
+    public void deleteAuctionListing(Long auctionListingId) throws AuctionListingNotFoundException;
     
 }

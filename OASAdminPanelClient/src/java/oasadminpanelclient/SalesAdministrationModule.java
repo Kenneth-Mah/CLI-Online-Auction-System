@@ -24,6 +24,7 @@ import util.exception.AuctionListingNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidStartAndEndDatesException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateAuctionListingException;
 
 /**
  *
@@ -35,11 +36,13 @@ public class SalesAdministrationModule {
     private final Validator validator;
     
     private DecimalFormat decimalFormat;
+    private SimpleDateFormat simpleDateFormat;
     
     private AuctionListingSessionBeanRemote auctionListingSessionBeanRemote;
 
     public SalesAdministrationModule() {
         decimalFormat = new DecimalFormat("#0.0000");
+        simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy 'at' HH:mm:ss");
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
@@ -96,16 +99,15 @@ public class SalesAdministrationModule {
         System.out.print("Enter Auction Listing Name> ");
         newAuctionListingEntity.setAuctionListingName(scanner.nextLine().trim());
         
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy 'at' HH:mm:ss");
-        // Give 5 minutes grace period to create the auction listing
-        Date currentDateTime = new Date(System.currentTimeMillis() - 5 * 60 * 1000);
         while (true) {
+            // Give 5 minutes grace period to create the auction listing
+            Date currentDateTime = new Date(System.currentTimeMillis() - 5 * 60 * 1000);
             Date startDateTime = new Date();
             Date endDateTime = new Date();
             while (true) {
                 System.out.print("Enter Start Date Time (dd/MM/yyyy at HH:mm:ss)> ");
                 try {
-                    startDateTime = sdf.parse(scanner.nextLine().trim());
+                    startDateTime = simpleDateFormat.parse(scanner.nextLine().trim());
                     break;
                 } catch (ParseException ex) {
                     System.out.println("Invalid date, please try again!\n");
@@ -114,7 +116,7 @@ public class SalesAdministrationModule {
             while (true) {
                 System.out.print("Enter End Date Time (dd/MM/yyyy at HH:mm:ss)> ");
                 try {
-                    endDateTime = sdf.parse(scanner.nextLine().trim());
+                    endDateTime = simpleDateFormat.parse(scanner.nextLine().trim());
                     break;
                 } catch (ParseException ex) {
                     System.out.println("Invalid date, please try again!\n");
@@ -132,14 +134,14 @@ public class SalesAdministrationModule {
         System.out.print("Enter Reserve Price (blank if none)> ");
         String input = scanner.nextLine().trim();
         if (input.length() > 0) {
-            newAuctionListingEntity.setReservePrice(new BigDecimal(scanner.nextLine().trim()));
+            newAuctionListingEntity.setReservePrice(new BigDecimal(input));
         }
 
         Set<ConstraintViolation<AuctionListingEntity>> constraintViolations = validator.validate(newAuctionListingEntity);
 
         if (constraintViolations.isEmpty()) {
             try {
-                Long newAuctionListingId = auctionListingSessionBeanRemote.createNewAuctionListing(newAuctionListingEntity, currentDateTime);
+                Long newAuctionListingId = auctionListingSessionBeanRemote.createNewAuctionListing(newAuctionListingEntity);
                 System.out.println("New auction listing created successfully!: " + newAuctionListingId + "\n");
             } catch (InvalidStartAndEndDatesException ex) {
                 System.out.println("An error has occurred while creating the new auction listing!: " + ex.getMessage() + "\n");
@@ -181,20 +183,115 @@ public class SalesAdministrationModule {
             response = scanner.nextInt();
 
             if (response == 1) {
-//                if (!creditPackageSessionBeanRemote.isCreditPackageInUse(creditPackageEntity.getCreditPackageId())) {
-//                    doUpdateCreditPackage(creditPackageEntity);
-//                } else {
-//                    System.out.println("This credit package is in use and cannot be modified!");
-//                }
+                if (auctionListingEntity.getStartDateTime().compareTo(new Date()) < 0) {
+                    System.out.println("This auction listing cannot be modified as its Start Date-time has already passed!");
+                } else {
+                    doUpdateAuctionListing(auctionListingEntity);
+                }
             } else if (response == 2) {
-//                if (creditPackageEntity.getActive()) {
-//                    doDeleteCreditPackage(creditPackageEntity);
-//                } else {
-//                    System.out.println("This credit package cannot be removed as it is in use! However, it has already been marked as disabled!");
-//                }
+                if (!auctionListingEntity.getDisabled()) {
+                    doDeleteAuctionListing(auctionListingEntity);
+                } else {
+                    System.out.println("This auction listing cannot be removed as it is in use! However, it has already been marked as disabled!");
+                }
             }
         } catch (AuctionListingNotFoundException ex) {
             System.out.println("An error has occurred while retrieving auction listing: " + ex.getMessage() + "\n");
+        }
+    }
+    
+    private void doUpdateAuctionListing(AuctionListingEntity auctionListingEntity) {
+        Scanner scanner = new Scanner(System.in);
+        String input;
+
+        System.out.println("*** OAS Administration Panel :: Sales Administration :: View Auction Listing Details :: Update Auction Listing ***\n");
+        
+        while (true) {
+            // Give 5 minutes grace period to create the auction listing
+            Date currentDateTime = new Date(System.currentTimeMillis() - 5 * 60 * 1000);
+            Date startDateTime = auctionListingEntity.getStartDateTime();
+            Date endDateTime = auctionListingEntity.getEndDateTime();
+            while (true) {
+                System.out.print("Enter Start Date Time (dd/MM/yyyy at HH:mm:ss) [blank if no change]> ");
+                input = scanner.nextLine().trim();
+                if (input.length() > 0) {
+                    try {
+                        startDateTime = simpleDateFormat.parse(input);
+                        break;
+                    } catch (ParseException ex) {
+                        System.out.println("Invalid date, please try again!\n");
+                    }
+                } else {
+                    break;
+                }
+            }
+            while (true) {
+                System.out.print("Enter End Date Time (dd/MM/yyyy at HH:mm:ss) [blank if no change]> ");
+                input = scanner.nextLine().trim();
+                if (input.length() > 0) {
+                    try {
+                        endDateTime = simpleDateFormat.parse(input);
+                        break;
+                    } catch (ParseException ex) {
+                        System.out.println("Invalid date, please try again!\n");
+                    }
+                } else {
+                    break;
+                }
+            }
+            if (currentDateTime.compareTo(startDateTime) < 0 && startDateTime.compareTo(endDateTime) < 0) {
+                auctionListingEntity.setStartDateTime(startDateTime);
+                auctionListingEntity.setEndDateTime(endDateTime);
+                break;
+            } else {
+                System.out.println("Invalid dates! Start date and end date must be in the future and start date must be before the end date!");
+            }
+        }
+        
+        System.out.print("Enter Reserve Price (blank if none)> ");
+        input = scanner.nextLine().trim();
+        if (input.length() > 0) {
+            auctionListingEntity.setReservePrice(new BigDecimal(input));
+        }
+
+        Set<ConstraintViolation<AuctionListingEntity>> constraintViolations = validator.validate(auctionListingEntity);
+
+        if (constraintViolations.isEmpty()) {
+            try {
+                auctionListingSessionBeanRemote.updateAuctionListing(auctionListingEntity);
+                System.out.println("Auction listing updated successfully!\n");
+            } catch (AuctionListingNotFoundException | UpdateAuctionListingException | InvalidStartAndEndDatesException ex) {
+                System.out.println("An error has occurred while updating auction listing: " + ex.getMessage() + "\n");
+            } catch (InputDataValidationException ex) {
+                System.out.println(ex.getMessage() + "\n");
+            }
+        } else {
+            showInputDataValidationErrorsForAuctionListingEntity(constraintViolations);
+        }
+    }
+    
+    private void doDeleteAuctionListing(AuctionListingEntity auctionListingEntity) {
+        Scanner scanner = new Scanner(System.in);
+        String input;
+
+        System.out.println("*** OAS Administration Panel :: Sales Administration :: View Auction Listing Details :: Delete Auction Listing ***\n");
+        System.out.printf("Confirm Delete Auction Listing %s (Auction Listing ID: %d) (Enter 'Y' to Delete)> ", auctionListingEntity.getAuctionListingName(), auctionListingEntity.getAuctionListingId());
+        input = scanner.nextLine().trim();
+
+        if (input.equals("Y")) {
+            try {
+                if (!auctionListingSessionBeanRemote.isAuctionListingInUse(auctionListingEntity.getAuctionListingId())) {
+                    auctionListingSessionBeanRemote.deleteAuctionListing(auctionListingEntity.getAuctionListingId());
+                    System.out.println("Auction listing deleted successfully!\n");
+                } else {
+                    auctionListingSessionBeanRemote.deleteAuctionListing(auctionListingEntity.getAuctionListingId());
+                    System.out.println("Auction listing is in use and cannot be removed! However, it has been disabled successfully!");
+                }
+            } catch (AuctionListingNotFoundException ex) {
+                System.out.println("An error has occurred while deleting the auction listing: " + ex.getMessage() + "\n");
+            }
+        } else {
+            System.out.println("Auction listing NOT deleted!\n");
         }
     }
     

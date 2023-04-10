@@ -25,6 +25,7 @@ import util.exception.AuctionListingNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidStartAndEndDatesException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateAuctionListingException;
 
 /**
  *
@@ -47,7 +48,8 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")
     @Override
-    public Long createNewAuctionListing(AuctionListingEntity newAuctionListingEntity, Date currentDateTime) throws AuctionListingNameExistException, UnknownPersistenceException, InputDataValidationException, InvalidStartAndEndDatesException {
+    public Long createNewAuctionListing(AuctionListingEntity newAuctionListingEntity) throws AuctionListingNameExistException, UnknownPersistenceException, InputDataValidationException, InvalidStartAndEndDatesException {
+        Date currentDateTime = new Date(System.currentTimeMillis() - 5 * 60 * 1000);
         Date startDateTime = newAuctionListingEntity.getStartDateTime();
         Date endDateTime = newAuctionListingEntity.getEndDateTime();
         if ((startDateTime != null && endDateTime != null) && (currentDateTime.compareTo(startDateTime) >= 0 || startDateTime.compareTo(endDateTime) >= 0)) {
@@ -105,6 +107,65 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
             return (AuctionListingEntity) query.getSingleResult();
         } catch (NoResultException | NonUniqueResultException ex) {
             throw new AuctionListingNotFoundException("Auction Listing " + auctionListingName + " does not exist!");
+        }
+    }
+    
+    @Override
+    public Boolean isAuctionListingInUse(Long auctionListingId) throws AuctionListingNotFoundException {
+        AuctionListingEntity auctionListingEntity = retrieveAuctionListingByAuctionListingId(auctionListingId);
+        
+        if (auctionListingEntity.getBids().size() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    @Override
+    public void updateAuctionListing(AuctionListingEntity auctionListingEntity) throws AuctionListingNotFoundException, InputDataValidationException, UpdateAuctionListingException, InvalidStartAndEndDatesException {
+        if (auctionListingEntity != null && auctionListingEntity.getAuctionListingId()!= null) {
+            Set<ConstraintViolation<AuctionListingEntity>> constraintViolations = validator.validate(auctionListingEntity);
+
+            if (constraintViolations.isEmpty()) {
+                AuctionListingEntity auctionListingEntityToUpdate = retrieveAuctionListingByAuctionListingId(auctionListingEntity.getAuctionListingId());
+
+                if (auctionListingEntityToUpdate.getAuctionListingName().equals(auctionListingEntity.getAuctionListingName())) {
+                    Date currentDateTime = new Date(System.currentTimeMillis() - 5 * 60 * 1000);
+                    if (currentDateTime.compareTo(auctionListingEntityToUpdate.getStartDateTime()) < 0) {
+                        if (currentDateTime.compareTo(auctionListingEntity.getStartDateTime()) < 0 && auctionListingEntity.getStartDateTime().compareTo(auctionListingEntity.getEndDateTime()) < 0) {
+                            auctionListingEntityToUpdate.setStartDateTime(auctionListingEntity.getStartDateTime());
+                            auctionListingEntityToUpdate.setEndDateTime(auctionListingEntity.getEndDateTime());
+                            auctionListingEntityToUpdate.setReservePrice(auctionListingEntity.getReservePrice());
+                        } else {
+                            throw new InvalidStartAndEndDatesException("Start Datetime and End Datetime must be in the future and Start Datetime must be before the End Datetime");
+                        }
+                    } else {
+                        throw new UpdateAuctionListingException("Auction listing record to be updated has already started and cannot be updated!");
+                    }
+                } else {
+                    throw new UpdateAuctionListingException("Auction Listing Name of auction listing record to be updated does not match the existing record");
+                }
+            } else {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
+        } else {
+            throw new AuctionListingNotFoundException("Auction Listing ID not provided for auction listing to be updated");
+        }
+    }
+    
+    // NOT COMPLETE!!!
+    @Override
+    public void deleteAuctionListing(Long auctionListingId) throws AuctionListingNotFoundException {
+        if (!isAuctionListingInUse(auctionListingId)) {
+            AuctionListingEntity auctionListingEntityToRemove = retrieveAuctionListingByAuctionListingId(auctionListingId);
+            
+            em.remove(auctionListingEntityToRemove);
+        } else {
+            AuctionListingEntity auctionListingEntityToDisable = retrieveAuctionListingByAuctionListingId(auctionListingId);
+            
+            // HERE NEED TO REFUND THE HIGHEST BID'S CREDITS TO THE RESPECTIVE CUSTOMER
+            
+            auctionListingEntityToDisable.setDisabled(true);
         }
     }
 

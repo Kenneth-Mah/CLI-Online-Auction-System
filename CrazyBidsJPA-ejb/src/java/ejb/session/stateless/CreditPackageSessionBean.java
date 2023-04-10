@@ -134,7 +134,11 @@ public class CreditPackageSessionBean implements CreditPackageSessionBeanRemote,
                 CreditPackageEntity creditPackageEntityToUpdate = retrieveCreditPackageByCreditPackageId(creditPackageEntity.getCreditPackageId());
 
                 if (creditPackageEntityToUpdate.getCreditPackageType().equals(creditPackageEntity.getCreditPackageType())) {
-                    creditPackageEntityToUpdate.setCreditPrice(creditPackageEntity.getCreditPrice());
+                    if (creditPackageEntityToUpdate.getActive()) {
+                        creditPackageEntityToUpdate.setCreditPrice(creditPackageEntity.getCreditPrice());
+                    } else {
+                        throw new UpdateCreditPackageException("Credit package record to be updated has already been disabled and cannot be updated!");
+                    }
                 } else {
                     throw new UpdateCreditPackageException("Credit Package Type of credit package record to be updated does not match the existing record");
                 }
