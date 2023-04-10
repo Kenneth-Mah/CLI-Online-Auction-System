@@ -5,6 +5,7 @@
  */
 package oasauctionclient;
 
+import ejb.session.stateless.AddressSessionBeanRemote;
 import ejb.session.stateless.CreditPackageSessionBeanRemote;
 import ejb.session.stateless.CustomerSessionBeanRemote;
 import javax.ejb.EJB;
@@ -18,6 +19,8 @@ public class Main {
     @EJB
     private static CustomerSessionBeanRemote customerSessionBeanRemote;
     @EJB
+    private static AddressSessionBeanRemote addressSessionBeanRemote;
+    @EJB
     private static CreditPackageSessionBeanRemote creditPackageSessionBeanRemote;
 
     /**
@@ -25,7 +28,7 @@ public class Main {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        MainApp mainApp = new MainApp(customerSessionBeanRemote, creditPackageSessionBeanRemote);
+        MainApp mainApp = new MainApp(customerSessionBeanRemote, addressSessionBeanRemote, creditPackageSessionBeanRemote);
         mainApp.runApp();
     }
     

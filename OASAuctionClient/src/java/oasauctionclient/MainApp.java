@@ -5,8 +5,10 @@
  */
 package oasauctionclient;
 
+import ejb.session.stateless.AddressSessionBeanRemote;
 import ejb.session.stateless.CreditPackageSessionBeanRemote;
 import ejb.session.stateless.CustomerSessionBeanRemote;
+import entity.AddressEntity;
 import entity.CreditPackageEntity;
 import entity.TransactionEntity;
 import entity.CustomerEntity;
@@ -18,6 +20,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.exception.AddressNotFoundException;
+import util.exception.CustomerNotfoundException;
 import util.exception.CustomerUsernameExistException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
@@ -33,6 +37,7 @@ public class MainApp {
     private final Validator validator;
 
     private CustomerSessionBeanRemote customerSessionBeanRemote;
+    private AddressSessionBeanRemote addressSessionBeanRemote;
     private CreditPackageSessionBeanRemote creditPackageSessionBeanRemote;
     
     private CustomerEntity customerEntity;
@@ -42,9 +47,10 @@ public class MainApp {
         validator = validatorFactory.getValidator();
     }
 
-    public MainApp(CustomerSessionBeanRemote customerSessionBeanRemote, CreditPackageSessionBeanRemote creditPackageSessionBeanRemote) {
+    public MainApp(CustomerSessionBeanRemote customerSessionBeanRemote, AddressSessionBeanRemote addressSessionBeanRemote, CreditPackageSessionBeanRemote creditPackageSessionBeanRemote) {
         this();
         this.customerSessionBeanRemote = customerSessionBeanRemote;
+        this.addressSessionBeanRemote = addressSessionBeanRemote;
         this.creditPackageSessionBeanRemote = creditPackageSessionBeanRemote;
     }
 
@@ -138,7 +144,7 @@ public class MainApp {
         }
     }
 
-    public void menuCustomer() {
+    private void menuCustomer() {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 
@@ -169,7 +175,7 @@ public class MainApp {
                 } else if (response == 2) {
                     doUpdateProfile();
                 } else if (response == 3) {
-//                    doCreateAddress();
+                    doCreateAddress();
                 } else if (response == 4) {
 //                    doViewAddressDetails();
                 } else if (response == 5) {
@@ -199,7 +205,7 @@ public class MainApp {
         }
     }
 
-    public void doUpdateProfile() {
+    private void doUpdateProfile() {
         Scanner scanner = new Scanner(System.in);
         
         System.out.println("*** OAS Auction Client :: Update Profile ***\n");
@@ -213,11 +219,37 @@ public class MainApp {
         String password = scanner.nextLine().trim();
         customerSessionBeanRemote.updateCustomer(firstName, lastName, username, password);
     }
+    
+    private void doCreateAddress() {
+        Scanner scanner = new Scanner(System.in);
+        AddressEntity newAddressEntity = new AddressEntity();
+        
+        System.out.println("*** OAS Auction Client :: Create New Address ***\n");
+        System.out.print("Enter Address Name> ");
+        newAddressEntity.setAddressName(scanner.nextLine().trim());
+        
+        Set<ConstraintViolation<AddressEntity>> constraintViolations = validator.validate(newAddressEntity);
+        
+        if (constraintViolations.isEmpty()) {
+            try {
+                Long newAddressId = addressSessionBeanRemote.createNewAddress(newAddressEntity);
+                System.out.println("New address created successfully!: " + newAddressId + "\n");
+                
+                customerEntity = customerSessionBeanRemote.addAddressToCustomer(newAddressId, customerEntity.getCustomerId());
+            } catch (UnknownPersistenceException ex) {
+                System.out.println("An unknown error has occurred while creating the new address!: " + ex.getMessage() + "\n");
+            } catch (InputDataValidationException | CustomerNotfoundException | AddressNotFoundException ex) {
+                System.out.println(ex.getMessage() + "\n");
+            }
+        } else {
+            showInputDataValidationErrorsForAddressEntity(constraintViolations);
+        }
+    }
 
-    public void doViewCreditTransactionHistory() {
+    private void doViewCreditTransactionHistory() {
         System.out.println("*** OAS Auction Client :: View Credit Transaction History ***\n");
         
-        List<TransactionEntity> transactionEntities = this.customerEntity.getTransactions();
+        List<TransactionEntity> transactionEntities = customerEntity.getTransactions();
         //System.out.println(customerSessionBeanRemote.getTransHist()); //must make it print line by line per transaction
         for(TransactionEntity transactionEntity : transactionEntities){
             
@@ -238,7 +270,7 @@ public class MainApp {
         }
     }
 
-    public void doPurchaseCreditPackage() {
+    private void doPurchaseCreditPackage() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("*** Current available credit package ***\n");
         List<CreditPackageEntity> creditPackageEntities = creditPackageSessionBeanRemote.retrieveAllAvailableCreditPackages();
@@ -260,6 +292,16 @@ public class MainApp {
     }
     
     private void showInputDataValidationErrorsForCustomerEntity(Set<ConstraintViolation<CustomerEntity>> constraintViolations) {
+        System.out.println("\nInput data validation error!:");
+
+        for (ConstraintViolation constraintViolation : constraintViolations) {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
+    }
+    
+    private void showInputDataValidationErrorsForAddressEntity(Set<ConstraintViolation<AddressEntity>> constraintViolations) {
         System.out.println("\nInput data validation error!:");
 
         for (ConstraintViolation constraintViolation : constraintViolations) {

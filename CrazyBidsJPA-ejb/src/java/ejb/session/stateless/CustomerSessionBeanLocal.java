@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.CustomerEntity;
 import javax.ejb.Local;
+import util.exception.AddressNotFoundException;
 import util.exception.CustomerNotfoundException;
 import util.exception.CustomerUsernameExistException;
 import util.exception.InputDataValidationException;
@@ -29,5 +30,7 @@ public interface CustomerSessionBeanLocal {
     public CustomerEntity customerLogin(String username, String password) throws InvalidLoginCredentialException;
 
     public void updateCustomer(String firstName, String lastName, String username, String password);
+
+    public CustomerEntity addAddressToCustomer(Long customerId, Long addressId) throws CustomerNotfoundException, AddressNotFoundException;
     
 }

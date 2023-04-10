@@ -5,8 +5,11 @@
  */
 package ejb.session.stateless;
 
+import entity.AddressEntity;
 import entity.CustomerEntity;
+import java.util.List;
 import java.util.Set;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -18,6 +21,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.exception.AddressNotFoundException;
 import util.exception.CustomerNotfoundException;
 import util.exception.CustomerUsernameExistException;
 import util.exception.InputDataValidationException;
@@ -33,6 +37,9 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
 
     @PersistenceContext(unitName = "CrazyBidsJPA-ejbPU")
     private EntityManager em;
+    
+    @EJB
+    private AddressSessionBeanLocal addressSessionBeanLocal;
     
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
@@ -117,6 +124,17 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
         customer.setLastName(lastName);
         customer.setUsername(username);
         customer.setPassword(password);
+    }
+    
+    @Override
+    public CustomerEntity addAddressToCustomer(Long customerId, Long addressId) throws CustomerNotfoundException, AddressNotFoundException {
+        CustomerEntity customerEntity = retrieveCustomerByCustomerId(customerId);
+        AddressEntity addressEntity = addressSessionBeanLocal.retrieveAddressByAddressId(addressId);
+        
+        List<AddressEntity> addressEntities = customerEntity.getAddresses();
+        addressEntities.add(addressEntity);
+        customerEntity.setAddresses(addressEntities);
+        return customerEntity;
     }
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<CustomerEntity>> constraintViolations) {
