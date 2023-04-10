@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull;
  * @author kenne
  */
 @Entity
-public class BidEntity implements Serializable {
+public class BidEntity implements Serializable, Comparable<BidEntity> {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -77,6 +77,11 @@ public class BidEntity implements Serializable {
             return false;
         }
         return true;
+    }
+    
+    @Override
+    public int compareTo(BidEntity other) {
+        return this.bidPrice.compareTo(other.bidPrice);
     }
 
     @Override
