@@ -13,6 +13,7 @@ import util.exception.CustomerUsernameExistException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateCustomerException;
 
 /**
  *
@@ -29,7 +30,7 @@ public interface CustomerSessionBeanRemote {
     
     public CustomerEntity customerLogin(String username, String password) throws InvalidLoginCredentialException;
     
-    public void updateCustomer(String firstName, String lastName, String username, String password);
+    public void updateCustomer(CustomerEntity customerEntity) throws CustomerNotfoundException, UpdateCustomerException, InputDataValidationException;
     
     public CustomerEntity addAddressToCustomer(Long customerId, Long addressId) throws CustomerNotfoundException, AddressNotFoundException;
     

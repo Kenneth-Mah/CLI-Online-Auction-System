@@ -27,6 +27,7 @@ import util.exception.CustomerUsernameExistException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateCustomerException;
 
 /**
  *
@@ -116,14 +117,27 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
         }
     }
     
-    // NEED TO FIX THIS
     @Override
-    public void updateCustomer(String firstName, String lastName, String username, String password) {
-        CustomerEntity customer = em.find(CustomerEntity.class, username);
-        customer.setFirstName(firstName);
-        customer.setLastName(lastName);
-        customer.setUsername(username);
-        customer.setPassword(password);
+    public void updateCustomer(CustomerEntity customerEntity) throws CustomerNotfoundException, UpdateCustomerException, InputDataValidationException {
+        if (customerEntity != null && customerEntity.getCustomerId()!= null) {
+            Set<ConstraintViolation<CustomerEntity>> constraintViolations = validator.validate(customerEntity);
+
+            if (constraintViolations.isEmpty()) {
+                CustomerEntity customerEntityToUpdate = retrieveCustomerByCustomerId(customerEntity.getCustomerId());
+
+                if (customerEntityToUpdate.getUsername().equals(customerEntity.getUsername())) {
+                    customerEntityToUpdate.setFirstName(customerEntity.getFirstName());
+                    customerEntityToUpdate.setLastName(customerEntity.getLastName());
+                    // Username and password are deliberately NOT updated to demonstrate that client is not allowed to update account credential through this business method
+                } else {
+                    throw new UpdateCustomerException ("Username of customer record to be updated does not match the existing record");
+                }
+            } else {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
+        } else {
+            throw new CustomerNotfoundException("Customer ID not provided for customer to be updated");
+        }
     }
     
     @Override

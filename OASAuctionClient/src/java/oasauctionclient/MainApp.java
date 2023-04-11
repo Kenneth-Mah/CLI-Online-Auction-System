@@ -26,6 +26,7 @@ import util.exception.CustomerUsernameExistException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateCustomerException;
 
 /**
  *
@@ -40,7 +41,7 @@ public class MainApp {
     private AddressSessionBeanRemote addressSessionBeanRemote;
     private CreditPackageSessionBeanRemote creditPackageSessionBeanRemote;
     
-    private CustomerEntity customerEntity;
+    private CustomerEntity globalCustomerEntity;
 
     public MainApp() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
@@ -106,7 +107,7 @@ public class MainApp {
         String password = scanner.nextLine().trim();
 
         if (username.length() > 0 && password.length() > 0) {
-            customerEntity = customerSessionBeanRemote.customerLogin(username, password);
+            globalCustomerEntity = customerSessionBeanRemote.customerLogin(username, password);
         } else {
             throw new InvalidLoginCredentialException("Missing login credential!");
         }
@@ -150,7 +151,7 @@ public class MainApp {
 
         while (true) {
             System.out.println("*** OAS Auction Client ***\n");
-            System.out.println("You are login as " + customerEntity.getFirstName() + " " + customerEntity.getLastName() + "\n");
+            System.out.println("You are login as " + globalCustomerEntity.getFirstName() + " " + globalCustomerEntity.getLastName() + "\n");
             System.out.println("1: View Profile");
             System.out.println("2: Update Profile");
             System.out.println("3: Create Address");
@@ -171,7 +172,7 @@ public class MainApp {
                 response = scanner.nextInt();
 
                 if (response == 1) {
-//                    doViewCustomerProfile();                    
+                    doViewProfile();                    
                 } else if (response == 2) {
                     doUpdateProfile();
                 } else if (response == 3) {
@@ -181,7 +182,7 @@ public class MainApp {
                 } else if (response == 5) {
 //                    doViewAllAddresses();
                 } else if (response == 6) {
-//                    doViewCreditBalance();
+                    doViewCreditBalance();
                 } else if (response == 7) {
                     doViewCreditTransactionHistory();
                 } else if (response == 8) {
@@ -204,20 +205,62 @@ public class MainApp {
             }
         }
     }
+    
+    private void doViewProfile() {
+        try {
+            CustomerEntity customerEntity = customerSessionBeanRemote.retrieveCustomerByCustomerId(globalCustomerEntity.getCustomerId());
+            
+            System.out.println("*** OAS Auction Client :: View Profile ***\n");
+            System.out.println("First Name: " + customerEntity.getFirstName());
+            System.out.println("Last Name: " + customerEntity.getLastName() + "\n");
+            
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Press any key to continue...> ");
+            scanner.nextLine();
+        } catch (CustomerNotfoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }
+    }
 
     private void doUpdateProfile() {
         Scanner scanner = new Scanner(System.in);
+        String input;
         
-        System.out.println("*** OAS Auction Client :: Update Profile ***\n");
-        System.out.println("Enter First Name >");
-        String firstName = scanner.nextLine().trim();
-        System.out.println("Enter Last Name >");
-        String lastName = scanner.nextLine().trim();
-        System.out.println("Enter username >");
-        String username = scanner.nextLine().trim();
-        System.out.println("Enter password >");
-        String password = scanner.nextLine().trim();
-        customerSessionBeanRemote.updateCustomer(firstName, lastName, username, password);
+        try {
+            CustomerEntity customerEntity = customerSessionBeanRemote.retrieveCustomerByCustomerId(globalCustomerEntity.getCustomerId());
+            
+            System.out.println("*** OAS Auction Client :: Update Profile ***\n");
+            System.out.println("Enter First Name (blank if no change)>");
+            input = scanner.nextLine().trim();
+            if (input.length() > 0) {
+                customerEntity.setFirstName(input);
+            }
+
+            System.out.println("Enter Last Name (blank if no change)>");
+            input = scanner.nextLine().trim();
+            if (input.length() > 0) {
+                customerEntity.setLastName(input);
+            }
+
+            Set<ConstraintViolation<CustomerEntity>> constraintViolations = validator.validate(customerEntity);
+
+            if (constraintViolations.isEmpty()) {
+                try {
+                    customerSessionBeanRemote.updateCustomer(customerEntity);
+                    System.out.println("Customer profile updated successfully!\n");
+
+                    globalCustomerEntity = customerSessionBeanRemote.retrieveCustomerByCustomerId(customerEntity.getCustomerId());
+                } catch (CustomerNotfoundException | UpdateCustomerException ex) {
+                    System.out.println("An error has occurred while updating customer profile: " + ex.getMessage() + "\n");
+                } catch (InputDataValidationException ex) {
+                    System.out.println(ex.getMessage() + "\n");
+                }
+            } else {
+                showInputDataValidationErrorsForCustomerEntity(constraintViolations);
+            }
+        } catch (CustomerNotfoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }
     }
     
     private void doCreateAddress() {
@@ -235,7 +278,7 @@ public class MainApp {
                 Long newAddressId = addressSessionBeanRemote.createNewAddress(newAddressEntity);
                 System.out.println("New address created successfully!: " + newAddressId + "\n");
                 
-                customerEntity = customerSessionBeanRemote.addAddressToCustomer(newAddressId, customerEntity.getCustomerId());
+                globalCustomerEntity = customerSessionBeanRemote.addAddressToCustomer(newAddressId, globalCustomerEntity.getCustomerId());
             } catch (UnknownPersistenceException ex) {
                 System.out.println("An unknown error has occurred while creating the new address!: " + ex.getMessage() + "\n");
             } catch (InputDataValidationException | CustomerNotfoundException | AddressNotFoundException ex) {
@@ -245,11 +288,26 @@ public class MainApp {
             showInputDataValidationErrorsForAddressEntity(constraintViolations);
         }
     }
+    
+    private void doViewCreditBalance() {
+        try {
+            globalCustomerEntity = customerSessionBeanRemote.retrieveCustomerByCustomerId(globalCustomerEntity.getCustomerId());
+            
+            System.out.println("*** OAS Auction Client :: View Credit Balance ***\n");
+            System.out.println("Credit Balance: " + globalCustomerEntity.getAvailableBalance() + "\n");
+            
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Press any key to continue...> ");
+            scanner.nextLine();
+        } catch (CustomerNotfoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }
+    }
 
     private void doViewCreditTransactionHistory() {
         System.out.println("*** OAS Auction Client :: View Credit Transaction History ***\n");
         
-        List<TransactionEntity> transactionEntities = customerEntity.getTransactions();
+        List<TransactionEntity> transactionEntities = globalCustomerEntity.getTransactions();
         //System.out.println(customerSessionBeanRemote.getTransHist()); //must make it print line by line per transaction
         for(TransactionEntity transactionEntity : transactionEntities){
             
