@@ -6,9 +6,13 @@
 package oasauctionclient;
 
 import ejb.session.stateless.AddressSessionBeanRemote;
+import ejb.session.stateless.AuctionListingSessionBeanRemote;
 import ejb.session.stateless.CreditPackageSessionBeanRemote;
 import ejb.session.stateless.CustomerSessionBeanRemote;
+import ejb.session.stateless.TransactionSessionBeanRemote;
 import entity.AddressEntity;
+import entity.AuctionListingEntity;
+import entity.BidEntity;
 import entity.CreditPackageEntity;
 import entity.TransactionEntity;
 import entity.CustomerEntity;
@@ -24,6 +28,7 @@ import util.exception.AddressNotFoundException;
 import util.exception.CustomerNotfoundException;
 import util.exception.CustomerUsernameExistException;
 import util.exception.InputDataValidationException;
+import util.exception.InvalidBidException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateAddressException;
@@ -41,6 +46,7 @@ public class MainApp {
     private CustomerSessionBeanRemote customerSessionBeanRemote;
     private AddressSessionBeanRemote addressSessionBeanRemote;
     private CreditPackageSessionBeanRemote creditPackageSessionBeanRemote;
+    private AuctionListingSessionBeanRemote auctionListingSessionBeanRemote;
     
     private CustomerEntity globalCustomerEntity;
 
@@ -185,13 +191,13 @@ public class MainApp {
                 } else if (response == 6) {
                     doViewCreditBalance();
                 } else if (response == 7) {
-//                    doViewCreditTransactionHistory();
+                    doViewCreditTransactionHistory();
                 } else if (response == 8) {
-//                    doPurchaseCreditPackage();
+                    doPurchaseCreditPackage();
                 } else if (response == 9) {
-//                    doBrowseAllAuctionListings();
+                    doBrowseAllAuctionListings();
                 } else if (response == 10) {
-//                    doViewAuctionListingDetails();
+                    doViewAuctionListingDetails();
                 } else if (response == 11) {
 //                    doBrowseWonAuctionListings();
                 } else if (response == 12) {
@@ -461,6 +467,85 @@ public class MainApp {
         
     }
     
+    private void doBrowseAllAuctionListings(){
+        System.out.println("*** Browse All Available Auction Listings***");
+        List<AuctionListingEntity> autionListingEntities = auctionListingSessionBeanRemote.retrieveAllAvailableAuctionListing();        
+        for (AuctionListingEntity auctionListing:autionListingEntities){
+            System.out.println("Auction Listing for " + auctionListing.getAuctionListingName()+ ", credit price: " + auctionListing.getHighestBidPrice());
+        }
+        System.out.println("These are the available Auction. To view more detail, select '10'");
+    }
+    
+    private void doViewAuctionListingDetails() throws InvalidBidException{
+        Scanner scanner = new Scanner(System.in);
+        
+        doBrowseAllAuctionListings();
+        System.out.println("*** View Auction Listing detail ***");
+        System.out.println("*** Please key in Available Auction Name ***");
+        
+        String reply = scanner.nextLine().trim();
+        AuctionListingEntity autionListingEntities = auctionListingSessionBeanRemote.retrieveAuctionListingViaName(reply);
+        System.out.println("Name" + autionListingEntities.getAuctionListingName());
+        System.out.println("Start Date and Time" + autionListingEntities.getStartDateTime());
+        System.out.println("End Date and Time" + autionListingEntities.getEndDateTime());
+        System.out.println("Highest Bidder" + autionListingEntities.getHighestBidPrice());
+        
+        System.out.println("\nWould you like to: ");
+        System.out.println("1: Place Bid");
+        System.out.println("2: Refresh Auction Listing Bids");
+        System.out.println("3: Back");
+        
+        
+        int response = scanner.nextInt();
+        
+        while (response < 1 || response > 3) {
+            
+            if (response == 1) {
+                System.out.println("Place your bid");
+                BigDecimal bidPrice = scanner.nextBigDecimal();
+                BigDecimal min = new BigDecimal(0.00);
+                BigDecimal highestBid = autionListingEntities.getHighestBidPrice();
+                if(highestBid.compareTo(new BigDecimal(0.01)) == 1 && highestBid.compareTo( new BigDecimal(0.99)) == -1){
+                    min = new BigDecimal(0.05);
+                } else if(highestBid.compareTo(new BigDecimal(1.00)) == 1 && highestBid.compareTo( new BigDecimal(4.99)) == -1) {
+                    min = new BigDecimal(0.25);
+                } else if(highestBid.compareTo(new BigDecimal(5.00)) == 1 && highestBid.compareTo( new BigDecimal(24.99)) == -1) {
+                    min = new BigDecimal(0.50);
+                }else if(highestBid.compareTo(new BigDecimal(25.00)) == 1 && highestBid.compareTo( new BigDecimal(99.99)) == -1) {
+                    min = new BigDecimal(1.00);
+                } else if(highestBid.compareTo(new BigDecimal(100.00)) == 1 && highestBid.compareTo( new BigDecimal(249.99)) == -1) {
+                    min = new BigDecimal(2.50);
+                } else if(highestBid.compareTo(new BigDecimal(250.00)) == 1 && highestBid.compareTo( new BigDecimal(499.99)) == -1) {
+                    min = new BigDecimal(5.00);
+                } else if(highestBid.compareTo(new BigDecimal(500.00)) == 1 && highestBid.compareTo( new BigDecimal(999.99)) == -1) {
+                    min = new BigDecimal(10.00);
+                } else if(highestBid.compareTo(new BigDecimal(1000.00)) == 1 && highestBid.compareTo( new BigDecimal(2499.99)) == -1) {
+                    min = new BigDecimal(25.00);
+                } else if(highestBid.compareTo(new BigDecimal(2500.00)) == 1 && highestBid.compareTo( new BigDecimal(4999.99)) == -1) {
+                    min = new BigDecimal(50.00);
+                } else if (highestBid.compareTo(new BigDecimal(5000.00)) == 1) {
+                    min = new BigDecimal(100.00);
+                }
+                
+                if(bidPrice.compareTo(autionListingEntities.getHighestBidPrice()) == 1 && !(bidPrice.compareTo(min) == -1)) {
+                    BidEntity bid = new BidEntity(bidPrice, globalCustomerEntity, autionListingEntities);// might be wrong
+                    System.out.println("new bid created");
+                } else {
+                    throw new InvalidBidException("Bid Price is not higher than the current highest bid\n or Price increment is not the right! \nRefer to price bidding increment table");
+                }
+            } else {
+                autionListingEntities = auctionListingSessionBeanRemote.retrieveAuctionListingViaName(reply);
+                System.out.println("Name" + autionListingEntities.getAuctionListingName());
+                System.out.println("Start Date and Time" + autionListingEntities.getStartDateTime());
+                System.out.println("End Date and Time" + autionListingEntities.getEndDateTime());
+                System.out.println("Highest Bidder" + autionListingEntities.getHighestBidPrice());
+            }
+             if (response == 3) {
+                break;
+            }
+        }
+    }
+    
     private void showInputDataValidationErrorsForCustomerEntity(Set<ConstraintViolation<CustomerEntity>> constraintViolations) {
         System.out.println("\nInput data validation error!:");
 
@@ -480,5 +565,6 @@ public class MainApp {
 
         System.out.println("\nPlease try again......\n");
     }
-    
+ 
+
 }

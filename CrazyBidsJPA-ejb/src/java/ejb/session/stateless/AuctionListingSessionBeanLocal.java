@@ -36,5 +36,9 @@ public interface AuctionListingSessionBeanLocal {
     public void updateAuctionListing(AuctionListingEntity auctionListingEntity) throws AuctionListingNotFoundException, InputDataValidationException, UpdateAuctionListingException, InvalidStartAndEndDatesException;
     
     public void deleteAuctionListing(Long auctionListingId) throws AuctionListingNotFoundException;
+
+    public List<AuctionListingEntity> retrieveAllAvailableAuctionListing();
+
+    public AuctionListingEntity retrieveAuctionListingViaName(String aucName);
     
 }

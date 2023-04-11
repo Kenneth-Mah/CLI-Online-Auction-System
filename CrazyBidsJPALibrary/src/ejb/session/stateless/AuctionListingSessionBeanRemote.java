@@ -37,4 +37,8 @@ public interface AuctionListingSessionBeanRemote {
     
     public void deleteAuctionListing(Long auctionListingId) throws AuctionListingNotFoundException;
     
+    public List<AuctionListingEntity> retrieveAllAvailableAuctionListing();
+    
+    public AuctionListingEntity retrieveAuctionListingViaName(String aucName);
+    
 }

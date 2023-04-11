@@ -37,7 +37,7 @@ public class BidEntity implements Serializable, Comparable<BidEntity> {
     
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
-    private CustomerEntity customer;
+    private CustomerEntity customer; 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private AuctionListingEntity auctionListing;

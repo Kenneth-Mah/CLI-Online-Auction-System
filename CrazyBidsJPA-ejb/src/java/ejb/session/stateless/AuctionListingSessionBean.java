@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.AuctionListingEntity;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -178,5 +179,17 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
 
         return msg;
     }
+    
+    @Override
+    public List<AuctionListingEntity> retrieveAllAvailableAuctionListing() {
+        Query query = em.createQuery("SELECT al FROM AuctionListingEntity al WHERE al.disabled = FALSE");
+        return query.getResultList();
+    }
 
+    @Override
+    public AuctionListingEntity retrieveAuctionListingViaName(String aucName) {
+        Query query = em.createQuery("SELECT al FROM AuctionListingEntity al WHERE al.auctionListingName = :name && al.disabled = FALSE");
+        query.setParameter("name", aucName);
+        return (AuctionListingEntity) query.getSingleResult();
+    }
 }
