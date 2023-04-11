@@ -39,7 +39,7 @@ import util.exception.UpdateCustomerException;
  * @author yeowh
  */
 public class MainApp {
-    
+
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
 
@@ -47,7 +47,7 @@ public class MainApp {
     private AddressSessionBeanRemote addressSessionBeanRemote;
     private CreditPackageSessionBeanRemote creditPackageSessionBeanRemote;
     private AuctionListingSessionBeanRemote auctionListingSessionBeanRemote;
-    
+
     private CustomerEntity globalCustomerEntity;
 
     public MainApp() {
@@ -82,9 +82,9 @@ public class MainApp {
                     try {
                         doLogin();
                         System.out.println("Login successful!\n");
-                        
+
                         menuCustomer();
-                        
+
                     } catch (InvalidLoginCredentialException ex) {
                         System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
                     }
@@ -119,7 +119,7 @@ public class MainApp {
             throw new InvalidLoginCredentialException("Missing login credential!");
         }
     }
-    
+
     private void doRegister() {
         Scanner scanner = new Scanner(System.in);
         CustomerEntity newCustomerEntity = new CustomerEntity();
@@ -163,7 +163,7 @@ public class MainApp {
             System.out.println("2: Update Profile");
             System.out.println("3: Create Address");
             System.out.println("4: View Address Details");
-            System.out.println("5: View All Addresses"); 
+            System.out.println("5: View All Addresses");
             System.out.println("6: View Credit Balance");
             System.out.println("7: View Credit Transaction History");
             System.out.println("8: Purchase Credit Package");
@@ -179,7 +179,7 @@ public class MainApp {
                 response = scanner.nextInt();
 
                 if (response == 1) {
-                    doViewProfile();                    
+                    doViewProfile();
                 } else if (response == 2) {
                     doUpdateProfile();
                 } else if (response == 3) {
@@ -212,15 +212,15 @@ public class MainApp {
             }
         }
     }
-    
+
     private void doViewProfile() {
         try {
             CustomerEntity customerEntity = customerSessionBeanRemote.retrieveCustomerByCustomerId(globalCustomerEntity.getCustomerId());
-            
+
             System.out.println("*** OAS Auction Client :: View Profile ***\n");
             System.out.println("First Name: " + customerEntity.getFirstName());
             System.out.println("Last Name: " + customerEntity.getLastName() + "\n");
-            
+
             Scanner scanner = new Scanner(System.in);
             System.out.print("Press any key to continue...> ");
             scanner.nextLine();
@@ -232,10 +232,10 @@ public class MainApp {
     private void doUpdateProfile() {
         Scanner scanner = new Scanner(System.in);
         String input;
-        
+
         try {
             CustomerEntity customerEntity = customerSessionBeanRemote.retrieveCustomerByCustomerId(globalCustomerEntity.getCustomerId());
-            
+
             System.out.println("*** OAS Auction Client :: Update Profile ***\n");
             System.out.println("Enter First Name (blank if no change)>");
             input = scanner.nextLine().trim();
@@ -269,22 +269,22 @@ public class MainApp {
             System.out.println(ex.getMessage() + "\n");
         }
     }
-    
+
     private void doCreateAddress() {
         Scanner scanner = new Scanner(System.in);
         AddressEntity newAddressEntity = new AddressEntity();
-        
+
         System.out.println("*** OAS Auction Client :: Create New Address ***\n");
         System.out.print("Enter Address Name> ");
         newAddressEntity.setAddressName(scanner.nextLine().trim());
-        
+
         Set<ConstraintViolation<AddressEntity>> constraintViolations = validator.validate(newAddressEntity);
-        
+
         if (constraintViolations.isEmpty()) {
             try {
                 Long newAddressId = addressSessionBeanRemote.createNewAddress(newAddressEntity);
                 System.out.println("New address created successfully!: " + newAddressId + "\n");
-                
+
                 globalCustomerEntity = customerSessionBeanRemote.addAddressToCustomer(globalCustomerEntity.getCustomerId(), newAddressId);
             } catch (UnknownPersistenceException ex) {
                 System.out.println("An unknown error has occurred while creating the new address!: " + ex.getMessage() + "\n");
@@ -295,7 +295,7 @@ public class MainApp {
             showInputDataValidationErrorsForAddressEntity(constraintViolations);
         }
     }
-    
+
     private void doViewAddressDetails() {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -335,7 +335,7 @@ public class MainApp {
             System.out.println("An error has occurred while retrieving address: " + ex.getMessage() + "\n");
         }
     }
-    
+
     private void doUpdateAddress(AddressEntity addressEntity) {
         Scanner scanner = new Scanner(System.in);
         String input;
@@ -362,7 +362,7 @@ public class MainApp {
             showInputDataValidationErrorsForAddressEntity(constraintViolations);
         }
     }
-    
+
     private void doDeleteAddress(AddressEntity addressEntity) {
         Scanner scanner = new Scanner(System.in);
         String input;
@@ -387,33 +387,33 @@ public class MainApp {
             System.out.println("Address NOT deleted!\n");
         }
     }
-    
+
     private void doViewAllAddresses() {
         try {
             List<AddressEntity> addressEntities = customerSessionBeanRemote.retrieveAllAddressesByCustomerId(globalCustomerEntity.getCustomerId());
-            
+
             Scanner scanner = new Scanner(System.in);
             System.out.println("*** OAS Auction Client :: View All Addresses ***\n");
             System.out.printf("%10s%35s%9s\n", "Address ID", "Address Name", "Active");
-            
+
             for (AddressEntity addressEntity : addressEntities) {
                 System.out.printf("%10s%35s%9s\n", addressEntity.getAddressId(), addressEntity.getAddressName(), addressEntity.getActive());
             }
-            
+
             System.out.print("Press any key to continue...> ");
             scanner.nextLine();
         } catch (CustomerNotfoundException ex) {
             System.out.println(ex.getMessage() + "\n");
         }
     }
-    
+
     private void doViewCreditBalance() {
         try {
             globalCustomerEntity = customerSessionBeanRemote.retrieveCustomerByCustomerId(globalCustomerEntity.getCustomerId());
-            
+
             System.out.println("*** OAS Auction Client :: View Credit Balance ***\n");
             System.out.println("Credit Balance: " + globalCustomerEntity.getAvailableBalance() + "\n");
-            
+
             Scanner scanner = new Scanner(System.in);
             System.out.print("Press any key to continue...> ");
             scanner.nextLine();
@@ -424,16 +424,16 @@ public class MainApp {
 
     private void doViewCreditTransactionHistory() {
         System.out.println("*** OAS Auction Client :: View Credit Transaction History ***\n");
-        
+
         List<TransactionEntity> transactionEntities = globalCustomerEntity.getTransactions();
         //System.out.println(customerSessionBeanRemote.getTransHist()); //must make it print line by line per transaction
-        for(TransactionEntity transactionEntity : transactionEntities){
-            
+        for (TransactionEntity transactionEntity : transactionEntities) {
+
             System.out.println("Trasaction for " + transactionEntity.getTimeOfTransaction());
             System.out.println("Transaction ID: " + transactionEntity.getTransactionid() + "\nAmount: " + transactionEntity.getTransactionAmount());
-            
+
             //To check which type it is , we  need to to check if credit Pacakage/Bid entity is NOT NULL;
-            if (transactionEntity.getBid() != null){
+            if (transactionEntity.getBid() != null) {
                 if (transactionEntity.getTransactionAmount().compareTo(BigDecimal.ZERO) < 0) { // NEGATIVE MEANS CUSTOMER SPEAND MONEY TO BID
                     System.out.println("Transaction Type [BID]: " + transactionEntity.getTransactionAmount());
                 } else {// possitive == refund
@@ -450,102 +450,108 @@ public class MainApp {
         Scanner scanner = new Scanner(System.in);
         System.out.println("*** Current available credit package ***\n");
         List<CreditPackageEntity> creditPackageEntities = creditPackageSessionBeanRemote.retrieveAllAvailableCreditPackages();
-        
-        for (CreditPackageEntity creditPackage:creditPackageEntities){
+
+        for (CreditPackageEntity creditPackage : creditPackageEntities) {
             System.out.println("Credit Packages for " + creditPackage.getCreditPackageType() + " type, credit price: " + creditPackage.getCreditPrice());
         }
-        
+
         System.out.println("Choose type of credit package to purchase: ");
         System.out.println("or type 'EXIT' to exit");
-        
+
         String reply = scanner.nextLine().trim().toUpperCase();
 //        if (!reply.equals("EXIT")) {
 //        Query query = em.createQuery("SELECT c FROM CreditPackageEntity c WHERE c.creditPackageType = :type");
 //        query.setParameter("type", reply);
 //        TransactionEntity purchaseCredittransaction = new TransactionEntity(credit);
 //        }
-        
     }
-    
-    private void doBrowseAllAuctionListings(){
+
+    private void doBrowseAllAuctionListings() {
         System.out.println("*** Browse All Available Auction Listings***");
-        List<AuctionListingEntity> autionListingEntities = auctionListingSessionBeanRemote.retrieveAllAvailableAuctionListing();        
-        for (AuctionListingEntity auctionListing:autionListingEntities){
-            System.out.println("Auction Listing for " + auctionListing.getAuctionListingName()+ ", credit price: " + auctionListing.getHighestBidPrice());
+        List<AuctionListingEntity> autionListingEntities = auctionListingSessionBeanRemote.retrieveAllAvailableAuctionListing();
+        for (AuctionListingEntity auctionListing : autionListingEntities) {
+            System.out.println("Auction Listing for " + auctionListing.getAuctionListingName() + ", credit price: " + auctionListing.getHighestBidPrice());
         }
         System.out.println("These are the available Auction. To view more detail, select '10'");
     }
-    
-    private void doViewAuctionListingDetails() throws InvalidBidException{
+
+    private void doViewAuctionListingDetails() throws InvalidBidException {
         Scanner scanner = new Scanner(System.in);
-        
-        doBrowseAllAuctionListings();
-        System.out.println("*** View Auction Listing detail ***");
-        System.out.println("*** Please key in Available Auction Name ***");
-        
-        String reply = scanner.nextLine().trim();
-        AuctionListingEntity autionListingEntities = auctionListingSessionBeanRemote.retrieveAuctionListingViaName(reply);
-        System.out.println("Name" + autionListingEntities.getAuctionListingName());
-        System.out.println("Start Date and Time" + autionListingEntities.getStartDateTime());
-        System.out.println("End Date and Time" + autionListingEntities.getEndDateTime());
-        System.out.println("Highest Bidder" + autionListingEntities.getHighestBidPrice());
-        
-        System.out.println("\nWould you like to: ");
-        System.out.println("1: Place Bid");
-        System.out.println("2: Refresh Auction Listing Bids");
-        System.out.println("3: Back");
-        
-        
-        int response = scanner.nextInt();
-        
-        while (response < 1 || response > 3) {
-            
-            if (response == 1) {
-                System.out.println("Place your bid");
-                BigDecimal bidPrice = scanner.nextBigDecimal();
-                BigDecimal min = new BigDecimal(0.00);
-                BigDecimal highestBid = autionListingEntities.getHighestBidPrice();
-                if(highestBid.compareTo(new BigDecimal(0.01)) == 1 && highestBid.compareTo( new BigDecimal(0.99)) == -1){
-                    min = new BigDecimal(0.05);
-                } else if(highestBid.compareTo(new BigDecimal(1.00)) == 1 && highestBid.compareTo( new BigDecimal(4.99)) == -1) {
-                    min = new BigDecimal(0.25);
-                } else if(highestBid.compareTo(new BigDecimal(5.00)) == 1 && highestBid.compareTo( new BigDecimal(24.99)) == -1) {
-                    min = new BigDecimal(0.50);
-                }else if(highestBid.compareTo(new BigDecimal(25.00)) == 1 && highestBid.compareTo( new BigDecimal(99.99)) == -1) {
-                    min = new BigDecimal(1.00);
-                } else if(highestBid.compareTo(new BigDecimal(100.00)) == 1 && highestBid.compareTo( new BigDecimal(249.99)) == -1) {
-                    min = new BigDecimal(2.50);
-                } else if(highestBid.compareTo(new BigDecimal(250.00)) == 1 && highestBid.compareTo( new BigDecimal(499.99)) == -1) {
-                    min = new BigDecimal(5.00);
-                } else if(highestBid.compareTo(new BigDecimal(500.00)) == 1 && highestBid.compareTo( new BigDecimal(999.99)) == -1) {
-                    min = new BigDecimal(10.00);
-                } else if(highestBid.compareTo(new BigDecimal(1000.00)) == 1 && highestBid.compareTo( new BigDecimal(2499.99)) == -1) {
-                    min = new BigDecimal(25.00);
-                } else if(highestBid.compareTo(new BigDecimal(2500.00)) == 1 && highestBid.compareTo( new BigDecimal(4999.99)) == -1) {
-                    min = new BigDecimal(50.00);
-                } else if (highestBid.compareTo(new BigDecimal(5000.00)) == 1) {
-                    min = new BigDecimal(100.00);
-                }
-                
-                if(bidPrice.compareTo(autionListingEntities.getHighestBidPrice()) == 1 && !(bidPrice.compareTo(min) == -1)) {
-                    BidEntity bid = new BidEntity(bidPrice, globalCustomerEntity, autionListingEntities);// might be wrong
-                    System.out.println("new bid created");
+
+        while (true) {
+
+            doBrowseAllAuctionListings();
+            System.out.println("*** View Auction Listing detail ***");
+            System.out.println("*** Please key in Available Auction Name ***");
+
+            String reply = scanner.nextLine().trim();
+            AuctionListingEntity autionListingEntities = auctionListingSessionBeanRemote.retrieveAuctionListingViaName(reply);
+            System.out.println("Name" + autionListingEntities.getAuctionListingName());
+            System.out.println("Start Date and Time" + autionListingEntities.getStartDateTime());
+            System.out.println("End Date and Time" + autionListingEntities.getEndDateTime());
+            System.out.println("Highest Bidder" + autionListingEntities.getHighestBidPrice());
+
+            System.out.println("\nWould you like to: ");
+            System.out.println("1: Place Bid");
+            System.out.println("2: Refresh Auction Listing Bids");
+            System.out.println("3: Back");
+
+            int response = scanner.nextInt();
+
+            while (response < 1 || response > 3) {
+
+                if (response == 1) {
+                    System.out.println("Place your bid");
+                    BigDecimal bidPrice = scanner.nextBigDecimal();
+                    BigDecimal min = new BigDecimal(0.00);
+                    BigDecimal highestBid = autionListingEntities.getHighestBidPrice();
+                    if (highestBid.compareTo(new BigDecimal(0.01)) == 1 && highestBid.compareTo(new BigDecimal(0.99)) == -1) {
+                        min = new BigDecimal(0.05);
+                    } else if (highestBid.compareTo(new BigDecimal(1.00)) == 1 && highestBid.compareTo(new BigDecimal(4.99)) == -1) {
+                        min = new BigDecimal(0.25);
+                    } else if (highestBid.compareTo(new BigDecimal(5.00)) == 1 && highestBid.compareTo(new BigDecimal(24.99)) == -1) {
+                        min = new BigDecimal(0.50);
+                    } else if (highestBid.compareTo(new BigDecimal(25.00)) == 1 && highestBid.compareTo(new BigDecimal(99.99)) == -1) {
+                        min = new BigDecimal(1.00);
+                    } else if (highestBid.compareTo(new BigDecimal(100.00)) == 1 && highestBid.compareTo(new BigDecimal(249.99)) == -1) {
+                        min = new BigDecimal(2.50);
+                    } else if (highestBid.compareTo(new BigDecimal(250.00)) == 1 && highestBid.compareTo(new BigDecimal(499.99)) == -1) {
+                        min = new BigDecimal(5.00);
+                    } else if (highestBid.compareTo(new BigDecimal(500.00)) == 1 && highestBid.compareTo(new BigDecimal(999.99)) == -1) {
+                        min = new BigDecimal(10.00);
+                    } else if (highestBid.compareTo(new BigDecimal(1000.00)) == 1 && highestBid.compareTo(new BigDecimal(2499.99)) == -1) {
+                        min = new BigDecimal(25.00);
+                    } else if (highestBid.compareTo(new BigDecimal(2500.00)) == 1 && highestBid.compareTo(new BigDecimal(4999.99)) == -1) {
+                        min = new BigDecimal(50.00);
+                    } else if (highestBid.compareTo(new BigDecimal(5000.00)) == 1) {
+                        min = new BigDecimal(100.00);
+                    }
+
+                    if (bidPrice.compareTo(autionListingEntities.getHighestBidPrice()) == 1 && !(bidPrice.compareTo(min) == -1)) {
+                        BidEntity bid = new BidEntity(bidPrice, globalCustomerEntity, autionListingEntities);// might be wrong
+                        System.out.println("new bid created");
+                    } else {
+                        throw new InvalidBidException("Bid Price is not higher than the current highest bid, highest bidder price " + autionListingEntities.getHighestBidPrice() + "\n or Price increment is not the right! \nRefer to price bidding increment table");
+                    }
+                } else if (response == 2) {
+                    autionListingEntities = auctionListingSessionBeanRemote.retrieveAuctionListingViaName(reply);
+                    System.out.println("Name" + autionListingEntities.getAuctionListingName());
+                    System.out.println("Start Date and Time" + autionListingEntities.getStartDateTime());
+                    System.out.println("End Date and Time" + autionListingEntities.getEndDateTime());
+                    System.out.println("Highest Bidder" + autionListingEntities.getHighestBidPrice());
+                } else if (response == 3) {
+                    break;
                 } else {
-                    throw new InvalidBidException("Bid Price is not higher than the current highest bid\n or Price increment is not the right! \nRefer to price bidding increment table");
+                    System.out.println("Invalid option, please try again!\n");
                 }
-            } else {
-                autionListingEntities = auctionListingSessionBeanRemote.retrieveAuctionListingViaName(reply);
-                System.out.println("Name" + autionListingEntities.getAuctionListingName());
-                System.out.println("Start Date and Time" + autionListingEntities.getStartDateTime());
-                System.out.println("End Date and Time" + autionListingEntities.getEndDateTime());
-                System.out.println("Highest Bidder" + autionListingEntities.getHighestBidPrice());
             }
-             if (response == 3) {
+
+            if (response == 3) {
                 break;
             }
         }
     }
-    
+
     private void showInputDataValidationErrorsForCustomerEntity(Set<ConstraintViolation<CustomerEntity>> constraintViolations) {
         System.out.println("\nInput data validation error!:");
 
@@ -555,7 +561,7 @@ public class MainApp {
 
         System.out.println("\nPlease try again......\n");
     }
-    
+
     private void showInputDataValidationErrorsForAddressEntity(Set<ConstraintViolation<AddressEntity>> constraintViolations) {
         System.out.println("\nInput data validation error!:");
 
@@ -565,6 +571,4 @@ public class MainApp {
 
         System.out.println("\nPlease try again......\n");
     }
- 
-
 }
