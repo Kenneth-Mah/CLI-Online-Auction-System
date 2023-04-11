@@ -38,6 +38,8 @@ public interface CustomerSessionBeanLocal {
 
     public AddressEntity retrieveAddressByCustomerIdAndAddressId(Long customerId, Long addressId) throws CustomerNotfoundException, AddressNotFoundException;
 
+    public void deleteCustomerAddress(Long customerId, Long addressId) throws CustomerNotfoundException, AddressNotFoundException;
+
     public List<AddressEntity> retrieveAllAddressesByCustomerId(Long customerId) throws CustomerNotfoundException;
     
 }

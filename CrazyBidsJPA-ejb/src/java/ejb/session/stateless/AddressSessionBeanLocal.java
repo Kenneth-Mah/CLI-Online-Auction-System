@@ -10,6 +10,7 @@ import javax.ejb.Local;
 import util.exception.AddressNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateAddressException;
 
 /**
  *
@@ -21,5 +22,9 @@ public interface AddressSessionBeanLocal {
     public Long createNewAddress(AddressEntity newAddressEntity) throws UnknownPersistenceException, InputDataValidationException;
 
     public AddressEntity retrieveAddressByAddressId(Long addressId) throws AddressNotFoundException;
+
+    public Boolean isAddressInUse(Long addressId) throws AddressNotFoundException;
+
+    public void updateAddress(AddressEntity addressEntity) throws AddressNotFoundException, UpdateAddressException, InputDataValidationException;
     
 }

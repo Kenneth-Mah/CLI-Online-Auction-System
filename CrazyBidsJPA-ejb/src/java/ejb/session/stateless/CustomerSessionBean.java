@@ -164,6 +164,27 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
     }
     
     @Override
+    public void deleteCustomerAddress(Long customerId, Long addressId) throws CustomerNotfoundException, AddressNotFoundException {
+        CustomerEntity customerEntity = retrieveCustomerByCustomerId(customerId);
+        AddressEntity addressEntity = addressSessionBeanLocal.retrieveAddressByAddressId(addressId);
+        
+        List<AddressEntity> addressEntities = customerEntity.getAddresses();
+
+        if (addressEntities.contains(addressEntity)) {
+            if (!addressSessionBeanLocal.isAddressInUse(addressId)) {
+                addressEntities.remove(addressEntity);
+                customerEntity.setAddresses(addressEntities);
+                
+                em.remove(addressEntity);
+            } else {
+                addressEntity.setActive(false);
+            }
+        } else {
+            throw new AddressNotFoundException("Address ID " + addressId + " does not exist!");
+        }
+    }
+    
+    @Override
     public List<AddressEntity> retrieveAllAddressesByCustomerId(Long customerId) throws CustomerNotfoundException {
         CustomerEntity customerEntity = retrieveCustomerByCustomerId(customerId);
         List<AddressEntity> addressEntities = customerEntity.getAddresses();

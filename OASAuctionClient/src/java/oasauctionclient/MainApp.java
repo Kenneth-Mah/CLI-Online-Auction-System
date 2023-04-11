@@ -26,6 +26,7 @@ import util.exception.CustomerUsernameExistException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateAddressException;
 import util.exception.UpdateCustomerException;
 
 /**
@@ -310,9 +311,19 @@ public class MainApp {
             response = scanner.nextInt();
 
             if (response == 1) {
-                doUpdateAddress(addressEntity);
+                if (!addressEntity.getActive()) {
+                    System.out.println("This address has been disabled and cannot be modified!");
+                } else if (addressSessionBeanRemote.isAddressInUse(addressEntity.getAddressId())) {
+                    System.out.println("This address is in use and cannot be modified!");
+                } else {
+                    doUpdateAddress(addressEntity);
+                }
             } else if (response == 2) {
-                doDeleteAddress(addressEntity);
+                if (addressEntity.getActive()) {
+                    doDeleteAddress(addressEntity);
+                } else {
+                    System.out.println("This address cannot be removed as it is in use! However, it has already been marked as disabled!");
+                }
             }
         } catch (CustomerNotfoundException | AddressNotFoundException ex) {
             System.out.println("An error has occurred while retrieving address: " + ex.getMessage() + "\n");
@@ -320,11 +331,55 @@ public class MainApp {
     }
     
     private void doUpdateAddress(AddressEntity addressEntity) {
-        
+        Scanner scanner = new Scanner(System.in);
+        String input;
+
+        System.out.println("*** OAS Auction Client :: View Address Details :: Update Address ***\n");
+        System.out.print("Enter Address Name (blank if no change)> ");
+        input = scanner.nextLine().trim();
+        if (input.length() > 0) {
+            addressEntity.setAddressName(input);
+        }
+
+        Set<ConstraintViolation<AddressEntity>> constraintViolations = validator.validate(addressEntity);
+
+        if (constraintViolations.isEmpty()) {
+            try {
+                addressSessionBeanRemote.updateAddress(addressEntity);
+                System.out.println("Address updated successfully!\n");
+            } catch (AddressNotFoundException | UpdateAddressException ex) {
+                System.out.println("An error has occurred while updating address: " + ex.getMessage() + "\n");
+            } catch (InputDataValidationException ex) {
+                System.out.println(ex.getMessage() + "\n");
+            }
+        } else {
+            showInputDataValidationErrorsForAddressEntity(constraintViolations);
+        }
     }
     
     private void doDeleteAddress(AddressEntity addressEntity) {
-        
+        Scanner scanner = new Scanner(System.in);
+        String input;
+
+        System.out.println("*** OAS Auction Client :: View Address Details :: Delete Address ***\n");
+        System.out.printf("Confirm Delete Address %s (Address ID: %d) (Enter 'Y' to Delete)> ", addressEntity.getAddressName(), addressEntity.getAddressId());
+        input = scanner.nextLine().trim();
+
+        if (input.equals("Y")) {
+            try {
+                if (!addressSessionBeanRemote.isAddressInUse(addressEntity.getAddressId())) {
+                    customerSessionBeanRemote.deleteCustomerAddress(globalCustomerEntity.getCustomerId(), addressEntity.getAddressId());
+                    System.out.println("Address deleted successfully!\n");
+                } else {
+                    customerSessionBeanRemote.deleteCustomerAddress(globalCustomerEntity.getCustomerId(), addressEntity.getAddressId());
+                    System.out.println("Address is in use and cannot be removed! However, it has been disabled successfully!");
+                }
+            } catch (CustomerNotfoundException | AddressNotFoundException ex) {
+                System.out.println("An error has occurred while deleting the address: " + ex.getMessage() + "\n");
+            }
+        } else {
+            System.out.println("Address NOT deleted!\n");
+        }
     }
     
     private void doViewAllAddresses() {

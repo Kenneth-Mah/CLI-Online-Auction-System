@@ -18,6 +18,7 @@ import javax.validation.ValidatorFactory;
 import util.exception.AddressNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateAddressException;
 
 /**
  *
@@ -70,6 +71,41 @@ public class AddressSessionBean implements AddressSessionBeanRemote, AddressSess
     }
     
     // Not adding retrieveAddressByAddressName because addressName is not unique!
+    
+    @Override
+    public Boolean isAddressInUse(Long addressId) throws AddressNotFoundException {
+        AddressEntity addressEntity = retrieveAddressByAddressId(addressId);
+        
+        if (addressEntity.getWonAuctions().size() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    @Override
+    public void updateAddress(AddressEntity addressEntity) throws AddressNotFoundException, UpdateAddressException, InputDataValidationException {
+        if (addressEntity != null && addressEntity.getAddressId()!= null) {
+            Set<ConstraintViolation<AddressEntity>> constraintViolations = validator.validate(addressEntity);
+
+            if (constraintViolations.isEmpty()) {
+                AddressEntity addressEntityToUpdate = retrieveAddressByAddressId(addressEntity.getAddressId());
+                if (isAddressInUse(addressEntityToUpdate.getAddressId())) {
+                    throw new UpdateAddressException("Address record to be updated is in use and cannot be updated!");
+                } else if (!addressEntityToUpdate.getActive()) {
+                    throw new UpdateAddressException("Address record to be updated has been disabled and cannot be updated!");
+                } else {
+                    addressEntityToUpdate.setAddressName(addressEntity.getAddressName());
+                }
+            } else {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
+        } else {
+            throw new AddressNotFoundException("Address ID not provided for address to be updated");
+        }
+    }
+    
+    // deleteAddress() is in CustomerSessionBean as we have to unbind the relationship before deletion
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<AddressEntity>> constraintViolations) {
         String msg = "Input data validation error!:";
