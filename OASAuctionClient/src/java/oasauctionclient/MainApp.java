@@ -475,7 +475,7 @@ public class MainApp {
         System.out.println("These are the available Auction. To view more detail, select '10'");
     }
 
-    private void doViewAuctionListingDetails() throws InvalidBidException {
+    private void doViewAuctionListingDetails(){
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -531,7 +531,7 @@ public class MainApp {
                         BidEntity bid = new BidEntity(bidPrice, globalCustomerEntity, autionListingEntities);// might be wrong
                         System.out.println("new bid created");
                     } else {
-                        throw new InvalidBidException("Bid Price is not higher than the current highest bid, highest bidder price " + autionListingEntities.getHighestBidPrice() + "\n or Price increment is not the right! \nRefer to price bidding increment table");
+                        System.out.println("Bid Price is not higher than the current highest bid, highest bidder price " + autionListingEntities.getHighestBidPrice() + "\n or Price increment is not the right! \nRefer to price bidding increment table");
                     }
                 } else if (response == 2) {
                     autionListingEntities = auctionListingSessionBeanRemote.retrieveAuctionListingViaName(reply);
