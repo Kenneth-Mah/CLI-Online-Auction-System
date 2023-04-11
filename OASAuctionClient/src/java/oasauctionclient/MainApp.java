@@ -178,7 +178,7 @@ public class MainApp {
                 } else if (response == 3) {
                     doCreateAddress();
                 } else if (response == 4) {
-//                    doViewAddressDetails();
+                    doViewAddressDetails();
                 } else if (response == 5) {
                     doViewAllAddresses();
                 } else if (response == 6) {
@@ -287,6 +287,44 @@ public class MainApp {
         } else {
             showInputDataValidationErrorsForAddressEntity(constraintViolations);
         }
+    }
+    
+    private void doViewAddressDetails() {
+        Scanner scanner = new Scanner(System.in);
+        Integer response = 0;
+
+        System.out.println("*** OAS Auction Client :: View Address Details ***\n");
+        System.out.print("Enter Address ID> ");
+        Long addressID = scanner.nextLong();
+        scanner.nextLine();
+
+        try {
+            AddressEntity addressEntity = customerSessionBeanRemote.retrieveAddressByCustomerIdAndAddressId(globalCustomerEntity.getCustomerId(), addressID);
+            System.out.printf("%10s%35s%9s\n", "Address ID", "Address Name", "Active");
+            System.out.printf("%10s%35s%9s\n", addressEntity.getAddressId(), addressEntity.getAddressName(), addressEntity.getActive());
+            System.out.println("------------------------");
+            System.out.println("1: Update Address");
+            System.out.println("2: Delete Address");
+            System.out.println("3: Back\n");
+            System.out.print("> ");
+            response = scanner.nextInt();
+
+            if (response == 1) {
+                doUpdateAddress(addressEntity);
+            } else if (response == 2) {
+                doDeleteAddress(addressEntity);
+            }
+        } catch (CustomerNotfoundException | AddressNotFoundException ex) {
+            System.out.println("An error has occurred while retrieving address: " + ex.getMessage() + "\n");
+        }
+    }
+    
+    private void doUpdateAddress(AddressEntity addressEntity) {
+        
+    }
+    
+    private void doDeleteAddress(AddressEntity addressEntity) {
+        
     }
     
     private void doViewAllAddresses() {

@@ -152,6 +152,18 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
     }
     
     @Override
+    public AddressEntity retrieveAddressByCustomerIdAndAddressId(Long customerId, Long addressId) throws CustomerNotfoundException, AddressNotFoundException {
+        CustomerEntity customerEntity = retrieveCustomerByCustomerId(customerId);
+        AddressEntity addressEntity = addressSessionBeanLocal.retrieveAddressByAddressId(addressId);
+        
+        if (customerEntity.getAddresses().contains(addressEntity)) {
+            return addressEntity;
+        } else {
+            throw new AddressNotFoundException("Address ID " + addressId + " does not exist!");
+        }
+    }
+    
+    @Override
     public List<AddressEntity> retrieveAllAddressesByCustomerId(Long customerId) throws CustomerNotfoundException {
         CustomerEntity customerEntity = retrieveCustomerByCustomerId(customerId);
         List<AddressEntity> addressEntities = customerEntity.getAddresses();

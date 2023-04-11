@@ -6,7 +6,6 @@
 package ejb.session.stateless;
 
 import entity.AddressEntity;
-import java.util.List;
 import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
