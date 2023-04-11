@@ -180,13 +180,13 @@ public class MainApp {
                 } else if (response == 4) {
 //                    doViewAddressDetails();
                 } else if (response == 5) {
-//                    doViewAllAddresses();
+                    doViewAllAddresses();
                 } else if (response == 6) {
                     doViewCreditBalance();
                 } else if (response == 7) {
-                    doViewCreditTransactionHistory();
+//                    doViewCreditTransactionHistory();
                 } else if (response == 8) {
-                    doPurchaseCreditPackage();
+//                    doPurchaseCreditPackage();
                 } else if (response == 9) {
 //                    doBrowseAllAuctionListings();
                 } else if (response == 10) {
@@ -278,7 +278,7 @@ public class MainApp {
                 Long newAddressId = addressSessionBeanRemote.createNewAddress(newAddressEntity);
                 System.out.println("New address created successfully!: " + newAddressId + "\n");
                 
-                globalCustomerEntity = customerSessionBeanRemote.addAddressToCustomer(newAddressId, globalCustomerEntity.getCustomerId());
+                globalCustomerEntity = customerSessionBeanRemote.addAddressToCustomer(globalCustomerEntity.getCustomerId(), newAddressId);
             } catch (UnknownPersistenceException ex) {
                 System.out.println("An unknown error has occurred while creating the new address!: " + ex.getMessage() + "\n");
             } catch (InputDataValidationException | CustomerNotfoundException | AddressNotFoundException ex) {
@@ -286,6 +286,25 @@ public class MainApp {
             }
         } else {
             showInputDataValidationErrorsForAddressEntity(constraintViolations);
+        }
+    }
+    
+    private void doViewAllAddresses() {
+        try {
+            List<AddressEntity> addressEntities = customerSessionBeanRemote.retrieveAllAddressesByCustomerId(globalCustomerEntity.getCustomerId());
+            
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("*** OAS Auction Client :: View All Addresses ***\n");
+            System.out.printf("%10s%35s%9s\n", "Address ID", "Address Name", "Active");
+            
+            for (AddressEntity addressEntity : addressEntities) {
+                System.out.printf("%10s%35s%9s\n", addressEntity.getAddressId(), addressEntity.getAddressName(), addressEntity.getActive());
+            }
+            
+            System.out.print("Press any key to continue...> ");
+            scanner.nextLine();
+        } catch (CustomerNotfoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
         }
     }
     

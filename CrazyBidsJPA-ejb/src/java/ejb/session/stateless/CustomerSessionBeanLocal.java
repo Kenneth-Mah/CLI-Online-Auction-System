@@ -5,7 +5,9 @@
  */
 package ejb.session.stateless;
 
+import entity.AddressEntity;
 import entity.CustomerEntity;
+import java.util.List;
 import javax.ejb.Local;
 import util.exception.AddressNotFoundException;
 import util.exception.CustomerNotfoundException;
@@ -33,5 +35,7 @@ public interface CustomerSessionBeanLocal {
     public void updateCustomer(CustomerEntity customerEntity) throws CustomerNotfoundException, UpdateCustomerException, InputDataValidationException;
 
     public CustomerEntity addAddressToCustomer(Long customerId, Long addressId) throws CustomerNotfoundException, AddressNotFoundException;
+
+    public List<AddressEntity> retrieveAllAddressesByCustomerId(Long customerId) throws CustomerNotfoundException;
     
 }

@@ -151,6 +151,14 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
         return customerEntity;
     }
     
+    @Override
+    public List<AddressEntity> retrieveAllAddressesByCustomerId(Long customerId) throws CustomerNotfoundException {
+        CustomerEntity customerEntity = retrieveCustomerByCustomerId(customerId);
+        List<AddressEntity> addressEntities = customerEntity.getAddresses();
+        addressEntities.size();
+        return addressEntities;
+    }
+    
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<CustomerEntity>> constraintViolations) {
         String msg = "Input data validation error!:";
 
