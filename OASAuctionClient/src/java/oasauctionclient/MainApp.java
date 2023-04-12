@@ -16,11 +16,10 @@ import entity.CreditPackageEntity;
 import entity.TransactionEntity;
 import entity.CustomerEntity;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -43,6 +42,8 @@ public class MainApp {
 
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
+    
+    private DecimalFormat decimalFormat;
 
     private CustomerSessionBeanRemote customerSessionBeanRemote;
     private AddressSessionBeanRemote addressSessionBeanRemote;
@@ -52,6 +53,7 @@ public class MainApp {
     private CustomerEntity globalCustomerEntity;
 
     public MainApp() {
+        decimalFormat = new DecimalFormat("#0.0000");
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
@@ -450,7 +452,7 @@ public class MainApp {
 
     private void doPurchaseCreditPackage() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("*** Current available credit package ***\n");
+        System.out.println("*** OAS Auction Client :: Purchase Credit Package ***\n");
         List<CreditPackageEntity> creditPackageEntities = creditPackageSessionBeanRemote.retrieveAllAvailableCreditPackages();
 
         for (CreditPackageEntity creditPackage : creditPackageEntities) {
@@ -469,13 +471,25 @@ public class MainApp {
     }
 
     private void doBrowseAllAuctionListings() {
-        System.out.println("*** Browse All Available Auction Listings***");
-        //List<AuctionListingEntity> autionListingEntities = null;
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("*** OAS Auction Client :: Browse All Auction Listings ***\n");
+        
         List<AuctionListingEntity> autionListingEntities = auctionListingSessionBeanRemote.retrieveAllActiveAuctionListing();
-        for (AuctionListingEntity auctionListing : autionListingEntities) {
-            System.out.println("Auction Listing for " + auctionListing.getAuctionListingName() + ", credit price: " + auctionListing.getHighestBidPrice());
+        System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
+        
+        for (AuctionListingEntity auctionListingEntity : autionListingEntities) {
+            String reservePriceString;
+            if (auctionListingEntity.getReservePrice() != null) {
+                reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
+            } else {
+                reservePriceString = "null";
+            }
+            System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
         }
-        System.out.println("These are the available Auction. To view more detail, select '10'");
+        
+        System.out.print("Press any key to continue...> ");
+        scanner.nextLine();
     }
 
     private void doViewAuctionListingDetails() {
