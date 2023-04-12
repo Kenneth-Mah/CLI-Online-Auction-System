@@ -512,92 +512,137 @@ public class MainApp {
         System.out.print("Press any key to continue...> ");
         scanner.nextLine();
     }
-
+    
     private void doViewAuctionListingDetails() {
         Scanner scanner = new Scanner(System.in);
 
-        while (true) {
+        System.out.println("*** OAS Auction Client :: View Auction Listing Details ***\n");
+        System.out.print("Enter Auction Listing Name> ");
+        String auctionListingName = scanner.nextLine().trim();
+        
+        doViewAuctionListingDetails(auctionListingName);
+    }
 
-            doBrowseAllAuctionListings();
-            System.out.println("*** View Auction Listing detail ***");
-            System.out.println("Please key in Available Auction Name");
-
-            String reply = scanner.nextLine().trim();
-            try {
-                AuctionListingEntity auctionListingEntities = auctionListingSessionBeanRemote.retrieveAuctionListingByAuctionListingName(reply);
-
-                System.out.println("Name: " + auctionListingEntities.getAuctionListingName());
-                System.out.println("Start Date and Time: " + auctionListingEntities.getStartDateTime());
-                System.out.println("End Date and Time: " + auctionListingEntities.getEndDateTime());
-                System.out.println("Highest Bidder: " + auctionListingEntities.getHighestBidPrice());
-
-                System.out.println("\nWould you like to: ");
-                System.out.println("1: Place Bid");
-                System.out.println("2: Refresh Auction Listing Bids");
-                System.out.println("3: Back");
-
-                int response = scanner.nextInt();
-
-                while (response < 1 || response > 3) {
-
-                    if (response == 1) {
-                        System.out.println("Place your bid");
-                        BigDecimal bidPrice = scanner.nextBigDecimal();
-                        BigDecimal min = new BigDecimal(0.00);
-                        BigDecimal highestBid = auctionListingEntities.getHighestBidPrice();
-                        if (highestBid.compareTo(new BigDecimal(0.01)) == 1 && highestBid.compareTo(new BigDecimal(0.99)) == -1) {
-                            min = new BigDecimal(0.05);
-                        } else if (highestBid.compareTo(new BigDecimal(1.00)) == 1 && highestBid.compareTo(new BigDecimal(4.99)) == -1) {
-                            min = new BigDecimal(0.25);
-                        } else if (highestBid.compareTo(new BigDecimal(5.00)) == 1 && highestBid.compareTo(new BigDecimal(24.99)) == -1) {
-                            min = new BigDecimal(0.50);
-                        } else if (highestBid.compareTo(new BigDecimal(25.00)) == 1 && highestBid.compareTo(new BigDecimal(99.99)) == -1) {
-                            min = new BigDecimal(1.00);
-                        } else if (highestBid.compareTo(new BigDecimal(100.00)) == 1 && highestBid.compareTo(new BigDecimal(249.99)) == -1) {
-                            min = new BigDecimal(2.50);
-                        } else if (highestBid.compareTo(new BigDecimal(250.00)) == 1 && highestBid.compareTo(new BigDecimal(499.99)) == -1) {
-                            min = new BigDecimal(5.00);
-                        } else if (highestBid.compareTo(new BigDecimal(500.00)) == 1 && highestBid.compareTo(new BigDecimal(999.99)) == -1) {
-                            min = new BigDecimal(10.00);
-                        } else if (highestBid.compareTo(new BigDecimal(1000.00)) == 1 && highestBid.compareTo(new BigDecimal(2499.99)) == -1) {
-                            min = new BigDecimal(25.00);
-                        } else if (highestBid.compareTo(new BigDecimal(2500.00)) == 1 && highestBid.compareTo(new BigDecimal(4999.99)) == -1) {
-                            min = new BigDecimal(50.00);
-                        } else if (highestBid.compareTo(new BigDecimal(5000.00)) == 1) {
-                            min = new BigDecimal(100.00);
-                        }
-
-                        if (bidPrice.compareTo(auctionListingEntities.getHighestBidPrice()) == 1 && !(bidPrice.compareTo(min) == -1)) {
-                            BidEntity bid = new BidEntity(bidPrice, globalCustomerEntity, auctionListingEntities);// might be wrong
-                            System.out.println("new bid created");
-                        } else {
-                            System.out.println("Bid Price is not higher than the current highest bid, highest bidder price " + auctionListingEntities.getHighestBidPrice() + "\n or Price increment is not the right! \nRefer to price bidding increment table");
-                        }
-                    } else if (response == 2) {
-                        try {
-                            auctionListingEntities = auctionListingSessionBeanRemote.retrieveAuctionListingByAuctionListingName(reply);
-                        } catch (AuctionListingNotFoundException ex) {
-                            System.out.println("No Auction listings has been posted!  " + ex.getMessage() + "\n");
-                        }
-                        System.out.println("Name" + auctionListingEntities.getAuctionListingName());
-                        System.out.println("Start Date and Time" + auctionListingEntities.getStartDateTime());
-                        System.out.println("End Date and Time" + auctionListingEntities.getEndDateTime());
-                        System.out.println("Highest Bidder" + auctionListingEntities.getHighestBidPrice());
-                    } else if (response == 3) {
-                        break;
-                    } else {
-                        System.out.println("Invalid option, please try again!\n");
-                    }
-                }
-
-                if (response == 3) {
-                    break;
-                }
-            } catch (AuctionListingNotFoundException ex) {
-                System.out.println("No Auction listings has been posted!  " + ex.getMessage() + "\n");
+    private void doViewAuctionListingDetails(String auctionListingName) {
+        Scanner scanner = new Scanner(System.in);
+        Integer response = 0;
+        
+        try {
+            AuctionListingEntity auctionListingEntity = auctionListingSessionBeanRemote.retrieveAuctionListingByAuctionListingName(auctionListingName);
+            System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
+            String reservePriceString;
+            if (auctionListingEntity.getReservePrice() != null) {
+                reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
+            } else {
+                reservePriceString = "null";
             }
+            System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
+            System.out.println("------------------------");
+            System.out.println("1: Place New Bid");
+            System.out.println("2: Refresh Auction Listing Bids");
+            System.out.println("3: Back\n");
+            System.out.print("> ");
+            response = scanner.nextInt();
+
+            if (response == 1) {
+                doPlaceNewBid(auctionListingEntity);
+            } else if (response == 2) {
+                doViewAuctionListingDetails(auctionListingName);
+            }
+        } catch (AuctionListingNotFoundException ex) {
+            System.out.println("An error has occurred while retrieving auction listing: " + ex.getMessage() + "\n");
         }
     }
+    
+    private void doPlaceNewBid(AuctionListingEntity auctionListingEntity) {
+        
+    }
+
+//    private void doViewAuctionListingDetails() {
+//        Scanner scanner = new Scanner(System.in);
+//
+//        while (true) {
+//
+//            doBrowseAllAuctionListings();
+//            System.out.println("*** View Auction Listing detail ***");
+//            System.out.println("Please key in Available Auction Name");
+//
+//            String reply = scanner.nextLine().trim();
+//            try {
+//                AuctionListingEntity auctionListingEntities = auctionListingSessionBeanRemote.retrieveAuctionListingByAuctionListingName(reply);
+//
+//                System.out.println("Name: " + auctionListingEntities.getAuctionListingName());
+//                System.out.println("Start Date and Time: " + auctionListingEntities.getStartDateTime());
+//                System.out.println("End Date and Time: " + auctionListingEntities.getEndDateTime());
+//                System.out.println("Highest Bidder: " + auctionListingEntities.getHighestBidPrice());
+//
+//                System.out.println("\nWould you like to: ");
+//                System.out.println("1: Place Bid");
+//                System.out.println("2: Refresh Auction Listing Bids");
+//                System.out.println("3: Back");
+//
+//                int response = scanner.nextInt();
+//
+//                while (response < 1 || response > 3) {
+//
+//                    if (response == 1) {
+//                        System.out.println("Place your bid");
+//                        BigDecimal bidPrice = scanner.nextBigDecimal();
+//                        BigDecimal min = new BigDecimal(0.00);
+//                        BigDecimal highestBid = auctionListingEntities.getHighestBidPrice();
+//                        if (highestBid.compareTo(new BigDecimal(0.01)) == 1 && highestBid.compareTo(new BigDecimal(0.99)) == -1) {
+//                            min = new BigDecimal(0.05);
+//                        } else if (highestBid.compareTo(new BigDecimal(1.00)) == 1 && highestBid.compareTo(new BigDecimal(4.99)) == -1) {
+//                            min = new BigDecimal(0.25);
+//                        } else if (highestBid.compareTo(new BigDecimal(5.00)) == 1 && highestBid.compareTo(new BigDecimal(24.99)) == -1) {
+//                            min = new BigDecimal(0.50);
+//                        } else if (highestBid.compareTo(new BigDecimal(25.00)) == 1 && highestBid.compareTo(new BigDecimal(99.99)) == -1) {
+//                            min = new BigDecimal(1.00);
+//                        } else if (highestBid.compareTo(new BigDecimal(100.00)) == 1 && highestBid.compareTo(new BigDecimal(249.99)) == -1) {
+//                            min = new BigDecimal(2.50);
+//                        } else if (highestBid.compareTo(new BigDecimal(250.00)) == 1 && highestBid.compareTo(new BigDecimal(499.99)) == -1) {
+//                            min = new BigDecimal(5.00);
+//                        } else if (highestBid.compareTo(new BigDecimal(500.00)) == 1 && highestBid.compareTo(new BigDecimal(999.99)) == -1) {
+//                            min = new BigDecimal(10.00);
+//                        } else if (highestBid.compareTo(new BigDecimal(1000.00)) == 1 && highestBid.compareTo(new BigDecimal(2499.99)) == -1) {
+//                            min = new BigDecimal(25.00);
+//                        } else if (highestBid.compareTo(new BigDecimal(2500.00)) == 1 && highestBid.compareTo(new BigDecimal(4999.99)) == -1) {
+//                            min = new BigDecimal(50.00);
+//                        } else if (highestBid.compareTo(new BigDecimal(5000.00)) == 1) {
+//                            min = new BigDecimal(100.00);
+//                        }
+//
+//                        if (bidPrice.compareTo(auctionListingEntities.getHighestBidPrice()) == 1 && !(bidPrice.compareTo(min) == -1)) {
+//                            BidEntity bid = new BidEntity(bidPrice, globalCustomerEntity, auctionListingEntities);// might be wrong
+//                            System.out.println("new bid created");
+//                        } else {
+//                            System.out.println("Bid Price is not higher than the current highest bid, highest bidder price " + auctionListingEntities.getHighestBidPrice() + "\n or Price increment is not the right! \nRefer to price bidding increment table");
+//                        }
+//                    } else if (response == 2) {
+//                        try {
+//                            auctionListingEntities = auctionListingSessionBeanRemote.retrieveAuctionListingByAuctionListingName(reply);
+//                        } catch (AuctionListingNotFoundException ex) {
+//                            System.out.println("No Auction listings has been posted!  " + ex.getMessage() + "\n");
+//                        }
+//                        System.out.println("Name" + auctionListingEntities.getAuctionListingName());
+//                        System.out.println("Start Date and Time" + auctionListingEntities.getStartDateTime());
+//                        System.out.println("End Date and Time" + auctionListingEntities.getEndDateTime());
+//                        System.out.println("Highest Bidder" + auctionListingEntities.getHighestBidPrice());
+//                    } else if (response == 3) {
+//                        break;
+//                    } else {
+//                        System.out.println("Invalid option, please try again!\n");
+//                    }
+//                }
+//
+//                if (response == 3) {
+//                    break;
+//                }
+//            } catch (AuctionListingNotFoundException ex) {
+//                System.out.println("No Auction listings has been posted!  " + ex.getMessage() + "\n");
+//            }
+//        }
+//    }
 
     private void showInputDataValidationErrorsForCustomerEntity(Set<ConstraintViolation<CustomerEntity>> constraintViolations) {
         System.out.println("\nInput data validation error!:");
