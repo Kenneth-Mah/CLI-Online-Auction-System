@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.ejb.TimerHandle;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,7 +23,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
-import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -70,6 +70,8 @@ public class AuctionListingEntity implements Serializable {
     @Column(nullable = false)
     @NotNull
     private Boolean requiresManualIntervention;
+    // A reference for the retrieval of its associated timer, if any
+    private TimerHandle timerHandle;
     
     @OneToOne
     // NOTE: winningBid can be null!
@@ -287,6 +289,20 @@ public class AuctionListingEntity implements Serializable {
      */
     public void setBids(List<BidEntity> bids) {
         this.bids = bids;
+    }
+
+    /**
+     * @return the timerHandle
+     */
+    public TimerHandle getTimerHandle() {
+        return timerHandle;
+    }
+
+    /**
+     * @param timerHandle the timerHandle to set
+     */
+    public void setTimerHandle(TimerHandle timerHandle) {
+        this.timerHandle = timerHandle;
     }
     
 }

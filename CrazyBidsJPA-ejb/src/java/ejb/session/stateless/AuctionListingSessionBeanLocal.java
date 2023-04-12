@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Timer;
+import javax.ejb.TimerHandle;
 import util.exception.AuctionListingNameExistException;
 import util.exception.AuctionListingNotFoundException;
 import util.exception.InputDataValidationException;
@@ -40,7 +41,7 @@ public interface AuctionListingSessionBeanLocal {
 
     public List<AuctionListingEntity> retrieveAllActiveAuctionListing();
 
-    public void makeTimer(AuctionListingEntity auctionListing, Date expiration);
+    public TimerHandle makeTimer(AuctionListingEntity auctionListing, Date expiration);
 
     public void timeout(Timer timer);
     

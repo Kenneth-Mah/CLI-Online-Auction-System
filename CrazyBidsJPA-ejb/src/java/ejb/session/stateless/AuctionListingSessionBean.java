@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
+import javax.ejb.TimerHandle;
 import javax.ejb.TimerService;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -71,7 +72,8 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
                 em.persist(newAuctionListingEntity);
                 em.flush();
                 
-                makeTimer(newAuctionListingEntity, startDateTime);
+                TimerHandle timerHandle = makeTimer(newAuctionListingEntity, startDateTime);
+                newAuctionListingEntity.setTimerHandle(timerHandle);
 
                 return newAuctionListingEntity.getAuctionListingId();
             } catch (PersistenceException ex) {
@@ -146,6 +148,13 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
                             auctionListingEntityToUpdate.setStartDateTime(auctionListingEntity.getStartDateTime());
                             auctionListingEntityToUpdate.setEndDateTime(auctionListingEntity.getEndDateTime());
                             auctionListingEntityToUpdate.setReservePrice(auctionListingEntity.getReservePrice());
+                            
+                            TimerHandle timerhandle = auctionListingEntityToUpdate.getTimerHandle();
+                            Timer timer = timerhandle.getTimer();
+                            timer.cancel();
+                            
+                            TimerHandle newTimerHandle = makeTimer(auctionListingEntityToUpdate, auctionListingEntityToUpdate.getStartDateTime());
+                            auctionListingEntityToUpdate.setTimerHandle(newTimerHandle);
                         } else {
                             throw new InvalidStartAndEndDatesException("Start Datetime and End Datetime must be in the future and Start Datetime must be before the End Datetime");
                         }
@@ -168,12 +177,22 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
     public void deleteAuctionListing(Long auctionListingId) throws AuctionListingNotFoundException {
         if (!isAuctionListingInUse(auctionListingId)) {
             AuctionListingEntity auctionListingEntityToRemove = retrieveAuctionListingByAuctionListingId(auctionListingId);
+            
+            TimerHandle timerHandle = auctionListingEntityToRemove.getTimerHandle();
+            Timer timer = timerHandle.getTimer();
+            timer.cancel();
 
             em.remove(auctionListingEntityToRemove);
         } else {
             AuctionListingEntity auctionListingEntityToDisable = retrieveAuctionListingByAuctionListingId(auctionListingId);
+            
+            TimerHandle timerHandle = auctionListingEntityToDisable.getTimerHandle();
+            Timer timer = timerHandle.getTimer();
+            timer.cancel();
 
             // HERE NEED TO REFUND THE HIGHEST BID'S CREDITS TO THE RESPECTIVE CUSTOMER
+            auctionListingEntityToDisable.setTimerHandle(null);
+            auctionListingEntityToDisable.setActive(false);
             auctionListingEntityToDisable.setDisabled(true);
         }
     }
@@ -186,8 +205,10 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
     }
 
     @Override
-    public void makeTimer(AuctionListingEntity auctionListing, Date expiration) {
-        timerService.createTimer(expiration, auctionListing);
+    public TimerHandle makeTimer(AuctionListingEntity auctionListing, Date expiration) {
+        Timer timer = timerService.createTimer(expiration, auctionListing);
+        TimerHandle timerHandle = timer.getHandle();
+        return timerHandle;
     }
 
     @Timeout
@@ -200,9 +221,11 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
         
         if (!active) {
             auctionListingToUpdate.setActive(true);
-            makeTimer(auctionListingToUpdate, auctionListingToUpdate.getEndDateTime());
+            TimerHandle timerHandle = makeTimer(auctionListingToUpdate, auctionListingToUpdate.getEndDateTime());
+            auctionListingToUpdate.setTimerHandle(timerHandle);
         } else {
             auctionListingToUpdate.setActive(false);
+            auctionListingToUpdate.setTimerHandle(null);
         }
     }
 
