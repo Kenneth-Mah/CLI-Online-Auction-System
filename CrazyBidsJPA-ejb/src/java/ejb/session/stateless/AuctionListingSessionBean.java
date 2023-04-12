@@ -49,11 +49,10 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
     // "Insert Code > Add Business Method")
     @Override
     public Long createNewAuctionListing(AuctionListingEntity newAuctionListingEntity) throws AuctionListingNameExistException, UnknownPersistenceException, InputDataValidationException, InvalidStartAndEndDatesException {
-        Date currentDateTime = new Date(System.currentTimeMillis() - 5 * 60 * 1000);
         Date startDateTime = newAuctionListingEntity.getStartDateTime();
         Date endDateTime = newAuctionListingEntity.getEndDateTime();
-        if ((startDateTime != null && endDateTime != null) && (currentDateTime.compareTo(startDateTime) >= 0 || startDateTime.compareTo(endDateTime) >= 0)) {
-            throw new InvalidStartAndEndDatesException("Start Datetime and End Datetime must be in the future and Start Datetime must be before the End Datetime");
+        if ((startDateTime != null && endDateTime != null) && (startDateTime.compareTo(endDateTime) >= 0)) {
+            throw new InvalidStartAndEndDatesException("Start Date-time must be before the End Date-time");
         }
 
         Set<ConstraintViolation<AuctionListingEntity>> constraintViolations = validator.validate(newAuctionListingEntity);
@@ -167,6 +166,13 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
             auctionListingEntityToDisable.setDisabled(true);
         }
     }
+    
+    @Override
+    public List<AuctionListingEntity> retrieveAllActiveAuctionListing() {
+        Query query = em.createQuery("SELECT al FROM AuctionListingEntity al WHERE al.active = TRUE");
+        
+        return (List<AuctionListingEntity>) query.getResultList(); 
+    }
 
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<AuctionListingEntity>> constraintViolations) {
         String msg = "Input data validation error!:";
@@ -177,15 +183,5 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
 
         return msg;
     }
-
-    @Override
-    public List<AuctionListingEntity> retrieveAllAvailableAuctionListing() throws AuctionListingNotFoundException {
-        Query query = em.createQuery("SELECT al FROM AuctionListingEntity al WHERE al.startDateTime < :currentDateTime AND al.disabled = TRUE");// WHERE al.startDateTime > currentDateTime && al.disabled = TRUE
-        query.setParameter("currentDateTime", new Date(System.currentTimeMillis() - 200));
-        try {
-            return (List<AuctionListingEntity>) query.getResultList(); 
-        } catch (NoResultException | NonUniqueResultException ex) {
-            throw new AuctionListingNotFoundException("Auction Listing not ready!");
-        }
-    }
+    
 }

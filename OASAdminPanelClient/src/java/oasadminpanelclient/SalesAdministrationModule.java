@@ -100,12 +100,10 @@ public class SalesAdministrationModule {
         newAuctionListingEntity.setAuctionListingName(scanner.nextLine().trim());
         
         while (true) {
-            // Give 5 minutes grace period to create the auction listing
-            Date currentDateTime = new Date(System.currentTimeMillis() - 5 * 60 * 1000);
-            Date startDateTime = new Date();
-            Date endDateTime = new Date();
+            Date startDateTime;
+            Date endDateTime;
             while (true) {
-                System.out.print("Enter Start Date Time (dd/MM/yyyy at HH:mm:ss)> ");
+                System.out.print("Enter Start Date-time (dd/MM/yyyy at HH:mm:ss)> ");
                 try {
                     startDateTime = simpleDateFormat.parse(scanner.nextLine().trim());
                     break;
@@ -114,7 +112,7 @@ public class SalesAdministrationModule {
                 }
             }
             while (true) {
-                System.out.print("Enter End Date Time (dd/MM/yyyy at HH:mm:ss)> ");
+                System.out.print("Enter End Date-time (dd/MM/yyyy at HH:mm:ss)> ");
                 try {
                     endDateTime = simpleDateFormat.parse(scanner.nextLine().trim());
                     break;
@@ -122,12 +120,12 @@ public class SalesAdministrationModule {
                     System.out.println("Invalid date, please try again!\n");
                 }
             }
-            if (currentDateTime.compareTo(startDateTime) < 0 && startDateTime.compareTo(endDateTime) < 0) {
+            if (startDateTime.compareTo(endDateTime) < 0) {
                 newAuctionListingEntity.setStartDateTime(startDateTime);
                 newAuctionListingEntity.setEndDateTime(endDateTime);
                 break;
             } else {
-                System.out.println("Invalid dates! Start date and end date must be in the future and start date must be before the end date!");
+                System.out.println("Invalid dates! Start date-time must be before the end date-time!");
             }
         }
         
@@ -167,14 +165,14 @@ public class SalesAdministrationModule {
 
         try {
             AuctionListingEntity auctionListingEntity = auctionListingSessionBeanRemote.retrieveAuctionListingByAuctionListingName(auctionListingName);
-            System.out.printf("%18s%26s%34s%34s%20s%20s%11s%31s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price", "Disabled", "Requires Manual Intervention");
+            System.out.printf("%18s%26s%34s%34s%20s%20s%9s%11s%31s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price", "Active", "Disabled", "Requires Manual Intervention");
             String reservePriceString;
             if (auctionListingEntity.getReservePrice() != null) {
                 reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
             } else {
                 reservePriceString = "null";
             }
-            System.out.printf("%18s%26s%34s%34s%20s%20s%11s%31s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()), auctionListingEntity.getDisabled().toString(), auctionListingEntity.getRequiresManualIntervention().toString());
+            System.out.printf("%18s%26s%34s%34s%20s%20s%9s%11s%31s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()), auctionListingEntity.getActive().toString(), auctionListingEntity.getDisabled().toString(), auctionListingEntity.getRequiresManualIntervention().toString());
             System.out.println("------------------------");
             System.out.println("1: Update Auction Listing");
             System.out.println("2: Delete Auction Listing");
@@ -207,8 +205,6 @@ public class SalesAdministrationModule {
         System.out.println("*** OAS Administration Panel :: Sales Administration :: View Auction Listing Details :: Update Auction Listing ***\n");
         
         while (true) {
-            // Give 5 minutes grace period to create the auction listing
-            Date currentDateTime = new Date(System.currentTimeMillis() - 5 * 60 * 1000);
             Date startDateTime = auctionListingEntity.getStartDateTime();
             Date endDateTime = auctionListingEntity.getEndDateTime();
             while (true) {
@@ -239,12 +235,12 @@ public class SalesAdministrationModule {
                     break;
                 }
             }
-            if (currentDateTime.compareTo(startDateTime) < 0 && startDateTime.compareTo(endDateTime) < 0) {
+            if (startDateTime.compareTo(endDateTime) < 0) {
                 auctionListingEntity.setStartDateTime(startDateTime);
                 auctionListingEntity.setEndDateTime(endDateTime);
                 break;
             } else {
-                System.out.println("Invalid dates! Start date and end date must be in the future and start date must be before the end date!");
+                System.out.println("Invalid dates! Start date-time must be before the end date-time!");
             }
         }
         
@@ -301,7 +297,7 @@ public class SalesAdministrationModule {
         System.out.println("*** OAS Administration Panel :: Sales Administration :: View All Auction Listings ***\n");
 
         List<AuctionListingEntity> auctionListingEntities = auctionListingSessionBeanRemote.retrieveAllAuctionListings();
-        System.out.printf("%18s%26s%34s%34s%20s%20s%11s%31s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price", "Disabled", "Requires Manual Intervention");
+        System.out.printf("%18s%26s%34s%34s%20s%20s%9s%11s%31s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price", "Active", "Disabled", "Requires Manual Intervention");
 
         for (AuctionListingEntity auctionListingEntity : auctionListingEntities) {
             String reservePriceString;
@@ -310,7 +306,7 @@ public class SalesAdministrationModule {
             } else {
                 reservePriceString = "null";
             }
-            System.out.printf("%18s%26s%34s%34s%20s%20s%11s%31s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()), auctionListingEntity.getDisabled().toString(), auctionListingEntity.getRequiresManualIntervention().toString());
+            System.out.printf("%18s%26s%34s%34s%20s%20s%9s%11s%31s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()), auctionListingEntity.getActive().toString(), auctionListingEntity.getDisabled().toString(), auctionListingEntity.getRequiresManualIntervention().toString());
         }
 
         System.out.print("Press any key to continue...> ");

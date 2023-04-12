@@ -42,11 +42,9 @@ public class AuctionListingEntity implements Serializable {
     @Size(min = 1, max = 32)
     private String auctionListingName;
     @Temporal(TemporalType.TIMESTAMP)
+    @Future
     @Column(nullable = false)
     @NotNull
-    // NOTE: startDateTime cannot be @Future if you want to facilitate Update Auction Listing
-    // Have to check that startDateTime is after currentDateTime upon creation
-    // Have to check that startDateTime is after currentDateTime in order to change startDateTime
     private Date startDateTime;
     @Temporal(TemporalType.TIMESTAMP)
     @Future
@@ -63,6 +61,9 @@ public class AuctionListingEntity implements Serializable {
     @DecimalMin("0.0000")
     @Digits(integer = 14, fraction = 4)
     private BigDecimal highestBidPrice;
+    @Column(nullable = false)
+    @NotNull
+    private Boolean active;
     @Column(nullable = false)
     @NotNull
     private Boolean disabled;
@@ -82,6 +83,7 @@ public class AuctionListingEntity implements Serializable {
 
     public AuctionListingEntity() {
         this.highestBidPrice = new BigDecimal("0.0000");
+        this.active = false;
         this.disabled = false;
         this.requiresManualIntervention = false;
         this.bids = new ArrayList<>();
@@ -201,6 +203,20 @@ public class AuctionListingEntity implements Serializable {
      */
     public void setHighestBidPrice(BigDecimal highestBidPrice) {
         this.highestBidPrice = highestBidPrice;
+    }
+    
+    /**
+     * @return the active
+     */
+    public Boolean getActive() {
+        return active;
+    }
+
+    /**
+     * @param active the active to set
+     */
+    public void setActive(Boolean active) {
+        this.active = active;
     }
     
     /**

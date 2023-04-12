@@ -471,16 +471,11 @@ public class MainApp {
     private void doBrowseAllAuctionListings() {
         System.out.println("*** Browse All Available Auction Listings***");
         //List<AuctionListingEntity> autionListingEntities = null;
-        try {
-            List<AuctionListingEntity> autionListingEntities = auctionListingSessionBeanRemote.retrieveAllAvailableAuctionListing();
-            for (AuctionListingEntity auctionListing : autionListingEntities) {
-                System.out.println("Auction Listing for " + auctionListing.getAuctionListingName() + ", credit price: " + auctionListing.getHighestBidPrice());
-            }
-            System.out.println("These are the available Auction. To view more detail, select '10'");
-        } catch (AuctionListingNotFoundException ex) {
-            System.out.println("No Auction listings has been posted!  " + ex.getMessage() + "\n");
+        List<AuctionListingEntity> autionListingEntities = auctionListingSessionBeanRemote.retrieveAllActiveAuctionListing();
+        for (AuctionListingEntity auctionListing : autionListingEntities) {
+            System.out.println("Auction Listing for " + auctionListing.getAuctionListingName() + ", credit price: " + auctionListing.getHighestBidPrice());
         }
-
+        System.out.println("These are the available Auction. To view more detail, select '10'");
     }
 
     private void doViewAuctionListingDetails() {
