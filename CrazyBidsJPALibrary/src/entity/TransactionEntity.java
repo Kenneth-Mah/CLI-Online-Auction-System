@@ -58,6 +58,7 @@ public class TransactionEntity implements Serializable {
     private BidEntity bid;
 
     public TransactionEntity() {
+        this.quantity = 1;
     }
 
     public TransactionEntity(BigDecimal transactionAmount, Date timeOfTransaction, Integer quantity, CustomerEntity customer, CreditPackageEntity creditPackage, BidEntity bid) {

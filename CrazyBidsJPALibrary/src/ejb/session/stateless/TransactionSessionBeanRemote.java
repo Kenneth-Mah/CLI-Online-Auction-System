@@ -5,7 +5,11 @@
  */
 package ejb.session.stateless;
 
+import entity.TransactionEntity;
 import javax.ejb.Remote;
+import util.exception.CustomerNotfoundException;
+import util.exception.InputDataValidationException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -13,5 +17,7 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface TransactionSessionBeanRemote {
+    
+    public Long createNewTransaction(Long customerId, TransactionEntity newTransactionEntity) throws CustomerNotfoundException, UnknownPersistenceException, InputDataValidationException;
     
 }

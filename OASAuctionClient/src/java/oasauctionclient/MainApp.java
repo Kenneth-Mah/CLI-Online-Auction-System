@@ -9,6 +9,7 @@ import ejb.session.stateless.AddressSessionBeanRemote;
 import ejb.session.stateless.AuctionListingSessionBeanRemote;
 import ejb.session.stateless.CreditPackageSessionBeanRemote;
 import ejb.session.stateless.CustomerSessionBeanRemote;
+import ejb.session.stateless.TransactionSessionBeanRemote;
 import entity.AddressEntity;
 import entity.AuctionListingEntity;
 import entity.BidEntity;
@@ -17,6 +18,7 @@ import entity.TransactionEntity;
 import entity.CustomerEntity;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -26,6 +28,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.AddressNotFoundException;
 import util.exception.AuctionListingNotFoundException;
+import util.exception.CreditPackageNotFoundException;
 import util.exception.CustomerNotfoundException;
 import util.exception.CustomerUsernameExistException;
 import util.exception.InputDataValidationException;
@@ -48,6 +51,7 @@ public class MainApp {
     private CustomerSessionBeanRemote customerSessionBeanRemote;
     private AddressSessionBeanRemote addressSessionBeanRemote;
     private CreditPackageSessionBeanRemote creditPackageSessionBeanRemote;
+    private TransactionSessionBeanRemote transactionSessionBeanRemote;
     private AuctionListingSessionBeanRemote auctionListingSessionBeanRemote;
 
     private CustomerEntity globalCustomerEntity;
@@ -58,11 +62,12 @@ public class MainApp {
         validator = validatorFactory.getValidator();
     }
 
-    public MainApp(CustomerSessionBeanRemote customerSessionBeanRemote, AddressSessionBeanRemote addressSessionBeanRemote, CreditPackageSessionBeanRemote creditPackageSessionBeanRemote, AuctionListingSessionBeanRemote auctionListingSessionBeanRemote) {
+    public MainApp(CustomerSessionBeanRemote customerSessionBeanRemote, AddressSessionBeanRemote addressSessionBeanRemote, CreditPackageSessionBeanRemote creditPackageSessionBeanRemote, TransactionSessionBeanRemote transactionSessionBeanRemote, AuctionListingSessionBeanRemote auctionListingSessionBeanRemote) {
         this();
         this.customerSessionBeanRemote = customerSessionBeanRemote;
         this.addressSessionBeanRemote = addressSessionBeanRemote;
         this.creditPackageSessionBeanRemote = creditPackageSessionBeanRemote;
+        this.transactionSessionBeanRemote = transactionSessionBeanRemote;
         this.auctionListingSessionBeanRemote = auctionListingSessionBeanRemote;
     }
 
@@ -241,13 +246,13 @@ public class MainApp {
             CustomerEntity customerEntity = customerSessionBeanRemote.retrieveCustomerByCustomerId(globalCustomerEntity.getCustomerId());
 
             System.out.println("*** OAS Auction Client :: Update Profile ***\n");
-            System.out.println("Enter First Name (blank if no change)>");
+            System.out.println("Enter First Name (blank if no change)> ");
             input = scanner.nextLine().trim();
             if (input.length() > 0) {
                 customerEntity.setFirstName(input);
             }
 
-            System.out.println("Enter Last Name (blank if no change)>");
+            System.out.println("Enter Last Name (blank if no change)> ");
             input = scanner.nextLine().trim();
             if (input.length() > 0) {
                 customerEntity.setLastName(input);
@@ -452,22 +457,44 @@ public class MainApp {
 
     private void doPurchaseCreditPackage() {
         Scanner scanner = new Scanner(System.in);
+        
         System.out.println("*** OAS Auction Client :: Purchase Credit Package ***\n");
+        
         List<CreditPackageEntity> creditPackageEntities = creditPackageSessionBeanRemote.retrieveAllAvailableCreditPackages();
-
-        for (CreditPackageEntity creditPackage : creditPackageEntities) {
-            System.out.println("Credit Packages for " + creditPackage.getCreditPackageType() + " type, credit price: " + creditPackage.getCreditPrice());
+        System.out.printf("%17s%22s%21s\n", "Credit Package ID", "Credit Package Type", "Credit Price");
+        
+        for (CreditPackageEntity creditPackageEntity : creditPackageEntities) {
+            System.out.printf("%17s%22s%21s\n", creditPackageEntity.getCreditPackageId(), creditPackageEntity.getCreditPackageType(), decimalFormat.format(creditPackageEntity.getCreditPrice()));
         }
 
-        System.out.println("Choose type of credit package to purchase: ");
-        System.out.println("or type 'EXIT' to exit");
-
-        String reply = scanner.nextLine().trim().toUpperCase();
-//        if (!reply.equals("EXIT")) {
-//        Query query = em.createQuery("SELECT c FROM CreditPackageEntity c WHERE c.creditPackageType = :type");
-//        query.setParameter("type", reply);
-//        TransactionEntity purchaseCredittransaction = new TransactionEntity(credit);
-//        }
+        System.out.print("Enter Credit Package Type To Purchase (blank to exit)> ");
+        String creditPackageType = scanner.nextLine().trim();
+        if (creditPackageType.length() > 0) {
+            try {
+                CreditPackageEntity creditPackageEntity = creditPackageSessionBeanRemote.retrieveCreditPackageByCreditPackageType(creditPackageType);
+                TransactionEntity newTransactionEntity = new TransactionEntity();
+                newTransactionEntity.setTimeOfTransaction(new Date());
+                
+                System.out.print("Enter Quantity Of This Credit Package Type To Purchase> ");
+                Integer integerInput = scanner.nextInt();
+                
+                newTransactionEntity.setQuantity(integerInput);
+                newTransactionEntity.setTransactionAmount(creditPackageEntity.getCreditPrice().multiply(BigDecimal.valueOf(integerInput)));
+                newTransactionEntity.setCustomer(globalCustomerEntity);
+                newTransactionEntity.setCreditPackage(creditPackageEntity);
+                
+                try {
+                    Long newTransactionId = transactionSessionBeanRemote.createNewTransaction(globalCustomerEntity.getCustomerId(), newTransactionEntity);
+                    System.out.println("Credit package purchased successfully!: " + newTransactionId + "\n");
+                } catch (CustomerNotfoundException | UnknownPersistenceException ex) {
+                    System.out.println("An unknown error has occurred while purchasing the credit package!: " + ex.getMessage() + "\n");
+                } catch (InputDataValidationException ex) {
+                    System.out.println(ex.getMessage() + "\n");
+                }
+            } catch (CreditPackageNotFoundException ex) {
+                System.out.println("An error has occurred while retrieving credit package: " + ex.getMessage() + "\n");
+            }
+        }
     }
 
     private void doBrowseAllAuctionListings() {

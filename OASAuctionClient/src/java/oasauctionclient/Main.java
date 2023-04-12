@@ -9,6 +9,7 @@ import ejb.session.stateless.AddressSessionBeanRemote;
 import ejb.session.stateless.AuctionListingSessionBeanRemote;
 import ejb.session.stateless.CreditPackageSessionBeanRemote;
 import ejb.session.stateless.CustomerSessionBeanRemote;
+import ejb.session.stateless.TransactionSessionBeanRemote;
 import javax.ejb.EJB;
 
 /**
@@ -24,6 +25,8 @@ public class Main {
     @EJB
     private static CreditPackageSessionBeanRemote creditPackageSessionBeanRemote;
     @EJB
+    private static TransactionSessionBeanRemote transactionSessionBeanRemote;
+    @EJB
     private static AuctionListingSessionBeanRemote auctionListingSessionBeanRemote;
 
     /**
@@ -31,7 +34,7 @@ public class Main {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        MainApp mainApp = new MainApp(customerSessionBeanRemote, addressSessionBeanRemote, creditPackageSessionBeanRemote, auctionListingSessionBeanRemote);
+        MainApp mainApp = new MainApp(customerSessionBeanRemote, addressSessionBeanRemote, creditPackageSessionBeanRemote, transactionSessionBeanRemote, auctionListingSessionBeanRemote);
         mainApp.runApp();
     }
     

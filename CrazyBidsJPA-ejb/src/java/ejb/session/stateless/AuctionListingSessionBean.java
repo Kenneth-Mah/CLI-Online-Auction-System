@@ -205,8 +205,8 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
     }
 
     @Override
-    public TimerHandle makeTimer(AuctionListingEntity auctionListing, Date expiration) {
-        Timer timer = timerService.createTimer(expiration, auctionListing);
+    public TimerHandle makeTimer(AuctionListingEntity auctionListingEntity, Date expiration) {
+        Timer timer = timerService.createTimer(expiration, auctionListingEntity);
         TimerHandle timerHandle = timer.getHandle();
         return timerHandle;
     }
@@ -214,18 +214,18 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
     @Timeout
     @Override
     public void timeout(Timer timer) {
-        AuctionListingEntity auctionListing = (AuctionListingEntity) timer.getInfo();
+        AuctionListingEntity auctionListingEntity = (AuctionListingEntity) timer.getInfo();
         
-        AuctionListingEntity auctionListingToUpdate = em.find(AuctionListingEntity.class, auctionListing.getAuctionListingId());
-        Boolean active = auctionListingToUpdate.getActive();
+        AuctionListingEntity auctionListingEntityToUpdate = em.find(AuctionListingEntity.class, auctionListingEntity.getAuctionListingId());
+        Boolean active = auctionListingEntityToUpdate.getActive();
         
         if (!active) {
-            auctionListingToUpdate.setActive(true);
-            TimerHandle timerHandle = makeTimer(auctionListingToUpdate, auctionListingToUpdate.getEndDateTime());
-            auctionListingToUpdate.setTimerHandle(timerHandle);
+            auctionListingEntityToUpdate.setActive(true);
+            TimerHandle timerHandle = makeTimer(auctionListingEntityToUpdate, auctionListingEntityToUpdate.getEndDateTime());
+            auctionListingEntityToUpdate.setTimerHandle(timerHandle);
         } else {
-            auctionListingToUpdate.setActive(false);
-            auctionListingToUpdate.setTimerHandle(null);
+            auctionListingEntityToUpdate.setActive(false);
+            auctionListingEntityToUpdate.setTimerHandle(null);
         }
     }
 
