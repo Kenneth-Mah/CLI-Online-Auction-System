@@ -584,7 +584,7 @@ public class MainApp {
             minBidIncrement = new BigDecimal("25.00");
         } else if (currentHighestBidPrice.compareTo(new BigDecimal("2500.00")) >= 0 && currentHighestBidPrice.compareTo(new BigDecimal("4999.99")) <= -1) {
             minBidIncrement = new BigDecimal("50.00");
-        } else { // currentHighestBidPrice.compareTo(new BigDecimal(5000.00)) >= 0
+        } else { // currentHighestBidPrice.compareTo(new BigDecimal("5000.00")) >= 0
             minBidIncrement = new BigDecimal("100.00");
         }
 

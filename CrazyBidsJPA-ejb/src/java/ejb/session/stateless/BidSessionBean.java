@@ -11,6 +11,7 @@ import entity.CustomerEntity;
 import entity.TransactionEntity;
 import java.util.Date;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -70,17 +71,22 @@ public class BidSessionBean implements BidSessionBeanRemote, BidSessionBeanLocal
                 customerBidEntities.add(newBidEntity);
                 customerEntity.setBids(customerBidEntities);
                 
-                List<BidEntity> auctionListingBidEntities = auctionListingEntity.getBids();
+                PriorityQueue<BidEntity> auctionListingBidEntities = auctionListingEntity.getBids();
                 auctionListingBidEntities.add(newBidEntity);
                 auctionListingEntity.setBids(auctionListingBidEntities);
+                auctionListingEntity.setHighestBidPrice(newBidEntity.getBidPrice());
                 
                 TransactionEntity newTransactionEntity = new TransactionEntity();
                 newTransactionEntity.setTimeOfTransaction(new Date());
+                // Placing a bid has a negative transaction amount
                 newTransactionEntity.setTransactionAmount(newBidEntity.getBidPrice().negate());
                 newTransactionEntity.setCustomer(customerEntity);
                 newTransactionEntity.setBid(newBidEntity);
                 
                 Long newTransactionId = transactionSessionBeanLocal.createNewTransaction(customerId, newTransactionEntity);
+                
+                // Need to refund the previous highest bid's credits to the respective customer!
+                // Refunding a bid has a positive transaction amount
 
                 return newTransactionId;
             } catch (PersistenceException ex) {
