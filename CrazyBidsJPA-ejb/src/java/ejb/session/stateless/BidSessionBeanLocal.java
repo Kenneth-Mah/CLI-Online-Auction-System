@@ -5,7 +5,12 @@
  */
 package ejb.session.stateless;
 
+import entity.BidEntity;
 import javax.ejb.Local;
+import util.exception.AuctionListingNotFoundException;
+import util.exception.CustomerNotfoundException;
+import util.exception.InputDataValidationException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -13,5 +18,7 @@ import javax.ejb.Local;
  */
 @Local
 public interface BidSessionBeanLocal {
+
+    public Long createNewBid(Long customerId, Long auctionListingId, BidEntity newBidEntity) throws CustomerNotfoundException, AuctionListingNotFoundException, UnknownPersistenceException, InputDataValidationException;
     
 }
