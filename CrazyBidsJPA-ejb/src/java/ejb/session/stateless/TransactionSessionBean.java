@@ -5,7 +5,6 @@
  */
 package ejb.session.stateless;
 
-import entity.CreditPackageEntity;
 import entity.CustomerEntity;
 import entity.TransactionEntity;
 import java.math.BigDecimal;
@@ -16,6 +15,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
+import javax.persistence.Query;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -76,6 +76,14 @@ public class TransactionSessionBean implements TransactionSessionBeanRemote, Tra
         } else {
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
+    }
+    
+    @Override
+    public List<TransactionEntity> retrieveAllTransactionsByCustomerId(Long customerId) {
+        Query query = em.createQuery("SELECT t FROM TransactionEntity t WHERE t.customer.customerId = :inCustomerId");
+        query.setParameter("inCustomerId", customerId);
+        
+        return query.getResultList();
     }
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<TransactionEntity>> constraintViolations) {

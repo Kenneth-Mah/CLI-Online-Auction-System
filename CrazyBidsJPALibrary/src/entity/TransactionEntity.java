@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
  * @author yeowh
  */
 @Entity
-public class TransactionEntity implements Serializable {
+public class TransactionEntity implements Serializable, Comparable<TransactionEntity> {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -96,6 +96,11 @@ public class TransactionEntity implements Serializable {
             return false;
         }
         return true;
+    }
+    
+    @Override
+    public int compareTo(TransactionEntity other) {
+        return this.timeOfTransaction.compareTo(other.timeOfTransaction);
     }
 
     @Override

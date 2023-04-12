@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.TransactionEntity;
+import java.util.List;
 import javax.ejb.Local;
 import util.exception.CustomerNotfoundException;
 import util.exception.InputDataValidationException;
@@ -19,5 +20,7 @@ import util.exception.UnknownPersistenceException;
 public interface TransactionSessionBeanLocal {
 
     public Long createNewTransaction(Long customerId, TransactionEntity newTransactionEntity) throws CustomerNotfoundException, UnknownPersistenceException, InputDataValidationException;
+
+    public List<TransactionEntity> retrieveAllTransactionsByCustomerId(Long customerId);
     
 }

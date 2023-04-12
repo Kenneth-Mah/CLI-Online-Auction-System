@@ -18,6 +18,7 @@ import entity.TransactionEntity;
 import entity.CustomerEntity;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -432,27 +433,20 @@ public class MainApp {
     }
 
     private void doViewCreditTransactionHistory() {
+        Scanner scanner = new Scanner(System.in);
+        
         System.out.println("*** OAS Auction Client :: View Credit Transaction History ***\n");
 
-        List<TransactionEntity> transactionEntities = globalCustomerEntity.getTransactions();
-        //System.out.println(customerSessionBeanRemote.getTransHist()); //must make it print line by line per transaction
+        List<TransactionEntity> transactionEntities = transactionSessionBeanRemote.retrieveAllTransactionsByCustomerId(globalCustomerEntity.getCustomerId());
+        Collections.sort(transactionEntities);
+        System.out.printf("%14s%21s%31s\n", "Transaction ID", "Transaction Amount", "Time Of Transaction");
+        
         for (TransactionEntity transactionEntity : transactionEntities) {
-
-            System.out.println("Trasaction for " + transactionEntity.getTimeOfTransaction());
-            System.out.println("Transaction ID: " + transactionEntity.getTransactionid() + "\nAmount: " + transactionEntity.getTransactionAmount());
-
-            //To check which type it is , we  need to to check if credit Pacakage/Bid entity is NOT NULL;
-            if (transactionEntity.getBid() != null) {
-                if (transactionEntity.getTransactionAmount().compareTo(BigDecimal.ZERO) < 0) { // NEGATIVE MEANS CUSTOMER SPEAND MONEY TO BID
-                    System.out.println("Transaction Type [BID]: " + transactionEntity.getTransactionAmount());
-                } else {// possitive == refund
-                    System.out.println("Transaction Type [REFUND]: " + transactionEntity.getTransactionAmount());
-                }
-            } else {
-                System.out.println("Transaction Type [PURCHASE CREDIT PACKAGE]: " + transactionEntity.getTransactionAmount());
-                System.out.println("Price: " + transactionEntity.getCreditPackage().getCreditPrice() + " per unit");
-            }
+            System.out.printf("%14s%21s%31s\n", transactionEntity.getTransactionid(), transactionEntity.getTransactionAmount(), transactionEntity.getTimeOfTransaction());
         }
+        
+        System.out.print("Press any key to continue...> ");
+        scanner.nextLine();
     }
 
     private void doPurchaseCreditPackage() {
