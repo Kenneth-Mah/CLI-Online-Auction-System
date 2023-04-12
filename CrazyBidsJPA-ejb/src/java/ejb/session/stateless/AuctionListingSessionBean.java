@@ -109,21 +109,21 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
             throw new AuctionListingNotFoundException("Auction Listing " + auctionListingName + " does not exist!");
         }
     }
-    
+
     @Override
     public Boolean isAuctionListingInUse(Long auctionListingId) throws AuctionListingNotFoundException {
         AuctionListingEntity auctionListingEntity = retrieveAuctionListingByAuctionListingId(auctionListingId);
-        
+
         if (auctionListingEntity.getBids().size() > 0) {
             return true;
         } else {
             return false;
         }
     }
-    
+
     @Override
     public void updateAuctionListing(AuctionListingEntity auctionListingEntity) throws AuctionListingNotFoundException, InputDataValidationException, UpdateAuctionListingException, InvalidStartAndEndDatesException {
-        if (auctionListingEntity != null && auctionListingEntity.getAuctionListingId()!= null) {
+        if (auctionListingEntity != null && auctionListingEntity.getAuctionListingId() != null) {
             Set<ConstraintViolation<AuctionListingEntity>> constraintViolations = validator.validate(auctionListingEntity);
 
             if (constraintViolations.isEmpty()) {
@@ -152,19 +152,18 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
             throw new AuctionListingNotFoundException("Auction Listing ID not provided for auction listing to be updated");
         }
     }
-    
+
     // NOT COMPLETE!!!
     @Override
     public void deleteAuctionListing(Long auctionListingId) throws AuctionListingNotFoundException {
         if (!isAuctionListingInUse(auctionListingId)) {
             AuctionListingEntity auctionListingEntityToRemove = retrieveAuctionListingByAuctionListingId(auctionListingId);
-            
+
             em.remove(auctionListingEntityToRemove);
         } else {
             AuctionListingEntity auctionListingEntityToDisable = retrieveAuctionListingByAuctionListingId(auctionListingId);
-            
+
             // HERE NEED TO REFUND THE HIGHEST BID'S CREDITS TO THE RESPECTIVE CUSTOMER
-            
             auctionListingEntityToDisable.setDisabled(true);
         }
     }
@@ -178,17 +177,15 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
 
         return msg;
     }
-    
-    @Override
-    public List<AuctionListingEntity> retrieveAllAvailableAuctionListing() {
-        Query query = em.createQuery("SELECT al FROM AuctionListingEntity al WHERE al.disabled = FALSE");
-        return query.getResultList();
-    }
 
     @Override
-    public AuctionListingEntity retrieveAuctionListingViaName(String aucName) {
-        Query query = em.createQuery("SELECT al FROM AuctionListingEntity al WHERE al.auctionListingName = :name && al.disabled = FALSE");
-        query.setParameter("name", aucName);
-        return (AuctionListingEntity) query.getSingleResult();
+    public List<AuctionListingEntity> retrieveAllAvailableAuctionListing() throws AuctionListingNotFoundException {
+        Query query = em.createQuery("SELECT al FROM AuctionListingEntity al WHERE al.startDateTime < :currentDateTime AND al.disabled = TRUE");// WHERE al.startDateTime > currentDateTime && al.disabled = TRUE
+        query.setParameter("currentDateTime", new Date(System.currentTimeMillis() - 200));
+        try {
+            return (List<AuctionListingEntity>) query.getResultList(); 
+        } catch (NoResultException | NonUniqueResultException ex) {
+            throw new AuctionListingNotFoundException("Auction Listing not ready!");
+        }
     }
 }

@@ -37,8 +37,6 @@ public interface AuctionListingSessionBeanLocal {
     
     public void deleteAuctionListing(Long auctionListingId) throws AuctionListingNotFoundException;
 
-    public List<AuctionListingEntity> retrieveAllAvailableAuctionListing();
-
-    public AuctionListingEntity retrieveAuctionListingViaName(String aucName);
+    public List<AuctionListingEntity> retrieveAllAvailableAuctionListing() throws AuctionListingNotFoundException;
     
 }
