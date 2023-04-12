@@ -42,12 +42,12 @@ public class AuctionListingEntity implements Serializable {
     @Size(min = 1, max = 32)
     private String auctionListingName;
     @Temporal(TemporalType.TIMESTAMP)
-    @Future
     @Column(nullable = false)
     @NotNull
+    // Cannot use @Future otherwise cannot modify the entity
     private Date startDateTime;
     @Temporal(TemporalType.TIMESTAMP)
-    @Future
+    // Cannot use @Future otherwise cannot modify the entity
     @Column(nullable = false)
     @NotNull
     private Date endDateTime;

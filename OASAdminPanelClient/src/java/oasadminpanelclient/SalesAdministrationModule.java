@@ -100,6 +100,7 @@ public class SalesAdministrationModule {
         newAuctionListingEntity.setAuctionListingName(scanner.nextLine().trim());
         
         while (true) {
+            Date currentDateTime = new Date();
             Date startDateTime;
             Date endDateTime;
             while (true) {
@@ -120,12 +121,13 @@ public class SalesAdministrationModule {
                     System.out.println("Invalid date, please try again!\n");
                 }
             }
-            if (startDateTime.compareTo(endDateTime) < 0) {
+            if (currentDateTime.compareTo(startDateTime) < 0 && 
+                    startDateTime.compareTo(endDateTime) < 0) {
                 newAuctionListingEntity.setStartDateTime(startDateTime);
                 newAuctionListingEntity.setEndDateTime(endDateTime);
                 break;
             } else {
-                System.out.println("Invalid dates! Start date-time must be before the end date-time!");
+                System.out.println("Invalid dates! Start date-time and end date-time must be in the future and start date must be must be before the end date-time!");
             }
         }
         
@@ -205,6 +207,7 @@ public class SalesAdministrationModule {
         System.out.println("*** OAS Administration Panel :: Sales Administration :: View Auction Listing Details :: Update Auction Listing ***\n");
         
         while (true) {
+            Date currentDateTime = new Date();
             Date startDateTime = auctionListingEntity.getStartDateTime();
             Date endDateTime = auctionListingEntity.getEndDateTime();
             while (true) {
@@ -235,12 +238,13 @@ public class SalesAdministrationModule {
                     break;
                 }
             }
-            if (startDateTime.compareTo(endDateTime) < 0) {
+            if (currentDateTime.compareTo(startDateTime) < 0 && 
+                    startDateTime.compareTo(endDateTime) < 0) {
                 auctionListingEntity.setStartDateTime(startDateTime);
                 auctionListingEntity.setEndDateTime(endDateTime);
                 break;
             } else {
-                System.out.println("Invalid dates! Start date-time must be before the end date-time!");
+                System.out.println("Invalid dates! Start date-time and end date-time must be in the future and start date-time must be must be before the end date-time!");
             }
         }
         

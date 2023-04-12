@@ -9,7 +9,11 @@ import entity.AuctionListingEntity;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Resource;
 import javax.ejb.Stateless;
+import javax.ejb.Timeout;
+import javax.ejb.Timer;
+import javax.ejb.TimerService;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
@@ -37,6 +41,9 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
     @PersistenceContext(unitName = "CrazyBidsJPA-ejbPU")
     private EntityManager em;
 
+    @Resource
+    TimerService timerService;
+
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
 
@@ -49,10 +56,12 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
     // "Insert Code > Add Business Method")
     @Override
     public Long createNewAuctionListing(AuctionListingEntity newAuctionListingEntity) throws AuctionListingNameExistException, UnknownPersistenceException, InputDataValidationException, InvalidStartAndEndDatesException {
+        Date currentDateTime = new Date(System.currentTimeMillis());
         Date startDateTime = newAuctionListingEntity.getStartDateTime();
         Date endDateTime = newAuctionListingEntity.getEndDateTime();
-        if ((startDateTime != null && endDateTime != null) && (startDateTime.compareTo(endDateTime) >= 0)) {
-            throw new InvalidStartAndEndDatesException("Start Date-time must be before the End Date-time");
+        if ((startDateTime != null && endDateTime != null) && 
+                (currentDateTime.compareTo(startDateTime) >= 0 || startDateTime.compareTo(endDateTime) >= 0)) {
+            throw new InvalidStartAndEndDatesException("Start Date-time and End Date-time must be in the future and Start Date-time must be before the End Date-time");
         }
 
         Set<ConstraintViolation<AuctionListingEntity>> constraintViolations = validator.validate(newAuctionListingEntity);
@@ -61,6 +70,8 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
             try {
                 em.persist(newAuctionListingEntity);
                 em.flush();
+                
+                makeTimer(newAuctionListingEntity, startDateTime);
 
                 return newAuctionListingEntity.getAuctionListingId();
             } catch (PersistenceException ex) {
@@ -166,12 +177,33 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
             auctionListingEntityToDisable.setDisabled(true);
         }
     }
-    
+
     @Override
     public List<AuctionListingEntity> retrieveAllActiveAuctionListing() {
         Query query = em.createQuery("SELECT al FROM AuctionListingEntity al WHERE al.active = TRUE");
+
+        return (List<AuctionListingEntity>) query.getResultList();
+    }
+
+    @Override
+    public void makeTimer(AuctionListingEntity auctionListing, Date expiration) {
+        timerService.createTimer(expiration, auctionListing);
+    }
+
+    @Timeout
+    @Override
+    public void timeout(Timer timer) {
+        AuctionListingEntity auctionListing = (AuctionListingEntity) timer.getInfo();
         
-        return (List<AuctionListingEntity>) query.getResultList(); 
+        AuctionListingEntity auctionListingToUpdate = em.find(AuctionListingEntity.class, auctionListing.getAuctionListingId());
+        Boolean active = auctionListingToUpdate.getActive();
+        
+        if (!active) {
+            auctionListingToUpdate.setActive(true);
+            makeTimer(auctionListingToUpdate, auctionListingToUpdate.getEndDateTime());
+        } else {
+            auctionListingToUpdate.setActive(false);
+        }
     }
 
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<AuctionListingEntity>> constraintViolations) {
@@ -183,5 +215,5 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
 
         return msg;
     }
-    
+
 }

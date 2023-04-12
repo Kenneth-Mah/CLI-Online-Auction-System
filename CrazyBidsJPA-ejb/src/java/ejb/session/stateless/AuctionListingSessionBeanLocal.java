@@ -9,6 +9,7 @@ import entity.AuctionListingEntity;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.Local;
+import javax.ejb.Timer;
 import util.exception.AuctionListingNameExistException;
 import util.exception.AuctionListingNotFoundException;
 import util.exception.InputDataValidationException;
@@ -38,5 +39,9 @@ public interface AuctionListingSessionBeanLocal {
     public void deleteAuctionListing(Long auctionListingId) throws AuctionListingNotFoundException;
 
     public List<AuctionListingEntity> retrieveAllActiveAuctionListing();
+
+    public void makeTimer(AuctionListingEntity auctionListing, Date expiration);
+
+    public void timeout(Timer timer);
     
 }
