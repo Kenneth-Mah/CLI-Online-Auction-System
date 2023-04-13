@@ -13,6 +13,7 @@ import javax.ejb.Timer;
 import javax.ejb.TimerHandle;
 import util.exception.AuctionListingNameExistException;
 import util.exception.AuctionListingNotFoundException;
+import util.exception.CustomerNotfoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidStartAndEndDatesException;
 import util.exception.UnknownPersistenceException;
@@ -37,7 +38,7 @@ public interface AuctionListingSessionBeanRemote {
     
     public void updateAuctionListing(AuctionListingEntity auctionListingEntity) throws AuctionListingNotFoundException, InputDataValidationException, UpdateAuctionListingException, InvalidStartAndEndDatesException;
     
-    public void deleteAuctionListing(Long auctionListingId) throws AuctionListingNotFoundException;
+    public void deleteAuctionListing(Long auctionListingId) throws AuctionListingNotFoundException, CustomerNotfoundException, UnknownPersistenceException, InputDataValidationException;
     
     public List<AuctionListingEntity> retrieveAllActiveAuctionListing();
     

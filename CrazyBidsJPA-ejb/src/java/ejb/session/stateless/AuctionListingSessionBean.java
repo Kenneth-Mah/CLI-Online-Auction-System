@@ -6,10 +6,15 @@
 package ejb.session.stateless;
 
 import entity.AuctionListingEntity;
+import entity.BidEntity;
+import entity.CustomerEntity;
+import entity.TransactionEntity;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Resource;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
@@ -27,6 +32,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.AuctionListingNameExistException;
 import util.exception.AuctionListingNotFoundException;
+import util.exception.CustomerNotfoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidStartAndEndDatesException;
 import util.exception.UnknownPersistenceException;
@@ -44,6 +50,9 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
 
     @Resource
     TimerService timerService;
+    
+    @EJB
+    private TransactionSessionBeanLocal transactionSessionBeanLocal;
 
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
@@ -172,9 +181,8 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
         }
     }
 
-    // NOT COMPLETE!!!
     @Override
-    public void deleteAuctionListing(Long auctionListingId) throws AuctionListingNotFoundException {
+    public void deleteAuctionListing(Long auctionListingId) throws AuctionListingNotFoundException, CustomerNotfoundException, UnknownPersistenceException, InputDataValidationException {
         if (!isAuctionListingInUse(auctionListingId)) {
             AuctionListingEntity auctionListingEntityToRemove = retrieveAuctionListingByAuctionListingId(auctionListingId);
             
@@ -189,11 +197,28 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
             TimerHandle timerHandle = auctionListingEntityToDisable.getTimerHandle();
             Timer timer = timerHandle.getTimer();
             timer.cancel();
-
-            // HERE NEED TO REFUND THE HIGHEST BID'S CREDITS TO THE RESPECTIVE CUSTOMER
+       
             auctionListingEntityToDisable.setTimerHandle(null);
             auctionListingEntityToDisable.setActive(false);
             auctionListingEntityToDisable.setDisabled(true);
+            
+            // Refunding the highest bid's credits to the respective customer!
+            List<BidEntity> auctionListingBidEntities = auctionListingEntityToDisable.getBids();
+            Collections.sort(auctionListingBidEntities);
+            
+            if (auctionListingBidEntities.size() > 0) {
+                BidEntity previousHighestBidEntity = auctionListingBidEntities.get(auctionListingBidEntities.size() - 1);
+                CustomerEntity previousHighestBidCustomerEntity = previousHighestBidEntity.getCustomer();
+
+                TransactionEntity newRefundTransactionEntity = new TransactionEntity();
+                newRefundTransactionEntity.setTimeOfTransaction(new Date());
+                // Refunding a bid has a positive transaction amount
+                newRefundTransactionEntity.setTransactionAmount(previousHighestBidEntity.getBidPrice());
+                newRefundTransactionEntity.setCustomer(previousHighestBidCustomerEntity);
+                newRefundTransactionEntity.setBid(previousHighestBidEntity);
+
+                transactionSessionBeanLocal.createNewTransaction(previousHighestBidCustomerEntity.getCustomerId(), newRefundTransactionEntity);
+            }
         }
     }
 
