@@ -224,10 +224,10 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
     }
 
     @Override
-    public List<AuctionListingEntity> retrieveAllActiveAuctionListing() {
+    public List<AuctionListingEntity> retrieveAllActiveAuctionListings() {
         Query query = em.createQuery("SELECT al FROM AuctionListingEntity al WHERE al.active = TRUE");
 
-        return (List<AuctionListingEntity>) query.getResultList();
+        return query.getResultList();
     }
 
     @Override
@@ -277,6 +277,56 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
                 }
             }
         }
+    }
+    
+    @Override
+    public List<AuctionListingEntity> retrieveAllAuctionListingsRequiringManualIntervention() {
+        Query query = em.createQuery("SELECT al FROM AuctionListingEntity al WHERE al.requiresManualIntervention = TRUE");
+
+        return (List<AuctionListingEntity>) query.getResultList();
+    }
+    
+    @Override
+    public void manuallyAssignTheHighestBidAsWinningBid(Long auctionListingId) throws AuctionListingNotFoundException {
+        AuctionListingEntity auctionListingEntity = retrieveAuctionListingByAuctionListingId(auctionListingId);
+        
+        List<BidEntity> auctionListingBidEntities = auctionListingEntity.getBids();
+        Collections.sort(auctionListingBidEntities);
+        BidEntity highestBidEntity = auctionListingBidEntities.get(auctionListingBidEntities.size() - 1);
+        
+        // Set winningBid
+        auctionListingEntity.setWinningBid(highestBidEntity);
+
+        // Adding to CustomerEntity's wonAuctions
+        CustomerEntity highestBidCustomerEntity = highestBidEntity.getCustomer();
+        List<AuctionListingEntity> wonAuctions = highestBidCustomerEntity.getWonAuctions();
+        wonAuctions.add(auctionListingEntity);
+        highestBidCustomerEntity.setWonAuctions(wonAuctions);
+        
+        auctionListingEntity.setRequiresManualIntervention(false);
+    }
+    
+    @Override
+    public void manuallyMarkTheAuctionListingAsHavingNoWinningBid(Long auctionListingId) throws AuctionListingNotFoundException, CustomerNotfoundException, UnknownPersistenceException, InputDataValidationException {
+        AuctionListingEntity auctionListingEntity = retrieveAuctionListingByAuctionListingId(auctionListingId);
+        
+        List<BidEntity> auctionListingBidEntities = auctionListingEntity.getBids();
+        Collections.sort(auctionListingBidEntities);
+        BidEntity highestBidEntity = auctionListingBidEntities.get(auctionListingBidEntities.size() - 1);
+        
+        // Need to refund CustomerEntity
+        CustomerEntity highestBidCustomerEntity = highestBidEntity.getCustomer();
+
+        TransactionEntity newRefundTransactionEntity = new TransactionEntity();
+        newRefundTransactionEntity.setTimeOfTransaction(new Date());
+        // Refunding a bid has a positive transaction amount
+        newRefundTransactionEntity.setTransactionAmount(highestBidEntity.getBidPrice());
+        newRefundTransactionEntity.setCustomer(highestBidCustomerEntity);
+        newRefundTransactionEntity.setBid(highestBidEntity);
+
+        transactionSessionBeanLocal.createNewTransaction(highestBidCustomerEntity.getCustomerId(), newRefundTransactionEntity);
+        
+        auctionListingEntity.setRequiresManualIntervention(false);
     }
 
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<AuctionListingEntity>> constraintViolations) {

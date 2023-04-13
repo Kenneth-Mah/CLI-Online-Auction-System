@@ -499,7 +499,7 @@ public class MainApp {
         
         System.out.println("*** OAS Auction Client :: Browse All Auction Listings ***\n");
         
-        List<AuctionListingEntity> autionListingEntities = auctionListingSessionBeanRemote.retrieveAllActiveAuctionListing();
+        List<AuctionListingEntity> autionListingEntities = auctionListingSessionBeanRemote.retrieveAllActiveAuctionListings();
         System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
         
         for (AuctionListingEntity auctionListingEntity : autionListingEntities) {

@@ -78,7 +78,7 @@ public class SalesAdministrationModule {
                 } else if (response == 3) {
                     doViewAllAuctionListings();
                 } else if (response == 4) {
-//                    doViewAllAuctionListingsWithBidsButBelowReservePrice();
+                    doViewAllAuctionListingsWithBidsButBelowReservePrice();
                 } else if (response == 5) {
                     break;
                 } else {
@@ -316,6 +316,72 @@ public class SalesAdministrationModule {
 
         System.out.print("Press any key to continue...> ");
         scanner.nextLine();
+    }
+    
+    private void doViewAllAuctionListingsWithBidsButBelowReservePrice() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("*** OAS Administration Panel :: Sales Administration :: View All Auction Listings With Bids But Below Reserve Price ***\n");
+
+        List<AuctionListingEntity> auctionListingEntities = auctionListingSessionBeanRemote.retrieveAllAuctionListingsRequiringManualIntervention();
+        System.out.printf("%18s%26s%34s%34s%20s%20s%9s%11s%31s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price", "Active", "Disabled", "Requires Manual Intervention");
+
+        for (AuctionListingEntity auctionListingEntity : auctionListingEntities) {
+            String reservePriceString;
+            if (auctionListingEntity.getReservePrice() != null) {
+                reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
+            } else {
+                reservePriceString = "null";
+            }
+            System.out.printf("%18s%26s%34s%34s%20s%20s%9s%11s%31s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()), auctionListingEntity.getActive().toString(), auctionListingEntity.getDisabled().toString(), auctionListingEntity.getRequiresManualIntervention().toString());
+        }
+
+        System.out.print("To Assign Winning Bid For Listing With Bids But Below Reserve Price, Enter Auction Listing Name (blank to exit)> ");
+        String auctionListingName = scanner.nextLine().trim();
+
+        if (auctionListingName.length() > 0) {
+            doAssignWinningBidForListingsWithBidsButBelowReservePrice(auctionListingName);
+        }
+    }
+    
+    private void doAssignWinningBidForListingsWithBidsButBelowReservePrice(String auctionListingName) {
+        Scanner scanner = new Scanner(System.in);
+        String input;
+
+        System.out.println("*** OAS Administration Panel :: Sales Administration :: Assign Winning Bid For Listing With Bids But Below Reserve Price ***\n");
+        
+        try {
+            AuctionListingEntity auctionListingEntity = auctionListingSessionBeanRemote.retrieveAuctionListingByAuctionListingName(auctionListingName);
+            System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
+            String reservePriceString;
+            if (auctionListingEntity.getReservePrice() != null) {
+                reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
+            } else {
+                reservePriceString = "null";
+            }
+            System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
+            System.out.println("------------------------");
+            System.out.printf("Confirm Assign Winning Bid For Auction Listing %s (Auction Listing ID: %d) (Enter 'Y' to Assign Winning Bid, 'N' to Assign No Winning Bid)> ", auctionListingEntity.getAuctionListingName(), auctionListingEntity.getAuctionListingId());
+            input = scanner.nextLine().trim();
+
+            if (input.equals("Y")) {
+                try {
+                    auctionListingSessionBeanRemote.manuallyAssignTheHighestBidAsWinningBid(auctionListingEntity.getAuctionListingId());
+                } catch (AuctionListingNotFoundException ex) {
+                    System.out.println("An error has occurred while assigning the highest bid as winning bid: " + ex.getMessage() + "\n");
+                }
+            } else if (input.equals("N")) {
+                try {
+                    auctionListingSessionBeanRemote.manuallyMarkTheAuctionListingAsHavingNoWinningBid(auctionListingEntity.getAuctionListingId());
+                } catch (AuctionListingNotFoundException | CustomerNotfoundException | UnknownPersistenceException | InputDataValidationException ex) {
+                    System.out.println("An error has occurred while marking the auction listing as having no winning bid: " + ex.getMessage() + "\n");
+                }
+            } else {
+                System.out.println("Address NOT deleted!\n");
+            }
+        } catch (AuctionListingNotFoundException ex) {
+            System.out.println("An error has occurred while retrieving the auction listing: " + ex.getMessage() + "\n");
+        }
     }
     
     private void showInputDataValidationErrorsForAuctionListingEntity(Set<ConstraintViolation<AuctionListingEntity>> constraintViolations) {

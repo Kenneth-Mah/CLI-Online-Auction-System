@@ -40,10 +40,16 @@ public interface AuctionListingSessionBeanLocal {
     
     public void deleteAuctionListing(Long auctionListingId) throws AuctionListingNotFoundException, CustomerNotfoundException, UnknownPersistenceException, InputDataValidationException;
 
-    public List<AuctionListingEntity> retrieveAllActiveAuctionListing();
+    public List<AuctionListingEntity> retrieveAllActiveAuctionListings();
 
     public TimerHandle makeTimer(AuctionListingEntity auctionListing, Date expiration);
 
     public void timeout(Timer timer);
+    
+    public List<AuctionListingEntity> retrieveAllAuctionListingsRequiringManualIntervention();
+
+    public void manuallyAssignTheHighestBidAsWinningBid(Long auctionListingId) throws AuctionListingNotFoundException;
+
+    public void manuallyMarkTheAuctionListingAsHavingNoWinningBid(Long auctionListingId) throws AuctionListingNotFoundException, CustomerNotfoundException, UnknownPersistenceException, InputDataValidationException;
     
 }
