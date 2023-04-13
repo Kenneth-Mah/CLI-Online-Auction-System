@@ -9,6 +9,7 @@ import entity.AuctionListingEntity;
 import entity.BidEntity;
 import entity.CustomerEntity;
 import entity.TransactionEntity;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -244,13 +245,37 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
         AuctionListingEntity auctionListingEntityToUpdate = em.find(AuctionListingEntity.class, auctionListingEntity.getAuctionListingId());
         Boolean active = auctionListingEntityToUpdate.getActive();
         
-        if (!active) {
+        if (!active) { // If currently not active, then set active to true
             auctionListingEntityToUpdate.setActive(true);
             TimerHandle timerHandle = makeTimer(auctionListingEntityToUpdate, auctionListingEntityToUpdate.getEndDateTime());
             auctionListingEntityToUpdate.setTimerHandle(timerHandle);
-        } else {
+        } else { // If currently active, then set active to false
             auctionListingEntityToUpdate.setActive(false);
             auctionListingEntityToUpdate.setTimerHandle(null);
+            
+            List<BidEntity> auctionListingBidEntities = auctionListingEntityToUpdate.getBids();
+            Collections.sort(auctionListingBidEntities);
+            
+            if (auctionListingBidEntities.size() > 0) { // If there are bids (else, do nothing)
+                BigDecimal reservePrice = auctionListingEntityToUpdate.getReservePrice();
+                
+                BidEntity highestBidEntity = auctionListingBidEntities.get(auctionListingBidEntities.size() - 1);
+                BigDecimal highestBidPrice = highestBidEntity.getBidPrice();
+                
+                if (reservePrice != null && highestBidPrice.compareTo(reservePrice) != 1) { // If highestBidPrice <= reservePrice
+                    // Set requiresManualIntervention to true
+                    auctionListingEntityToUpdate.setRequiresManualIntervention(true);
+                } else {
+                    // Set winningBid
+                    auctionListingEntityToUpdate.setWinningBid(highestBidEntity);
+                    
+                    // Adding to CustomerEntity's wonAuctions
+                    CustomerEntity highestBidCustomerEntity = highestBidEntity.getCustomer();
+                    List<AuctionListingEntity> wonAuctions = highestBidCustomerEntity.getWonAuctions();
+                    wonAuctions.add(auctionListingEntityToUpdate);
+                    highestBidCustomerEntity.setWonAuctions(wonAuctions);
+                }
+            }
         }
     }
 

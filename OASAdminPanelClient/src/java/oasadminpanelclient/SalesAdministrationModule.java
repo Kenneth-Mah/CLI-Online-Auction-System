@@ -21,6 +21,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.AuctionListingNameExistException;
 import util.exception.AuctionListingNotFoundException;
+import util.exception.CustomerNotfoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidStartAndEndDatesException;
 import util.exception.UnknownPersistenceException;
@@ -287,7 +288,7 @@ public class SalesAdministrationModule {
                     auctionListingSessionBeanRemote.deleteAuctionListing(auctionListingEntity.getAuctionListingId());
                     System.out.println("Auction listing is in use and cannot be removed! However, it has been disabled successfully!");
                 }
-            } catch (AuctionListingNotFoundException ex) {
+            } catch (AuctionListingNotFoundException | CustomerNotfoundException | UnknownPersistenceException | InputDataValidationException ex) {
                 System.out.println("An error has occurred while deleting the auction listing: " + ex.getMessage() + "\n");
             }
         } else {
