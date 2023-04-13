@@ -9,9 +9,9 @@ import entity.AuctionListingEntity;
 import entity.BidEntity;
 import entity.CustomerEntity;
 import entity.TransactionEntity;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -71,7 +71,24 @@ public class BidSessionBean implements BidSessionBeanRemote, BidSessionBeanLocal
                 customerBidEntities.add(newBidEntity);
                 customerEntity.setBids(customerBidEntities);
                 
-                PriorityQueue<BidEntity> auctionListingBidEntities = auctionListingEntity.getBids();
+                List<BidEntity> auctionListingBidEntities = auctionListingEntity.getBids();
+                Collections.sort(auctionListingBidEntities);
+                
+                // Refunding the previous highest bid's credits to the respective customer!
+                if (auctionListingBidEntities.size() > 0) {
+                    BidEntity previousHighestBidEntity = auctionListingBidEntities.get(auctionListingBidEntities.size() - 1);
+                    CustomerEntity previousHighestBidCustomerEntity = previousHighestBidEntity.getCustomer();
+                    
+                    TransactionEntity newRefundTransactionEntity = new TransactionEntity();
+                    newRefundTransactionEntity.setTimeOfTransaction(new Date());
+                    // Refunding a bid has a positive transaction amount
+                    newRefundTransactionEntity.setTransactionAmount(previousHighestBidEntity.getBidPrice());
+                    newRefundTransactionEntity.setCustomer(previousHighestBidCustomerEntity);
+                    newRefundTransactionEntity.setBid(previousHighestBidEntity);
+                    
+                    transactionSessionBeanLocal.createNewTransaction(previousHighestBidCustomerEntity.getCustomerId(), newRefundTransactionEntity);
+                }
+                
                 auctionListingBidEntities.add(newBidEntity);
                 auctionListingEntity.setBids(auctionListingBidEntities);
                 auctionListingEntity.setHighestBidPrice(newBidEntity.getBidPrice());
@@ -84,9 +101,6 @@ public class BidSessionBean implements BidSessionBeanRemote, BidSessionBeanLocal
                 newTransactionEntity.setBid(newBidEntity);
                 
                 Long newTransactionId = transactionSessionBeanLocal.createNewTransaction(customerId, newTransactionEntity);
-                
-                // Need to refund the previous highest bid's credits to the respective customer!
-                // Refunding a bid has a positive transaction amount
 
                 return newTransactionId;
             } catch (PersistenceException ex) {

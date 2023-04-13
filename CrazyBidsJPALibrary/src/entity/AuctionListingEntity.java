@@ -7,8 +7,9 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.PriorityQueue;
+import java.util.List;
 import javax.ejb.TimerHandle;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -80,17 +81,17 @@ public class AuctionListingEntity implements Serializable {
     private AddressEntity address;
     @OneToMany(mappedBy = "auctionListing")
     // NOTE: bids can be null!
-    private PriorityQueue<BidEntity> bids;
+    private List<BidEntity> bids;
 
     public AuctionListingEntity() {
         this.highestBidPrice = new BigDecimal("0.0000");
         this.active = false;
         this.disabled = false;
         this.requiresManualIntervention = false;
-        this.bids = new PriorityQueue<>();
+        this.bids = new ArrayList<>(); // For max heap
     }
 
-    public AuctionListingEntity(String auctionListingName, Date startDateTime, Date endDateTime, BigDecimal reservePrice, BigDecimal highestBidPrice, Boolean disabled, Boolean requiresManualIntervention, BidEntity winningBid, AddressEntity address, PriorityQueue<BidEntity> bids) {
+    public AuctionListingEntity(String auctionListingName, Date startDateTime, Date endDateTime, BigDecimal reservePrice, BigDecimal highestBidPrice, Boolean disabled, Boolean requiresManualIntervention, BidEntity winningBid, AddressEntity address, List<BidEntity> bids) {
         this.auctionListingName = auctionListingName;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
@@ -279,14 +280,14 @@ public class AuctionListingEntity implements Serializable {
     /**
      * @return the bids
      */
-    public PriorityQueue<BidEntity> getBids() {
+    public List<BidEntity> getBids() {
         return bids;
     }
 
     /**
      * @param bids the bids to set
      */
-    public void setBids(PriorityQueue<BidEntity> bids) {
+    public void setBids(List<BidEntity> bids) {
         this.bids = bids;
     }
 
