@@ -8,6 +8,7 @@ package ejb.session.stateless;
 import entity.AddressEntity;
 import javax.ejb.Local;
 import util.exception.AddressNotFoundException;
+import util.exception.AuctionListingNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateAddressException;
@@ -26,5 +27,7 @@ public interface AddressSessionBeanLocal {
     public Boolean isAddressInUse(Long addressId) throws AddressNotFoundException;
 
     public void updateAddress(AddressEntity addressEntity) throws AddressNotFoundException, UpdateAddressException, InputDataValidationException;
+
+    public void selectDeliveryAddressForWonAuctionListing(Long addressId, Long auctionListingId) throws AddressNotFoundException, AuctionListingNotFoundException;
     
 }

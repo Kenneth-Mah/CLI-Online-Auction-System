@@ -6,7 +6,10 @@
 package ejb.session.stateless;
 
 import entity.AddressEntity;
+import entity.AuctionListingEntity;
+import java.util.List;
 import java.util.Set;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -16,6 +19,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.AddressNotFoundException;
+import util.exception.AuctionListingNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateAddressException;
@@ -29,6 +33,9 @@ public class AddressSessionBean implements AddressSessionBeanRemote, AddressSess
 
     @PersistenceContext(unitName = "CrazyBidsJPA-ejbPU")
     private EntityManager em;
+    
+    @EJB
+    AuctionListingSessionBeanLocal auctionListingSessionBeanLocal;
 
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
@@ -106,6 +113,18 @@ public class AddressSessionBean implements AddressSessionBeanRemote, AddressSess
     }
     
     // deleteAddress() is in CustomerSessionBean as we have to unbind the relationship before deletion
+    
+    @Override
+    public void selectDeliveryAddressForWonAuctionListing(Long addressId, Long auctionListingId) throws AddressNotFoundException, AuctionListingNotFoundException {
+        AddressEntity addressEntity = retrieveAddressByAddressId(addressId);
+        AuctionListingEntity auctionListingEntity = auctionListingSessionBeanLocal.retrieveAuctionListingByAuctionListingId(auctionListingId);
+        
+        List<AuctionListingEntity> wonAuctions = addressEntity.getWonAuctions();
+        wonAuctions.add(auctionListingEntity);
+        addressEntity.setWonAuctions(wonAuctions);
+        
+        auctionListingEntity.setAddress(addressEntity);
+    }
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<AddressEntity>> constraintViolations) {
         String msg = "Input data validation error!:";

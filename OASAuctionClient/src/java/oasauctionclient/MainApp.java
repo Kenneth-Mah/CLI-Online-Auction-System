@@ -622,11 +622,44 @@ public class MainApp {
                 }
                 System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
             }
+            
+            System.out.print("To Select Delivery Address For A Won Auction Listing, Enter Auction Listing Name (blank to exit)> ");
+            String auctionListingName = scanner.nextLine().trim();
 
-            System.out.print("Press any key to continue...> ");
-            scanner.nextLine();
+            if (auctionListingName.length() > 0) {
+                doSelectDeliveryAddressForWonAuctionListing(auctionListingName);
+            }
         } catch (CustomerNotfoundException ex) {
             System.out.println("An error has occurred while retrieving won auction listings: " + ex.getMessage() + "\n");
+        }
+    }
+    
+    private void doSelectDeliveryAddressForWonAuctionListing(String auctionListingName) {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("*** OAS Auction Client :: Select Delivery Address For Won Auction Listing ***\n");
+        
+        try {
+            AuctionListingEntity auctionListingEntity = auctionListingSessionBeanRemote.retrieveAuctionListingByAuctionListingName(auctionListingName);
+            System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
+            String reservePriceString;
+            if (auctionListingEntity.getReservePrice() != null) {
+                reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
+            } else {
+                reservePriceString = "null";
+            }
+            System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
+            System.out.println("------------------------");
+            System.out.print("Enter Address ID (zero or negative number to exit)> ");
+            Long addressId = scanner.nextLong();
+            if (addressId > 0) {
+                AddressEntity addressEntity = customerSessionBeanRemote.retrieveAddressByCustomerIdAndAddressId(globalCustomerEntity.getCustomerId(), addressId);
+                addressSessionBeanRemote.selectDeliveryAddressForWonAuctionListing(addressEntity.getAddressId(), auctionListingEntity.getAuctionListingId());
+                
+                System.out.println("Address set successfully!\n");
+            }
+        } catch (AuctionListingNotFoundException | CustomerNotfoundException | AddressNotFoundException ex) {
+            System.out.println("An error has occurred while retrieving the auction listing: " + ex.getMessage() + "\n");
         }
     }
 
