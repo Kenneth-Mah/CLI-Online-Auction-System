@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.AddressEntity;
+import entity.AuctionListingEntity;
 import entity.CustomerEntity;
 import java.util.List;
 import java.util.Set;
@@ -182,6 +183,14 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
         } else {
             throw new AddressNotFoundException("Address ID " + addressId + " does not exist!");
         }
+    }
+    
+    @Override
+    public List<AuctionListingEntity> retrieveWonAuctionsByCustomerId(Long customerId) throws CustomerNotfoundException {
+        CustomerEntity customerEntity = retrieveCustomerByCustomerId(customerId);
+        List<AuctionListingEntity> wonAuctions = customerEntity.getWonAuctions();
+        wonAuctions.size();
+        return wonAuctions;
     }
     
     @Override

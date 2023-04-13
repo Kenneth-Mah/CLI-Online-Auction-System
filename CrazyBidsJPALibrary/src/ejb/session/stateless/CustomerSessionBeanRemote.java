@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.AddressEntity;
+import entity.AuctionListingEntity;
 import entity.CustomerEntity;
 import java.util.List;
 import javax.ejb.Remote;
@@ -41,5 +42,7 @@ public interface CustomerSessionBeanRemote {
     public void deleteCustomerAddress(Long customerId, Long addressId) throws CustomerNotfoundException, AddressNotFoundException;
 
     public List<AddressEntity> retrieveAllAddressesByCustomerId(Long customerId) throws CustomerNotfoundException;
+    
+    public List<AuctionListingEntity> retrieveWonAuctionsByCustomerId(Long customerId) throws CustomerNotfoundException;
     
 }

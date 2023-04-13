@@ -212,7 +212,7 @@ public class MainApp {
                 } else if (response == 10) {
                     doViewAuctionListingDetails();
                 } else if (response == 11) {
-//                    doBrowseWonAuctionListings();
+                    doBrowseWonAuctionListings();
                 } else if (response == 12) {
                     break;
                 } else {
@@ -601,6 +601,32 @@ public class MainApp {
                 }
         } else {
             System.out.println("Bid price is too small! The minimum bid price is " + minBidPrice + "\n");
+        }
+    }
+    
+    private void doBrowseWonAuctionListings() {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("*** OAS Auction Client :: Browse Won Auction Listings ***\n");
+        
+        try {
+            List<AuctionListingEntity> autionListingEntities = customerSessionBeanRemote.retrieveWonAuctionsByCustomerId(globalCustomerEntity.getCustomerId());
+            System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
+
+            for (AuctionListingEntity auctionListingEntity : autionListingEntities) {
+                String reservePriceString;
+                if (auctionListingEntity.getReservePrice() != null) {
+                    reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
+                } else {
+                    reservePriceString = "null";
+                }
+                System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
+            }
+
+            System.out.print("Press any key to continue...> ");
+            scanner.nextLine();
+        } catch (CustomerNotfoundException ex) {
+            System.out.println("An error has occurred while retrieving won auction listings: " + ex.getMessage() + "\n");
         }
     }
 
