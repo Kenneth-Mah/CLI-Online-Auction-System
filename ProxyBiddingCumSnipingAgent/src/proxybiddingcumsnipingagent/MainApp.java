@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Scanner;
 import ws.soap.customer.AuctionListingEntity;
+import ws.soap.customer.AuctionListingNotFoundException_Exception;
 import ws.soap.customer.CustomerEntity;
 import ws.soap.customer.CustomerNotfoundException_Exception;
 import ws.soap.customer.CustomerWebService;
@@ -132,7 +133,7 @@ public class MainApp {
                 if (response == 1) {
                     doRemoteViewCreditBalance();
                 } else if (response == 2) {
-//                    doRemoteViewAuctionListingDetails();
+                    doRemoteViewAuctionListingDetails();
                 } else if (response == 3) {
                     doRemoteBrowseAllAuctionListings();
                 } else if (response == 4) {
@@ -163,6 +164,49 @@ public class MainApp {
         } catch (CustomerNotfoundException_Exception ex) {
             System.out.println(ex.getMessage() + "\n");
         }
+    }
+    
+    private void doRemoteViewAuctionListingDetails() {
+        Scanner scanner = new Scanner(System.in);
+        Integer response = 0;
+
+        System.out.println("*** Proxy Bidding cum Sniping Agent :: Remote View Auction Listing Details ***\n");
+        System.out.print("Enter Auction Listing Name> ");
+        String auctionListingName = scanner.nextLine().trim();
+        
+        try {
+            AuctionListingEntity auctionListingEntity = port.retrieveAuctionListingByAuctionListingName(auctionListingName);
+            System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
+            String reservePriceString;
+            if (auctionListingEntity.getReservePrice() != null) {
+                reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
+            } else {
+                reservePriceString = "null";
+            }
+            System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toGregorianCalendar().getTime(), auctionListingEntity.getEndDateTime().toGregorianCalendar().getTime(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
+            System.out.println("------------------------");
+            System.out.println("1: Configure Proxy Bidding For Auction Listing");
+            System.out.println("2: Configure Sniping For Auction Listing");
+            System.out.println("3: Back\n");
+            System.out.print("> ");
+            response = scanner.nextInt();
+
+            if (response == 1) {
+                doConfigureProxyBiddingForAuctionListing(auctionListingEntity);
+            } else if (response == 2) {
+                doConfigureSnipingForAuctionListing(auctionListingEntity);
+            }
+        } catch (AuctionListingNotFoundException_Exception ex) {
+            System.out.println("An error has occurred while retrieving auction listing: " + ex.getMessage() + "\n");
+        }
+    }
+    
+    private void doConfigureProxyBiddingForAuctionListing(AuctionListingEntity auctionListingEntity) {
+        
+    }
+    
+    private void doConfigureSnipingForAuctionListing(AuctionListingEntity auctionListingEntity) {
+        
     }
     
     private void doRemoteBrowseAllAuctionListings() {

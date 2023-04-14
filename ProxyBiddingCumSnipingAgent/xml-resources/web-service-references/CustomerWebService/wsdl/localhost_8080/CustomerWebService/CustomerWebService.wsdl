@@ -13,6 +13,24 @@
 <message name="CustomerNotfoundException">
 <part name="fault" element="tns:CustomerNotfoundException"/>
 </message>
+<message name="retrieveAuctionListingByAuctionListingName">
+<part name="parameters" element="tns:retrieveAuctionListingByAuctionListingName"/>
+</message>
+<message name="retrieveAuctionListingByAuctionListingNameResponse">
+<part name="parameters" element="tns:retrieveAuctionListingByAuctionListingNameResponse"/>
+</message>
+<message name="AuctionListingNotFoundException">
+<part name="fault" element="tns:AuctionListingNotFoundException"/>
+</message>
+<message name="customerRemoteLogin">
+<part name="parameters" element="tns:customerRemoteLogin"/>
+</message>
+<message name="customerRemoteLoginResponse">
+<part name="parameters" element="tns:customerRemoteLoginResponse"/>
+</message>
+<message name="InvalidLoginCredentialException">
+<part name="fault" element="tns:InvalidLoginCredentialException"/>
+</message>
 <message name="customerPremiumRegistration">
 <part name="parameters" element="tns:customerPremiumRegistration"/>
 </message>
@@ -28,20 +46,21 @@
 <message name="retrieveAllActiveAuctionListingsResponse">
 <part name="parameters" element="tns:retrieveAllActiveAuctionListingsResponse"/>
 </message>
-<message name="customerRemoteLogin">
-<part name="parameters" element="tns:customerRemoteLogin"/>
-</message>
-<message name="customerRemoteLoginResponse">
-<part name="parameters" element="tns:customerRemoteLoginResponse"/>
-</message>
-<message name="InvalidLoginCredentialException">
-<part name="fault" element="tns:InvalidLoginCredentialException"/>
-</message>
 <portType name="CustomerWebService">
 <operation name="retrieveCustomerByCustomerId">
 <input wsam:Action="http://soap.ws/CustomerWebService/retrieveCustomerByCustomerIdRequest" message="tns:retrieveCustomerByCustomerId"/>
 <output wsam:Action="http://soap.ws/CustomerWebService/retrieveCustomerByCustomerIdResponse" message="tns:retrieveCustomerByCustomerIdResponse"/>
 <fault message="tns:CustomerNotfoundException" name="CustomerNotfoundException" wsam:Action="http://soap.ws/CustomerWebService/retrieveCustomerByCustomerId/Fault/CustomerNotfoundException"/>
+</operation>
+<operation name="retrieveAuctionListingByAuctionListingName">
+<input wsam:Action="http://soap.ws/CustomerWebService/retrieveAuctionListingByAuctionListingNameRequest" message="tns:retrieveAuctionListingByAuctionListingName"/>
+<output wsam:Action="http://soap.ws/CustomerWebService/retrieveAuctionListingByAuctionListingNameResponse" message="tns:retrieveAuctionListingByAuctionListingNameResponse"/>
+<fault message="tns:AuctionListingNotFoundException" name="AuctionListingNotFoundException" wsam:Action="http://soap.ws/CustomerWebService/retrieveAuctionListingByAuctionListingName/Fault/AuctionListingNotFoundException"/>
+</operation>
+<operation name="customerRemoteLogin">
+<input wsam:Action="http://soap.ws/CustomerWebService/customerRemoteLoginRequest" message="tns:customerRemoteLogin"/>
+<output wsam:Action="http://soap.ws/CustomerWebService/customerRemoteLoginResponse" message="tns:customerRemoteLoginResponse"/>
+<fault message="tns:InvalidLoginCredentialException" name="InvalidLoginCredentialException" wsam:Action="http://soap.ws/CustomerWebService/customerRemoteLogin/Fault/InvalidLoginCredentialException"/>
 </operation>
 <operation name="customerPremiumRegistration">
 <input wsam:Action="http://soap.ws/CustomerWebService/customerPremiumRegistrationRequest" message="tns:customerPremiumRegistration"/>
@@ -51,11 +70,6 @@
 <operation name="retrieveAllActiveAuctionListings">
 <input wsam:Action="http://soap.ws/CustomerWebService/retrieveAllActiveAuctionListingsRequest" message="tns:retrieveAllActiveAuctionListings"/>
 <output wsam:Action="http://soap.ws/CustomerWebService/retrieveAllActiveAuctionListingsResponse" message="tns:retrieveAllActiveAuctionListingsResponse"/>
-</operation>
-<operation name="customerRemoteLogin">
-<input wsam:Action="http://soap.ws/CustomerWebService/customerRemoteLoginRequest" message="tns:customerRemoteLogin"/>
-<output wsam:Action="http://soap.ws/CustomerWebService/customerRemoteLoginResponse" message="tns:customerRemoteLoginResponse"/>
-<fault message="tns:InvalidLoginCredentialException" name="InvalidLoginCredentialException" wsam:Action="http://soap.ws/CustomerWebService/customerRemoteLogin/Fault/InvalidLoginCredentialException"/>
 </operation>
 </portType>
 <binding name="CustomerWebServicePortBinding" type="tns:CustomerWebService">
@@ -70,6 +84,30 @@
 </output>
 <fault name="CustomerNotfoundException">
 <soap:fault name="CustomerNotfoundException" use="literal"/>
+</fault>
+</operation>
+<operation name="retrieveAuctionListingByAuctionListingName">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="AuctionListingNotFoundException">
+<soap:fault name="AuctionListingNotFoundException" use="literal"/>
+</fault>
+</operation>
+<operation name="customerRemoteLogin">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="InvalidLoginCredentialException">
+<soap:fault name="InvalidLoginCredentialException" use="literal"/>
 </fault>
 </operation>
 <operation name="customerPremiumRegistration">
@@ -92,18 +130,6 @@
 <output>
 <soap:body use="literal"/>
 </output>
-</operation>
-<operation name="customerRemoteLogin">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-<fault name="InvalidLoginCredentialException">
-<soap:fault name="InvalidLoginCredentialException" use="literal"/>
-</fault>
 </operation>
 </binding>
 <service name="CustomerWebService">

@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI (http://jax-ws.java.net). RI's version is Metro/2.4.3 (RELEASE-2.4.3-ad3323c; 2019-01-21T17:46:06+0000) JAXWS-RI/2.3.2 JAXWS-API/2.3.2 JAXB-RI/2.3.2 JAXB-API/2.3.2 git-revision#unknown. --><xs:schema xmlns:tns="http://soap.ws/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://soap.ws/">
 
+<xs:element name="AuctionListingNotFoundException" type="tns:AuctionListingNotFoundException"/>
+
 <xs:element name="CustomerNotfoundException" type="tns:CustomerNotfoundException"/>
 
 <xs:element name="InvalidLoginCredentialException" type="tns:InvalidLoginCredentialException"/>
@@ -17,6 +19,10 @@
 <xs:element name="retrieveAllActiveAuctionListings" type="tns:retrieveAllActiveAuctionListings"/>
 
 <xs:element name="retrieveAllActiveAuctionListingsResponse" type="tns:retrieveAllActiveAuctionListingsResponse"/>
+
+<xs:element name="retrieveAuctionListingByAuctionListingName" type="tns:retrieveAuctionListingByAuctionListingName"/>
+
+<xs:element name="retrieveAuctionListingByAuctionListingNameResponse" type="tns:retrieveAuctionListingByAuctionListingNameResponse"/>
 
 <xs:element name="retrieveCustomerByCustomerId" type="tns:retrieveCustomerByCustomerId"/>
 
@@ -124,6 +130,24 @@
 </xs:complexType>
 
 <xs:complexType name="InvalidPremiumRegistrationException">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="retrieveAuctionListingByAuctionListingName">
+<xs:sequence>
+<xs:element name="auctionListingName" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="retrieveAuctionListingByAuctionListingNameResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:auctionListingEntity" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="AuctionListingNotFoundException">
 <xs:sequence>
 <xs:element name="message" type="xs:string" minOccurs="0"/>
 </xs:sequence>

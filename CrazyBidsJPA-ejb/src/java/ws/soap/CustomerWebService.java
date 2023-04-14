@@ -19,6 +19,7 @@ import javax.jws.WebParam;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import util.exception.AuctionListingNotFoundException;
 import util.exception.CustomerNotfoundException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.InvalidPremiumRegistrationException;
@@ -86,6 +87,25 @@ public class CustomerWebService {
         }
         
         return customerEntity;
+    }
+    
+    @WebMethod(operationName = "retrieveAuctionListingByAuctionListingName")
+    public AuctionListingEntity retrieveAuctionListingByAuctionListingName(@WebParam(name = "auctionListingName") String auctionListingName) throws AuctionListingNotFoundException {
+        AuctionListingEntity auctionListingEntity = auctionListingSessionBeanLocal.retrieveAuctionListingByAuctionListingName(auctionListingName);
+        
+        em.detach(auctionListingEntity);
+        
+        auctionListingEntity.setWinningBid(null);
+        auctionListingEntity.setBids(new ArrayList<>());
+
+        AddressEntity addressEntity = auctionListingEntity.getAddress();
+        if (addressEntity != null) {
+            em.detach(addressEntity);
+
+            addressEntity.setWonAuctions(new ArrayList<>());
+        }
+        
+        return auctionListingEntity;
     }
     
     @WebMethod(operationName = "retrieveAllActiveAuctionListings")
