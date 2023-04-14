@@ -6,7 +6,9 @@
 package proxybiddingcumsnipingagent;
 
 import java.util.Scanner;
+import ws.soap.customer.CustomerEntity;
 import ws.soap.customer.CustomerWebService;
+import ws.soap.customer.InvalidLoginCredentialException_Exception;
 import ws.soap.customer.InvalidPremiumRegistrationException_Exception;
 
 /**
@@ -14,15 +16,15 @@ import ws.soap.customer.InvalidPremiumRegistrationException_Exception;
  * @author kenne
  */
 public class MainApp {
-    
+
     private CustomerWebService port;
     
-    // private Cus
+    private CustomerEntity globalCustomerEntity;
 
     public MainApp(CustomerWebService port) {
         this.port = port;
     }
-    
+
     public void runApp() {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -44,9 +46,8 @@ public class MainApp {
                         doRemoteLogin();
                         System.out.println("Login successful!\n");
 
-                        // menuCustomer();
-
-                    } catch (Exception ex) {
+                         menuRemoteCustomer();
+                    } catch (InvalidLoginCredentialException_Exception ex) {
                         System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
                     }
                 } else if (response == 2) {
@@ -65,7 +66,7 @@ public class MainApp {
         }
     }
 
-    private void doRemoteLogin() throws Exception {
+    private void doRemoteLogin() throws InvalidLoginCredentialException_Exception {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("*** Proxy Bidding cum Sniping Agent :: Login \n");
@@ -75,9 +76,9 @@ public class MainApp {
         String password = scanner.nextLine().trim();
 
         if (username.length() > 0 && password.length() > 0) {
-            // globalCustomerEntity = customerSessionBeanRemote.customerLogin(username, password);
+            globalCustomerEntity = port.customerRemoteLogin(username, password);
         } else {
-            // throw new InvalidLoginCredentialException("Missing login credential!");
+            System.out.println("Missing login credential!\n");
         }
     }
 
@@ -98,4 +99,44 @@ public class MainApp {
         }
     }
     
+    private void menuRemoteCustomer() {
+        Scanner scanner = new Scanner(System.in);
+        Integer response = 0;
+
+        while (true) {
+            System.out.println("*** Proxy Bidding cum Sniping Agent ***\n");
+            System.out.println("You are login as " + globalCustomerEntity.getFirstName() + " " + globalCustomerEntity.getLastName() + "\n");
+            System.out.println("1: Remote View Credit Balance");
+            System.out.println("2: Remote View Auction Listing Details");
+            System.out.println("3: Remote Browse All Auction Listings");
+            System.out.println("4: Remote View Won Auction Listings");
+            System.out.println("5: Logout\n");
+            response = 0;
+
+            while (response < 1 || response > 5) {
+                System.out.print("> ");
+
+                response = scanner.nextInt();
+
+                if (response == 1) {
+//                    doRemoteViewCreditBalance();
+                } else if (response == 2) {
+//                    doRemoteViewAuctionListingDetails();
+                } else if (response == 3) {
+//                    doRemoteBrowseAllAuctionListings();
+                } else if (response == 4) {
+//                    doRemoteViewWonAuctionListings();
+                } else if (response == 5) {
+                    break;
+                } else {
+                    System.out.println("Invalid option, please try again!\n");
+                }
+            }
+
+            if (response == 5) {
+                break;
+            }
+        }
+    }
+
 }
