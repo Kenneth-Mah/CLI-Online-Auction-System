@@ -7,6 +7,7 @@ package proxybiddingcumsnipingagent;
 
 import java.util.Scanner;
 import ws.soap.customer.CustomerEntity;
+import ws.soap.customer.CustomerNotfoundException_Exception;
 import ws.soap.customer.CustomerWebService;
 import ws.soap.customer.InvalidLoginCredentialException_Exception;
 import ws.soap.customer.InvalidPremiumRegistrationException_Exception;
@@ -119,7 +120,7 @@ public class MainApp {
                 response = scanner.nextInt();
 
                 if (response == 1) {
-//                    doRemoteViewCreditBalance();
+                    doRemoteViewCreditBalance();
                 } else if (response == 2) {
 //                    doRemoteViewAuctionListingDetails();
                 } else if (response == 3) {
@@ -136,6 +137,21 @@ public class MainApp {
             if (response == 5) {
                 break;
             }
+        }
+    }
+    
+    private void doRemoteViewCreditBalance() {
+        try {
+            globalCustomerEntity = port.retrieveCustomerByCustomerId(globalCustomerEntity.getCustomerId());
+            
+            System.out.println("*** Proxy Bidding cum Sniping Agent :: Remote View Credit Balance ***\n");
+            System.out.println("Credit Balance: " + globalCustomerEntity.getAvailableBalance() + "\n");
+
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Press any key to continue...> ");
+            scanner.nextLine();
+        } catch (CustomerNotfoundException_Exception ex) {
+            System.out.println(ex.getMessage() + "\n");
         }
     }
 

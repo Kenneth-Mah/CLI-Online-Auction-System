@@ -4,6 +4,15 @@
 <xsd:import namespace="http://soap.ws/" schemaLocation="http://localhost:8080/CustomerWebService/CustomerWebService?xsd=1"/>
 </xsd:schema>
 </types>
+<message name="retrieveCustomerByCustomerId">
+<part name="parameters" element="tns:retrieveCustomerByCustomerId"/>
+</message>
+<message name="retrieveCustomerByCustomerIdResponse">
+<part name="parameters" element="tns:retrieveCustomerByCustomerIdResponse"/>
+</message>
+<message name="CustomerNotfoundException">
+<part name="fault" element="tns:CustomerNotfoundException"/>
+</message>
 <message name="customerRemoteLogin">
 <part name="parameters" element="tns:customerRemoteLogin"/>
 </message>
@@ -23,6 +32,11 @@
 <part name="fault" element="tns:InvalidPremiumRegistrationException"/>
 </message>
 <portType name="CustomerWebService">
+<operation name="retrieveCustomerByCustomerId">
+<input wsam:Action="http://soap.ws/CustomerWebService/retrieveCustomerByCustomerIdRequest" message="tns:retrieveCustomerByCustomerId"/>
+<output wsam:Action="http://soap.ws/CustomerWebService/retrieveCustomerByCustomerIdResponse" message="tns:retrieveCustomerByCustomerIdResponse"/>
+<fault message="tns:CustomerNotfoundException" name="CustomerNotfoundException" wsam:Action="http://soap.ws/CustomerWebService/retrieveCustomerByCustomerId/Fault/CustomerNotfoundException"/>
+</operation>
 <operation name="customerRemoteLogin">
 <input wsam:Action="http://soap.ws/CustomerWebService/customerRemoteLoginRequest" message="tns:customerRemoteLogin"/>
 <output wsam:Action="http://soap.ws/CustomerWebService/customerRemoteLoginResponse" message="tns:customerRemoteLoginResponse"/>
@@ -36,6 +50,18 @@
 </portType>
 <binding name="CustomerWebServicePortBinding" type="tns:CustomerWebService">
 <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+<operation name="retrieveCustomerByCustomerId">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="CustomerNotfoundException">
+<soap:fault name="CustomerNotfoundException" use="literal"/>
+</fault>
+</operation>
 <operation name="customerRemoteLogin">
 <soap:operation soapAction=""/>
 <input>
