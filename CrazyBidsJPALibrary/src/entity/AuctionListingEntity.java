@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.TimerHandle;
+import javax.jws.WebMethod;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,6 +26,7 @@ import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -47,9 +49,9 @@ public class AuctionListingEntity implements Serializable {
     // Cannot use @Future otherwise cannot modify the entity
     private Date startDateTime;
     @Temporal(TemporalType.TIMESTAMP)
-    // Cannot use @Future otherwise cannot modify the entity
     @Column(nullable = false)
     @NotNull
+    // Cannot use @Future otherwise cannot modify the entity
     private Date endDateTime;
     @Column(precision = 18, scale = 4)
     @DecimalMin("0.0000")
@@ -294,6 +296,7 @@ public class AuctionListingEntity implements Serializable {
     /**
      * @return the timerHandle
      */
+    @XmlTransient // DO NOT REMOVE! To prevent TimerHandle object from being passed over a web service interface!
     public TimerHandle getTimerHandle() {
         return timerHandle;
     }

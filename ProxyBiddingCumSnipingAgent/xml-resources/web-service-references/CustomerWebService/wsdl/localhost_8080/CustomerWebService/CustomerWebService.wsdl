@@ -4,6 +4,15 @@
 <xsd:import namespace="http://soap.ws/" schemaLocation="http://localhost:8080/CustomerWebService/CustomerWebService?xsd=1"/>
 </xsd:schema>
 </types>
+<message name="customerRemoteLogin">
+<part name="parameters" element="tns:customerRemoteLogin"/>
+</message>
+<message name="customerRemoteLoginResponse">
+<part name="parameters" element="tns:customerRemoteLoginResponse"/>
+</message>
+<message name="InvalidLoginCredentialException">
+<part name="fault" element="tns:InvalidLoginCredentialException"/>
+</message>
 <message name="customerPremiumRegistration">
 <part name="parameters" element="tns:customerPremiumRegistration"/>
 </message>
@@ -14,6 +23,11 @@
 <part name="fault" element="tns:InvalidPremiumRegistrationException"/>
 </message>
 <portType name="CustomerWebService">
+<operation name="customerRemoteLogin">
+<input wsam:Action="http://soap.ws/CustomerWebService/customerRemoteLoginRequest" message="tns:customerRemoteLogin"/>
+<output wsam:Action="http://soap.ws/CustomerWebService/customerRemoteLoginResponse" message="tns:customerRemoteLoginResponse"/>
+<fault message="tns:InvalidLoginCredentialException" name="InvalidLoginCredentialException" wsam:Action="http://soap.ws/CustomerWebService/customerRemoteLogin/Fault/InvalidLoginCredentialException"/>
+</operation>
 <operation name="customerPremiumRegistration">
 <input wsam:Action="http://soap.ws/CustomerWebService/customerPremiumRegistrationRequest" message="tns:customerPremiumRegistration"/>
 <output wsam:Action="http://soap.ws/CustomerWebService/customerPremiumRegistrationResponse" message="tns:customerPremiumRegistrationResponse"/>
@@ -22,6 +36,18 @@
 </portType>
 <binding name="CustomerWebServicePortBinding" type="tns:CustomerWebService">
 <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+<operation name="customerRemoteLogin">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="InvalidLoginCredentialException">
+<soap:fault name="InvalidLoginCredentialException" use="literal"/>
+</fault>
+</operation>
 <operation name="customerPremiumRegistration">
 <soap:operation soapAction=""/>
 <input>
