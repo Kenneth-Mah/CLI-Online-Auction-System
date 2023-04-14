@@ -14,6 +14,10 @@
 
 <xs:element name="customerRemoteLoginResponse" type="tns:customerRemoteLoginResponse"/>
 
+<xs:element name="retrieveAllActiveAuctionListings" type="tns:retrieveAllActiveAuctionListings"/>
+
+<xs:element name="retrieveAllActiveAuctionListingsResponse" type="tns:retrieveAllActiveAuctionListingsResponse"/>
+
 <xs:element name="retrieveCustomerByCustomerId" type="tns:retrieveCustomerByCustomerId"/>
 
 <xs:element name="retrieveCustomerByCustomerIdResponse" type="tns:retrieveCustomerByCustomerIdResponse"/>
@@ -141,6 +145,16 @@
 <xs:complexType name="InvalidLoginCredentialException">
 <xs:sequence>
 <xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="retrieveAllActiveAuctionListings">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="retrieveAllActiveAuctionListingsResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:auctionListingEntity" minOccurs="0" maxOccurs="unbounded"/>
 </xs:sequence>
 </xs:complexType>
 </xs:schema>

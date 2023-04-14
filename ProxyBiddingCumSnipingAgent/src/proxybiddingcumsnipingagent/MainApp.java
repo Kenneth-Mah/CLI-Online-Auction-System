@@ -134,7 +134,7 @@ public class MainApp {
                 } else if (response == 2) {
 //                    doRemoteViewAuctionListingDetails();
                 } else if (response == 3) {
-//                    doRemoteBrowseAllAuctionListings();
+                    doRemoteBrowseAllAuctionListings();
                 } else if (response == 4) {
                     doRemoteViewWonAuctionListings();
                 } else if (response == 5) {
@@ -163,6 +163,28 @@ public class MainApp {
         } catch (CustomerNotfoundException_Exception ex) {
             System.out.println(ex.getMessage() + "\n");
         }
+    }
+    
+    private void doRemoteBrowseAllAuctionListings() {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("*** Proxy Bidding cum Sniping Agent :: Remote Browse All Auction Listings ***\n");
+        
+        List<AuctionListingEntity> autionListingEntities = port.retrieveAllActiveAuctionListings();
+        System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
+        
+        for (AuctionListingEntity auctionListingEntity : autionListingEntities) {
+            String reservePriceString;
+            if (auctionListingEntity.getReservePrice() != null) {
+                reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
+            } else {
+                reservePriceString = "null";
+            }
+            System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toGregorianCalendar().getTime(), auctionListingEntity.getEndDateTime().toGregorianCalendar().getTime(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
+        }
+        
+        System.out.print("Press any key to continue...> ");
+        scanner.nextLine();
     }
     
     private void doRemoteViewWonAuctionListings() {

@@ -5,11 +5,13 @@
  */
 package ws.soap;
 
+import ejb.session.stateless.AuctionListingSessionBeanLocal;
 import ejb.session.stateless.CustomerSessionBeanLocal;
 import entity.AddressEntity;
 import entity.AuctionListingEntity;
 import entity.CustomerEntity;
 import java.util.ArrayList;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.jws.WebService;
 import javax.jws.WebMethod;
@@ -34,6 +36,9 @@ public class CustomerWebService {
     
     @EJB
     private CustomerSessionBeanLocal customerSessionBeanLocal;
+    @EJB
+    private AuctionListingSessionBeanLocal auctionListingSessionBeanLocal;
+    
 
     @WebMethod(operationName = "customerPremiumRegistration")
     public void customerPremiumRegistration(@WebParam(name = "username") String username,
@@ -81,6 +86,27 @@ public class CustomerWebService {
         }
         
         return customerEntity;
+    }
+    
+    @WebMethod(operationName = "retrieveAllActiveAuctionListings")
+    public List<AuctionListingEntity> retrieveAllActiveAuctionListings() {
+        List<AuctionListingEntity> auctionListingEntities = auctionListingSessionBeanLocal.retrieveAllActiveAuctionListings();
+        
+        for (AuctionListingEntity auctionListingEntity : auctionListingEntities) {
+            em.detach(auctionListingEntity);
+            
+            auctionListingEntity.setWinningBid(null);
+            auctionListingEntity.setBids(new ArrayList<>());
+            
+            AddressEntity addressEntity = auctionListingEntity.getAddress();
+            if (addressEntity != null) {
+                em.detach(addressEntity);
+
+                addressEntity.setWonAuctions(new ArrayList<>());
+            }
+        }
+        
+        return auctionListingEntities;
     }
     
 }
