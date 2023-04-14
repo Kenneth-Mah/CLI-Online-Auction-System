@@ -27,6 +27,7 @@ import util.exception.CustomerNotfoundException;
 import util.exception.CustomerUsernameExistException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.InvalidPremiumRegistrationException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateCustomerException;
 
@@ -199,6 +200,44 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
         List<AddressEntity> addressEntities = customerEntity.getAddresses();
         addressEntities.size();
         return addressEntities;
+    }
+    
+    @Override
+    public void customerPremiumRegistration(String username, String password) throws InvalidPremiumRegistrationException {
+        try {
+            CustomerEntity customerEntity = retrieveCustomerByUsername(username);
+
+            if (customerEntity.getPassword().equals(password)) {
+                if (!customerEntity.getIsPremiumCustomer()) {
+                    customerEntity.setIsPremiumCustomer(true);
+                } else {
+                    throw new InvalidPremiumRegistrationException("This premium customer already exists!");
+                }
+            } else {
+                throw new InvalidPremiumRegistrationException("Username does not exist or invalid password!");
+            }
+        } catch (CustomerNotfoundException ex) {
+            throw new InvalidPremiumRegistrationException("Username does not exist or invalid password!");
+        }
+    }
+    
+    @Override
+    public CustomerEntity customerRemoteLogin(String username, String password) throws InvalidLoginCredentialException {
+        try {
+            CustomerEntity customerEntity = retrieveCustomerByUsername(username);
+
+            if (customerEntity.getPassword().equals(password)) {
+                if (customerEntity.getIsPremiumCustomer()) {
+                    return customerEntity;
+                } else {
+                    throw new InvalidLoginCredentialException("This customer is not a premium customer!");
+                }
+            } else {
+                throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
+            }
+        } catch (CustomerNotfoundException ex) {
+            throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
+        }
     }
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<CustomerEntity>> constraintViolations) {

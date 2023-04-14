@@ -52,6 +52,9 @@ public class CustomerEntity implements Serializable {
     @DecimalMin("0.0000")
     @Digits(integer = 14, fraction = 4)
     private BigDecimal availableBalance;
+    @Column(nullable = false)
+    @NotNull
+    private Boolean isPremiumCustomer;
     
     @OneToMany(mappedBy = "customer")
     // NOTE: transactions can be null!
@@ -68,6 +71,7 @@ public class CustomerEntity implements Serializable {
 
     public CustomerEntity() {
         this.availableBalance = new BigDecimal("0.0000");
+        this.isPremiumCustomer = false;
         this.transactions = new ArrayList<>();
         this.bids = new ArrayList<>();
         this.addresses = new ArrayList<>();
@@ -183,6 +187,20 @@ public class CustomerEntity implements Serializable {
      */
     public void setAvailableBalance(BigDecimal availableBalance) {
         this.availableBalance = availableBalance;
+    }
+    
+    /**
+     * @return the isPremiumCustomer
+     */
+    public Boolean getIsPremiumCustomer() {
+        return isPremiumCustomer;
+    }
+
+    /**
+     * @param isPremiumCustomer the isPremiumCustomer to set
+     */
+    public void setIsPremiumCustomer(Boolean isPremiumCustomer) {
+        this.isPremiumCustomer = isPremiumCustomer;
     }
 
     /**

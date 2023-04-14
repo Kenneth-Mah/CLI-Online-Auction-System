@@ -15,6 +15,7 @@ import util.exception.CustomerNotfoundException;
 import util.exception.CustomerUsernameExistException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.InvalidPremiumRegistrationException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateCustomerException;
 
@@ -44,5 +45,9 @@ public interface CustomerSessionBeanLocal {
     public List<AddressEntity> retrieveAllAddressesByCustomerId(Long customerId) throws CustomerNotfoundException;
 
     public List<AuctionListingEntity> retrieveWonAuctionsByCustomerId(Long customerId) throws CustomerNotfoundException;
+
+    public void customerPremiumRegistration(String username, String password) throws InvalidPremiumRegistrationException;
+
+    public CustomerEntity customerRemoteLogin(String username, String password) throws InvalidLoginCredentialException;
     
 }
