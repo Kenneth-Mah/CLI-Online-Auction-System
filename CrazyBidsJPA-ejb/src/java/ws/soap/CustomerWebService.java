@@ -73,9 +73,11 @@ public class CustomerWebService {
             auctionListingEntity.setBids(new ArrayList<>());
             
             AddressEntity addressEntity = auctionListingEntity.getAddress();
-            em.detach(addressEntity);
-            
-            addressEntity.setWonAuctions(new ArrayList<>());
+            if (addressEntity != null) {
+                em.detach(addressEntity);
+
+                addressEntity.setWonAuctions(new ArrayList<>());
+            }
         }
         
         return customerEntity;

@@ -5,7 +5,10 @@
  */
 package proxybiddingcumsnipingagent;
 
+import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Scanner;
+import ws.soap.customer.AuctionListingEntity;
 import ws.soap.customer.CustomerEntity;
 import ws.soap.customer.CustomerNotfoundException_Exception;
 import ws.soap.customer.CustomerWebService;
@@ -17,12 +20,19 @@ import ws.soap.customer.InvalidPremiumRegistrationException_Exception;
  * @author kenne
  */
 public class MainApp {
+    
+    private DecimalFormat decimalFormat;
 
     private CustomerWebService port;
     
     private CustomerEntity globalCustomerEntity;
 
+    public MainApp() {
+        decimalFormat = new DecimalFormat("#0.0000");
+    }
+
     public MainApp(CustomerWebService port) {
+        this();
         this.port = port;
     }
 
@@ -126,7 +136,7 @@ public class MainApp {
                 } else if (response == 3) {
 //                    doRemoteBrowseAllAuctionListings();
                 } else if (response == 4) {
-//                    doRemoteViewWonAuctionListings();
+                    doRemoteViewWonAuctionListings();
                 } else if (response == 5) {
                     break;
                 } else {
@@ -152,6 +162,33 @@ public class MainApp {
             scanner.nextLine();
         } catch (CustomerNotfoundException_Exception ex) {
             System.out.println(ex.getMessage() + "\n");
+        }
+    }
+    
+    private void doRemoteViewWonAuctionListings() {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("*** Proxy Bidding cum Sniping Agent :: Remote View Won Auction Listings ***\n");
+        
+        try {
+            globalCustomerEntity = port.retrieveCustomerByCustomerId(globalCustomerEntity.getCustomerId());
+            List<AuctionListingEntity> autionListingEntities = globalCustomerEntity.getWonAuctions();
+            System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
+
+            for (AuctionListingEntity auctionListingEntity : autionListingEntities) {
+                String reservePriceString;
+                if (auctionListingEntity.getReservePrice() != null) {
+                    reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
+                } else {
+                    reservePriceString = "null";
+                }
+                System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toGregorianCalendar().getTime(), auctionListingEntity.getEndDateTime().toGregorianCalendar().getTime(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
+            }
+            
+            System.out.print("Press any key to continue...> ");
+            scanner.nextLine();
+        } catch (CustomerNotfoundException_Exception ex) {
+            System.out.println("An error has occurred while retrieving won auction listings: " + ex.getMessage() + "\n");
         }
     }
 
