@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI (http://jax-ws.java.net). RI's version is Metro/2.4.3 (RELEASE-2.4.3-ad3323c; 2019-01-21T17:46:06+0000) JAXWS-RI/2.3.2 JAXWS-API/2.3.2 JAXB-RI/2.3.2 JAXB-API/2.3.2 git-revision#unknown. --><xs:schema xmlns:tns="http://soap.ws/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://soap.ws/">
+
+<xs:element name="InvalidPremiumRegistrationException" type="tns:InvalidPremiumRegistrationException"/>
+
+<xs:element name="customerPremiumRegistration" type="tns:customerPremiumRegistration"/>
+
+<xs:element name="customerPremiumRegistrationResponse" type="tns:customerPremiumRegistrationResponse"/>
+
+<xs:complexType name="customerPremiumRegistration">
+<xs:sequence>
+<xs:element name="username" type="xs:string" minOccurs="0"/>
+<xs:element name="password" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="customerPremiumRegistrationResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="InvalidPremiumRegistrationException">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+</xs:schema>
