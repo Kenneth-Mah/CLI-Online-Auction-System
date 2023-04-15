@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,6 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
+import util.enumeration.BidTypeEnum;
 
 /**
  *
@@ -34,6 +37,10 @@ public class BidEntity implements Serializable, Comparable<BidEntity> {
     @DecimalMin("0.0500")
     @Digits(integer = 14, fraction = 4)
     private BigDecimal bidPrice;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @NotNull
+    private BidTypeEnum bidTypeEnum;
     
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
@@ -43,10 +50,19 @@ public class BidEntity implements Serializable, Comparable<BidEntity> {
     private AuctionListingEntity auctionListing;
 
     public BidEntity() {
+        this.bidTypeEnum = BidTypeEnum.DEFAULT;
     }
 
     public BidEntity(BigDecimal bidPrice, CustomerEntity customer, AuctionListingEntity auctionListing) {
+        this();
         this.bidPrice = bidPrice;
+        this.customer = customer;
+        this.auctionListing = auctionListing;
+    }
+
+    public BidEntity(BigDecimal bidPrice, BidTypeEnum bidTypeEnum, CustomerEntity customer, AuctionListingEntity auctionListing) {
+        this.bidPrice = bidPrice;
+        this.bidTypeEnum = bidTypeEnum;
         this.customer = customer;
         this.auctionListing = auctionListing;
     }
@@ -101,6 +117,20 @@ public class BidEntity implements Serializable, Comparable<BidEntity> {
      */
     public void setBidPrice(BigDecimal bidPrice) {
         this.bidPrice = bidPrice;
+    }
+    
+    /**
+     * @return the bidTypeEnum
+     */
+    public BidTypeEnum getBidTypeEnum() {
+        return bidTypeEnum;
+    }
+
+    /**
+     * @param bidTypeEnum the bidTypeEnum to set
+     */
+    public void setBidTypeEnum(BidTypeEnum bidTypeEnum) {
+        this.bidTypeEnum = bidTypeEnum;
     }
 
     /**

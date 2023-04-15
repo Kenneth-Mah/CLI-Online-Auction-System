@@ -87,6 +87,7 @@
 <xs:element name="auctionListing" type="tns:auctionListingEntity" minOccurs="0"/>
 <xs:element name="bidId" type="xs:long" minOccurs="0"/>
 <xs:element name="bidPrice" type="xs:decimal" minOccurs="0"/>
+<xs:element name="bidTypeEnum" type="tns:bidTypeEnum" minOccurs="0"/>
 <xs:element name="customer" type="tns:customerEntity" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
@@ -181,4 +182,12 @@
 <xs:element name="return" type="tns:auctionListingEntity" minOccurs="0" maxOccurs="unbounded"/>
 </xs:sequence>
 </xs:complexType>
+
+<xs:simpleType name="bidTypeEnum">
+<xs:restriction base="xs:string">
+<xs:enumeration value="DEFAULT"/>
+<xs:enumeration value="PROXYBIDREFERENCE"/>
+<xs:enumeration value="SNIPINGBIDREFERENCE"/>
+</xs:restriction>
+</xs:simpleType>
 </xs:schema>
