@@ -22,8 +22,11 @@ import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -592,19 +595,18 @@ public class MainApp {
 
         BigDecimal minBidPrice = currentHighestBidPrice.add(minBidIncrement);
         if (bidPrice.compareTo(minBidPrice) >= 0) {
-
             BidEntity newBidEntity = new BidEntity(bidPrice, globalCustomerEntity, auctionListingEntity);// might be wrong
-            try {
-                Long newTransactionId = bidSessionBeanRemote.createNewBid(globalCustomerEntity.getCustomerId(), auctionListingEntity.getAuctionListingId(), newBidEntity);
-                System.out.println("New bid placed successfully!: " + newTransactionId + "\n");
-            } catch (CustomerNotfoundException | AuctionListingNotFoundException | UnknownPersistenceException ex) {
-                System.out.println("An unknown error has occurred while placing a new bid!: " + ex.getMessage() + "\n");
-            } catch (InputDataValidationException ex) {
-                System.out.println(ex.getMessage() + "\n");
-            } catch (InsufficientCreditException ex) {
-                System.out.println("You do not have enough balancce in your wallet." + ex.getMessage() + "\n");
-            } catch (AuctionListingAlreadyClosedException ex) {
-                System.out.println("Auction Listing already closed." + ex.getMessage() + "\n");
+            if (auctionListingEntity.getActive()) {
+                try {
+                    Long newTransactionId = bidSessionBeanRemote.createNewBid(globalCustomerEntity.getCustomerId(), auctionListingEntity.getAuctionListingId(), newBidEntity);
+                    System.out.println("New bid placed successfully!: " + newTransactionId + "\n");
+                } catch (CustomerNotfoundException | AuctionListingNotFoundException | UnknownPersistenceException ex) {
+                    System.out.println("An unknown error has occurred while placing a new bid!: " + ex.getMessage() + "\n");
+                } catch (InputDataValidationException | InsufficientCreditException | AuctionListingAlreadyClosedException ex) {
+                    System.out.println(ex.getMessage() + "\n");
+                }
+            } else {
+                System.out.println("Error! The auction listing has already closed!\n");
             }
         } else {
             System.out.println("Bid price is too small! The minimum bid price is " + minBidPrice + "\n");
