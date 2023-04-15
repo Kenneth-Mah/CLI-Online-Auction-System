@@ -6,9 +6,11 @@
 package ws.soap;
 
 import ejb.session.stateless.AuctionListingSessionBeanLocal;
+import ejb.session.stateless.BidSessionBeanLocal;
 import ejb.session.stateless.CustomerSessionBeanLocal;
 import entity.AddressEntity;
 import entity.AuctionListingEntity;
+import entity.BidEntity;
 import entity.CustomerEntity;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +41,8 @@ public class CustomerWebService {
     private CustomerSessionBeanLocal customerSessionBeanLocal;
     @EJB
     private AuctionListingSessionBeanLocal auctionListingSessionBeanLocal;
+    @EJB
+    private BidSessionBeanLocal bidSessionBeanLocal;
     
 
     @WebMethod(operationName = "customerPremiumRegistration")
@@ -127,6 +131,12 @@ public class CustomerWebService {
         }
         
         return auctionListingEntities;
+    }
+    
+    @WebMethod(operationName = "createNewSnipingBid")
+    public void createNewSnipingBid(@WebParam(name = "newSnipingBidEntity") BidEntity newSnipingBidEntity,
+                                    @WebParam(name = "minutesBeforeEndDateTime") Integer minutesBeforeEndDateTime) {
+        bidSessionBeanLocal.createNewSnipingBid(newSnipingBidEntity, minutesBeforeEndDateTime);
     }
     
 }

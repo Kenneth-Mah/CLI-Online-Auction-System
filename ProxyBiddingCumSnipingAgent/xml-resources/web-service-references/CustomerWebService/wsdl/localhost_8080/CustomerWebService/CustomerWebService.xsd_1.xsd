@@ -8,6 +8,10 @@
 
 <xs:element name="InvalidPremiumRegistrationException" type="tns:InvalidPremiumRegistrationException"/>
 
+<xs:element name="createNewSnipingBid" type="tns:createNewSnipingBid"/>
+
+<xs:element name="createNewSnipingBidResponse" type="tns:createNewSnipingBidResponse"/>
+
 <xs:element name="customerPremiumRegistration" type="tns:customerPremiumRegistration"/>
 
 <xs:element name="customerPremiumRegistrationResponse" type="tns:customerPremiumRegistrationResponse"/>
@@ -117,6 +121,17 @@
 <xs:sequence>
 <xs:element name="message" type="xs:string" minOccurs="0"/>
 </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="createNewSnipingBid">
+<xs:sequence>
+<xs:element name="newSnipingBidEntity" type="tns:bidEntity" minOccurs="0"/>
+<xs:element name="minutesBeforeEndDateTime" type="xs:int" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="createNewSnipingBidResponse">
+<xs:sequence/>
 </xs:complexType>
 
 <xs:complexType name="customerPremiumRegistration">

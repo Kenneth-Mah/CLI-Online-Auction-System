@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Scanner;
 import ws.soap.customer.AuctionListingEntity;
 import ws.soap.customer.AuctionListingNotFoundException_Exception;
+import ws.soap.customer.BidEntity;
+import ws.soap.customer.BidTypeEnum;
 import ws.soap.customer.CustomerEntity;
 import ws.soap.customer.CustomerNotfoundException_Exception;
 import ws.soap.customer.CustomerWebService;
@@ -223,7 +225,13 @@ public class MainApp {
         System.out.print("Enter Maximum Bid Price> ");
         BigDecimal maxBidPrice = scanner.nextBigDecimal();
         
+        BidEntity newSnipingBidEntity = new BidEntity();
+        newSnipingBidEntity.setBidPrice(maxBidPrice);
+        newSnipingBidEntity.setBidTypeEnum(BidTypeEnum.SNIPINGBIDREFERENCE);
+        newSnipingBidEntity.setCustomer(globalCustomerEntity);
+        newSnipingBidEntity.setAuctionListing(auctionListingEntity);
         
+        port.createNewSnipingBid(newSnipingBidEntity, minutesBeforeEndDateTime);
     }
     
     private void doRemoteBrowseAllAuctionListings() {

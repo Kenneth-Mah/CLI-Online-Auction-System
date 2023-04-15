@@ -14,7 +14,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -160,10 +159,21 @@ public class BidSessionBean implements BidSessionBeanRemote, BidSessionBeanLocal
         }
     }
     
+    @Override
+    public Long createSmallestNewBid(Long customerId, Long auctionListingId) throws AuctionListingNotFoundException, CustomerNotfoundException, UnknownPersistenceException, InputDataValidationException, InsufficientCreditException, AuctionListingAlreadyClosedException {
+        BigDecimal minNextBidPrice = getMinNextBidPrice(auctionListingId);
+        CustomerEntity customerEntity = customerSessionBeanLocal.retrieveCustomerByCustomerId(customerId);
+        AuctionListingEntity auctionListingEntity = auctionListingSessionBeanLocal.retrieveAuctionListingByAuctionListingId(auctionListingId);
+        BidEntity bidEntity = new BidEntity(minNextBidPrice, customerEntity, auctionListingEntity);
+        
+        return createNewBid(customerId, auctionListingId, bidEntity);
+    }
+    
     public void createNewProxyBid() {
         
     }
     
+    @Override
     public void createNewSnipingBid(BidEntity newSnipingBidEntity, Integer minutesBeforeEndDateTime) {
         AuctionListingEntity auctionListingEntity = newSnipingBidEntity.getAuctionListing();
         Date endDateTime = auctionListingEntity.getEndDateTime();
@@ -193,12 +203,19 @@ public class BidSessionBean implements BidSessionBeanRemote, BidSessionBeanLocal
                 BidEntity highestBidEntity = Collections.max(auctionListingBidEntities);
                 
                 CustomerEntity highestBidCustomerEntity = highestBidEntity.getCustomer();
-                BigDecimal highestBidPrice = highestBidEntity.getBidPrice();
-                
-                if (customerEntity.getCustomerId().compareTo(highestBidCustomerEntity.getCustomerId()) != 0 && maxBidPrice.compareTo(highestBidPrice) == 1) {
-                    // If (thisCustomerEntity != highestBidCustomerEntity) && (maxBidPrice > highestBidPrice)
-                    
-                    // autoCreateBid
+                try {
+                    BigDecimal nextHighestBidPrice = getMinNextBidPrice(updatedAuctionListingEntity.getAuctionListingId());
+
+                    if (customerEntity.getCustomerId().compareTo(highestBidCustomerEntity.getCustomerId()) != 0 && maxBidPrice.compareTo(nextHighestBidPrice) == 1) {
+                        // If (thisCustomerEntity != highestBidCustomerEntity) && (maxBidPrice > nextHighestBidPrice)
+                        try {
+                            createSmallestNewBid(customerEntity.getCustomerId(), updatedAuctionListingEntity.getAuctionListingId());
+                        } catch (AuctionListingAlreadyClosedException | AuctionListingNotFoundException | CustomerNotfoundException | InputDataValidationException | InsufficientCreditException | UnknownPersistenceException ex) {
+                            System.out.println(ex.getMessage() + "\n");
+                        }
+                    }
+                } catch (AuctionListingNotFoundException ex) {
+                    System.out.println(ex.getMessage() + "\n");
                 }
             }
         }

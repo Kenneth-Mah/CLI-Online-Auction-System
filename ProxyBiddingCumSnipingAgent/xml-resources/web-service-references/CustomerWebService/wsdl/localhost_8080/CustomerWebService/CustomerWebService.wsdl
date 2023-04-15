@@ -22,6 +22,12 @@
 <message name="CustomerNotfoundException">
 <part name="fault" element="tns:CustomerNotfoundException"/>
 </message>
+<message name="createNewSnipingBid">
+<part name="parameters" element="tns:createNewSnipingBid"/>
+</message>
+<message name="createNewSnipingBidResponse">
+<part name="parameters" element="tns:createNewSnipingBidResponse"/>
+</message>
 <message name="customerRemoteLogin">
 <part name="parameters" element="tns:customerRemoteLogin"/>
 </message>
@@ -56,6 +62,10 @@
 <input wsam:Action="http://soap.ws/CustomerWebService/retrieveCustomerByCustomerIdRequest" message="tns:retrieveCustomerByCustomerId"/>
 <output wsam:Action="http://soap.ws/CustomerWebService/retrieveCustomerByCustomerIdResponse" message="tns:retrieveCustomerByCustomerIdResponse"/>
 <fault message="tns:CustomerNotfoundException" name="CustomerNotfoundException" wsam:Action="http://soap.ws/CustomerWebService/retrieveCustomerByCustomerId/Fault/CustomerNotfoundException"/>
+</operation>
+<operation name="createNewSnipingBid">
+<input wsam:Action="http://soap.ws/CustomerWebService/createNewSnipingBidRequest" message="tns:createNewSnipingBid"/>
+<output wsam:Action="http://soap.ws/CustomerWebService/createNewSnipingBidResponse" message="tns:createNewSnipingBidResponse"/>
 </operation>
 <operation name="customerRemoteLogin">
 <input wsam:Action="http://soap.ws/CustomerWebService/customerRemoteLoginRequest" message="tns:customerRemoteLogin"/>
@@ -97,6 +107,15 @@
 <fault name="CustomerNotfoundException">
 <soap:fault name="CustomerNotfoundException" use="literal"/>
 </fault>
+</operation>
+<operation name="createNewSnipingBid">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
 </operation>
 <operation name="customerRemoteLogin">
 <soap:operation soapAction=""/>

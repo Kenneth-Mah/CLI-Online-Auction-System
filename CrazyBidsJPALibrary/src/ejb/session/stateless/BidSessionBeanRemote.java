@@ -25,5 +25,9 @@ public interface BidSessionBeanRemote {
     public BigDecimal getMinNextBidPrice(Long auctionListingId) throws AuctionListingNotFoundException;
     
     public Long createNewBid(Long customerId, Long auctionListingId, BidEntity newBidEntity) throws CustomerNotfoundException, AuctionListingNotFoundException, UnknownPersistenceException, InputDataValidationException, InsufficientCreditException, AuctionListingAlreadyClosedException;
+    
+    public Long createSmallestNewBid(Long customerId, Long auctionListingId) throws AuctionListingNotFoundException, CustomerNotfoundException, UnknownPersistenceException, InputDataValidationException, InsufficientCreditException, AuctionListingAlreadyClosedException;
 
+    public void createNewSnipingBid(BidEntity newSnipingBidEntity, Integer minutesBeforeEndDateTime);
+    
 }
