@@ -137,6 +137,11 @@ public class SalesAdministrationModule {
         if (input.length() > 0) {
             newAuctionListingEntity.setReservePrice(new BigDecimal(input));
         }
+        System.out.print("Enter Starting Price (blank if none)> ");
+        input = scanner.nextLine().trim();
+        if (input.length() > 0) {
+            newAuctionListingEntity.setHighestBidPrice(new BigDecimal(input));
+        }
 
         Set<ConstraintViolation<AuctionListingEntity>> constraintViolations = validator.validate(newAuctionListingEntity);
 
