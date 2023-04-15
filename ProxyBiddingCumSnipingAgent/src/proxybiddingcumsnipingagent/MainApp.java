@@ -5,6 +5,7 @@
  */
 package proxybiddingcumsnipingagent;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Scanner;
@@ -73,6 +74,9 @@ public class MainApp {
 
             if (response == 3) {
                 System.out.println("Thank you! Hope to see you again!");
+                
+                // Need to cancel sniping for auction listing here
+                
                 break;
             }
         }
@@ -202,10 +206,23 @@ public class MainApp {
     }
     
     private void doConfigureProxyBiddingForAuctionListing(AuctionListingEntity auctionListingEntity) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("*** Proxy Bidding cum Sniping Agent :: Configure Proxy Bidding For Auction Listing ***\n");
+        System.out.print("Enter Maximum Bid Price> ");
+        BigDecimal maxBidPrice = scanner.nextBigDecimal();
+        
         
     }
     
     private void doConfigureSnipingForAuctionListing(AuctionListingEntity auctionListingEntity) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("*** Proxy Bidding cum Sniping Agent :: Configure Sniping For Auction Listing ***\n");
+        System.out.print("Enter Time Before Listing End Date-time To Place A One-time Highest Bid (in minutes)> ");
+        Long minutesBeforeEndDateTime = scanner.nextLong();
+        scanner.nextLine();
+        System.out.print("Enter Maximum Bid Price> ");
+        BigDecimal maxBidPrice = scanner.nextBigDecimal();
+        
         
     }
     
