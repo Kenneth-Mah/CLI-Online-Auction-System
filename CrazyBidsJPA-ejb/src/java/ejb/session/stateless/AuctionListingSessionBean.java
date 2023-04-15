@@ -205,10 +205,10 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
             
             // Refunding the highest bid's credits to the respective customer!
             List<BidEntity> auctionListingBidEntities = auctionListingEntityToDisable.getBids();
-            Collections.sort(auctionListingBidEntities);
             
             if (auctionListingBidEntities.size() > 0) {
-                BidEntity previousHighestBidEntity = auctionListingBidEntities.get(auctionListingBidEntities.size() - 1);
+                BidEntity previousHighestBidEntity = Collections.max(auctionListingBidEntities);
+
                 CustomerEntity previousHighestBidCustomerEntity = previousHighestBidEntity.getCustomer();
 
                 TransactionEntity newRefundTransactionEntity = new TransactionEntity();
@@ -254,12 +254,11 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
             auctionListingEntityToUpdate.setTimerHandle(null);
             
             List<BidEntity> auctionListingBidEntities = auctionListingEntityToUpdate.getBids();
-            Collections.sort(auctionListingBidEntities);
             
             if (auctionListingBidEntities.size() > 0) { // If there are bids (else, do nothing)
                 BigDecimal reservePrice = auctionListingEntityToUpdate.getReservePrice();
                 
-                BidEntity highestBidEntity = auctionListingBidEntities.get(auctionListingBidEntities.size() - 1);
+                BidEntity highestBidEntity = Collections.max(auctionListingBidEntities);
                 BigDecimal highestBidPrice = highestBidEntity.getBidPrice();
                 
                 if (reservePrice != null && highestBidPrice.compareTo(reservePrice) != 1) { // If highestBidPrice <= reservePrice
@@ -291,8 +290,7 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
         AuctionListingEntity auctionListingEntity = retrieveAuctionListingByAuctionListingId(auctionListingId);
         
         List<BidEntity> auctionListingBidEntities = auctionListingEntity.getBids();
-        Collections.sort(auctionListingBidEntities);
-        BidEntity highestBidEntity = auctionListingBidEntities.get(auctionListingBidEntities.size() - 1);
+        BidEntity highestBidEntity = Collections.max(auctionListingBidEntities);
         
         // Set winningBid
         auctionListingEntity.setWinningBid(highestBidEntity);
@@ -311,8 +309,7 @@ public class AuctionListingSessionBean implements AuctionListingSessionBeanRemot
         AuctionListingEntity auctionListingEntity = retrieveAuctionListingByAuctionListingId(auctionListingId);
         
         List<BidEntity> auctionListingBidEntities = auctionListingEntity.getBids();
-        Collections.sort(auctionListingBidEntities);
-        BidEntity highestBidEntity = auctionListingBidEntities.get(auctionListingBidEntities.size() - 1);
+        BidEntity highestBidEntity = Collections.max(auctionListingBidEntities);
         
         // Need to refund CustomerEntity
         CustomerEntity highestBidCustomerEntity = highestBidEntity.getCustomer();

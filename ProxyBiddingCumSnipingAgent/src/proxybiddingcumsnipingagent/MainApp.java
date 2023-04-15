@@ -218,7 +218,7 @@ public class MainApp {
         Scanner scanner = new Scanner(System.in);
         System.out.println("*** Proxy Bidding cum Sniping Agent :: Configure Sniping For Auction Listing ***\n");
         System.out.print("Enter Time Before Listing End Date-time To Place A One-time Highest Bid (in minutes)> ");
-        Long minutesBeforeEndDateTime = scanner.nextLong();
+        Integer minutesBeforeEndDateTime = scanner.nextInt();
         scanner.nextLine();
         System.out.print("Enter Maximum Bid Price> ");
         BigDecimal maxBidPrice = scanner.nextBigDecimal();

@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.BidEntity;
+import java.math.BigDecimal;
 import javax.ejb.Remote;
 import util.exception.AuctionListingNotFoundException;
 import util.exception.CustomerNotfoundException;
@@ -18,6 +19,8 @@ import util.exception.UnknownPersistenceException;
  */
 @Remote
 public interface BidSessionBeanRemote {
+    
+    public BigDecimal getMinNextBidPrice(Long auctionListingId) throws AuctionListingNotFoundException;
     
     public Long createNewBid(Long customerId, Long auctionListingId, BidEntity newBidEntity) throws CustomerNotfoundException, AuctionListingNotFoundException, UnknownPersistenceException, InputDataValidationException;
 
