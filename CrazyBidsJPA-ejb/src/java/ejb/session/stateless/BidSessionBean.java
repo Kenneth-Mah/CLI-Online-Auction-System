@@ -169,8 +169,9 @@ public class BidSessionBean implements BidSessionBeanRemote, BidSessionBeanLocal
         return createNewBid(customerId, auctionListingId, bidEntity);
     }
     
-    public void createNewProxyBid() {
-        
+    @Override
+    public void createNewProxyBid(BidEntity newProxyBidEntity) {
+        timerService.createTimer(30 * 1000, 30 * 1000, newProxyBidEntity);
     }
     
     @Override

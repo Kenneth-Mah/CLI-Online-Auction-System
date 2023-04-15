@@ -4,15 +4,6 @@
 <xsd:import namespace="http://soap.ws/" schemaLocation="http://localhost:8080/CustomerWebService/CustomerWebService?xsd=1"/>
 </xsd:schema>
 </types>
-<message name="retrieveAuctionListingByAuctionListingName">
-<part name="parameters" element="tns:retrieveAuctionListingByAuctionListingName"/>
-</message>
-<message name="retrieveAuctionListingByAuctionListingNameResponse">
-<part name="parameters" element="tns:retrieveAuctionListingByAuctionListingNameResponse"/>
-</message>
-<message name="AuctionListingNotFoundException">
-<part name="fault" element="tns:AuctionListingNotFoundException"/>
-</message>
 <message name="retrieveCustomerByCustomerId">
 <part name="parameters" element="tns:retrieveCustomerByCustomerId"/>
 </message>
@@ -21,6 +12,12 @@
 </message>
 <message name="CustomerNotfoundException">
 <part name="fault" element="tns:CustomerNotfoundException"/>
+</message>
+<message name="createNewProxyBid">
+<part name="parameters" element="tns:createNewProxyBid"/>
+</message>
+<message name="createNewProxyBidResponse">
+<part name="parameters" element="tns:createNewProxyBidResponse"/>
 </message>
 <message name="createNewSnipingBid">
 <part name="parameters" element="tns:createNewSnipingBid"/>
@@ -37,6 +34,12 @@
 <message name="InvalidLoginCredentialException">
 <part name="fault" element="tns:InvalidLoginCredentialException"/>
 </message>
+<message name="retrieveAllActiveAuctionListings">
+<part name="parameters" element="tns:retrieveAllActiveAuctionListings"/>
+</message>
+<message name="retrieveAllActiveAuctionListingsResponse">
+<part name="parameters" element="tns:retrieveAllActiveAuctionListingsResponse"/>
+</message>
 <message name="customerPremiumRegistration">
 <part name="parameters" element="tns:customerPremiumRegistration"/>
 </message>
@@ -46,22 +49,24 @@
 <message name="InvalidPremiumRegistrationException">
 <part name="fault" element="tns:InvalidPremiumRegistrationException"/>
 </message>
-<message name="retrieveAllActiveAuctionListings">
-<part name="parameters" element="tns:retrieveAllActiveAuctionListings"/>
+<message name="retrieveAuctionListingByAuctionListingName">
+<part name="parameters" element="tns:retrieveAuctionListingByAuctionListingName"/>
 </message>
-<message name="retrieveAllActiveAuctionListingsResponse">
-<part name="parameters" element="tns:retrieveAllActiveAuctionListingsResponse"/>
+<message name="retrieveAuctionListingByAuctionListingNameResponse">
+<part name="parameters" element="tns:retrieveAuctionListingByAuctionListingNameResponse"/>
+</message>
+<message name="AuctionListingNotFoundException">
+<part name="fault" element="tns:AuctionListingNotFoundException"/>
 </message>
 <portType name="CustomerWebService">
-<operation name="retrieveAuctionListingByAuctionListingName">
-<input wsam:Action="http://soap.ws/CustomerWebService/retrieveAuctionListingByAuctionListingNameRequest" message="tns:retrieveAuctionListingByAuctionListingName"/>
-<output wsam:Action="http://soap.ws/CustomerWebService/retrieveAuctionListingByAuctionListingNameResponse" message="tns:retrieveAuctionListingByAuctionListingNameResponse"/>
-<fault message="tns:AuctionListingNotFoundException" name="AuctionListingNotFoundException" wsam:Action="http://soap.ws/CustomerWebService/retrieveAuctionListingByAuctionListingName/Fault/AuctionListingNotFoundException"/>
-</operation>
 <operation name="retrieveCustomerByCustomerId">
 <input wsam:Action="http://soap.ws/CustomerWebService/retrieveCustomerByCustomerIdRequest" message="tns:retrieveCustomerByCustomerId"/>
 <output wsam:Action="http://soap.ws/CustomerWebService/retrieveCustomerByCustomerIdResponse" message="tns:retrieveCustomerByCustomerIdResponse"/>
 <fault message="tns:CustomerNotfoundException" name="CustomerNotfoundException" wsam:Action="http://soap.ws/CustomerWebService/retrieveCustomerByCustomerId/Fault/CustomerNotfoundException"/>
+</operation>
+<operation name="createNewProxyBid">
+<input wsam:Action="http://soap.ws/CustomerWebService/createNewProxyBidRequest" message="tns:createNewProxyBid"/>
+<output wsam:Action="http://soap.ws/CustomerWebService/createNewProxyBidResponse" message="tns:createNewProxyBidResponse"/>
 </operation>
 <operation name="createNewSnipingBid">
 <input wsam:Action="http://soap.ws/CustomerWebService/createNewSnipingBidRequest" message="tns:createNewSnipingBid"/>
@@ -72,30 +77,23 @@
 <output wsam:Action="http://soap.ws/CustomerWebService/customerRemoteLoginResponse" message="tns:customerRemoteLoginResponse"/>
 <fault message="tns:InvalidLoginCredentialException" name="InvalidLoginCredentialException" wsam:Action="http://soap.ws/CustomerWebService/customerRemoteLogin/Fault/InvalidLoginCredentialException"/>
 </operation>
+<operation name="retrieveAllActiveAuctionListings">
+<input wsam:Action="http://soap.ws/CustomerWebService/retrieveAllActiveAuctionListingsRequest" message="tns:retrieveAllActiveAuctionListings"/>
+<output wsam:Action="http://soap.ws/CustomerWebService/retrieveAllActiveAuctionListingsResponse" message="tns:retrieveAllActiveAuctionListingsResponse"/>
+</operation>
 <operation name="customerPremiumRegistration">
 <input wsam:Action="http://soap.ws/CustomerWebService/customerPremiumRegistrationRequest" message="tns:customerPremiumRegistration"/>
 <output wsam:Action="http://soap.ws/CustomerWebService/customerPremiumRegistrationResponse" message="tns:customerPremiumRegistrationResponse"/>
 <fault message="tns:InvalidPremiumRegistrationException" name="InvalidPremiumRegistrationException" wsam:Action="http://soap.ws/CustomerWebService/customerPremiumRegistration/Fault/InvalidPremiumRegistrationException"/>
 </operation>
-<operation name="retrieveAllActiveAuctionListings">
-<input wsam:Action="http://soap.ws/CustomerWebService/retrieveAllActiveAuctionListingsRequest" message="tns:retrieveAllActiveAuctionListings"/>
-<output wsam:Action="http://soap.ws/CustomerWebService/retrieveAllActiveAuctionListingsResponse" message="tns:retrieveAllActiveAuctionListingsResponse"/>
+<operation name="retrieveAuctionListingByAuctionListingName">
+<input wsam:Action="http://soap.ws/CustomerWebService/retrieveAuctionListingByAuctionListingNameRequest" message="tns:retrieveAuctionListingByAuctionListingName"/>
+<output wsam:Action="http://soap.ws/CustomerWebService/retrieveAuctionListingByAuctionListingNameResponse" message="tns:retrieveAuctionListingByAuctionListingNameResponse"/>
+<fault message="tns:AuctionListingNotFoundException" name="AuctionListingNotFoundException" wsam:Action="http://soap.ws/CustomerWebService/retrieveAuctionListingByAuctionListingName/Fault/AuctionListingNotFoundException"/>
 </operation>
 </portType>
 <binding name="CustomerWebServicePortBinding" type="tns:CustomerWebService">
 <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-<operation name="retrieveAuctionListingByAuctionListingName">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-<fault name="AuctionListingNotFoundException">
-<soap:fault name="AuctionListingNotFoundException" use="literal"/>
-</fault>
-</operation>
 <operation name="retrieveCustomerByCustomerId">
 <soap:operation soapAction=""/>
 <input>
@@ -107,6 +105,15 @@
 <fault name="CustomerNotfoundException">
 <soap:fault name="CustomerNotfoundException" use="literal"/>
 </fault>
+</operation>
+<operation name="createNewProxyBid">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
 </operation>
 <operation name="createNewSnipingBid">
 <soap:operation soapAction=""/>
@@ -129,6 +136,15 @@
 <soap:fault name="InvalidLoginCredentialException" use="literal"/>
 </fault>
 </operation>
+<operation name="retrieveAllActiveAuctionListings">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
 <operation name="customerPremiumRegistration">
 <soap:operation soapAction=""/>
 <input>
@@ -141,7 +157,7 @@
 <soap:fault name="InvalidPremiumRegistrationException" use="literal"/>
 </fault>
 </operation>
-<operation name="retrieveAllActiveAuctionListings">
+<operation name="retrieveAuctionListingByAuctionListingName">
 <soap:operation soapAction=""/>
 <input>
 <soap:body use="literal"/>
@@ -149,6 +165,9 @@
 <output>
 <soap:body use="literal"/>
 </output>
+<fault name="AuctionListingNotFoundException">
+<soap:fault name="AuctionListingNotFoundException" use="literal"/>
+</fault>
 </operation>
 </binding>
 <service name="CustomerWebService">

@@ -133,6 +133,11 @@ public class CustomerWebService {
         return auctionListingEntities;
     }
     
+    @WebMethod(operationName = "createNewProxyBid")
+    public void createNewProxyBid(@WebParam(name = "newProxyBidEntity") BidEntity newProxyBidEntity) {
+        bidSessionBeanLocal.createNewProxyBid(newProxyBidEntity);
+    }
+    
     @WebMethod(operationName = "createNewSnipingBid")
     public void createNewSnipingBid(@WebParam(name = "newSnipingBidEntity") BidEntity newSnipingBidEntity,
                                     @WebParam(name = "minutesBeforeEndDateTime") Integer minutesBeforeEndDateTime) {

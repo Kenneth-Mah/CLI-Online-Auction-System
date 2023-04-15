@@ -28,6 +28,8 @@ public interface BidSessionBeanLocal {
 
     public Long createSmallestNewBid(Long customerId, Long auctionListingId) throws AuctionListingNotFoundException, CustomerNotfoundException, UnknownPersistenceException, InputDataValidationException, InsufficientCreditException, AuctionListingAlreadyClosedException;
 
+    public void createNewProxyBid(BidEntity newProxyBidEntity);
+    
     public void createNewSnipingBid(BidEntity newSnipingBidEntity, Integer minutesBeforeEndDateTime);
     
 }

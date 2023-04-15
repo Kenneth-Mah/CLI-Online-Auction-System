@@ -213,7 +213,13 @@ public class MainApp {
         System.out.print("Enter Maximum Bid Price> ");
         BigDecimal maxBidPrice = scanner.nextBigDecimal();
         
+        BidEntity newProxyBidEntity = new BidEntity();
+        newProxyBidEntity.setBidPrice(maxBidPrice);
+        newProxyBidEntity.setBidTypeEnum(BidTypeEnum.PROXYBIDREFERENCE);
+        newProxyBidEntity.setCustomer(globalCustomerEntity);
+        newProxyBidEntity.setAuctionListing(auctionListingEntity);
         
+        port.createNewProxyBid(newProxyBidEntity);
     }
     
     private void doConfigureSnipingForAuctionListing(AuctionListingEntity auctionListingEntity) {

@@ -8,6 +8,10 @@
 
 <xs:element name="InvalidPremiumRegistrationException" type="tns:InvalidPremiumRegistrationException"/>
 
+<xs:element name="createNewProxyBid" type="tns:createNewProxyBid"/>
+
+<xs:element name="createNewProxyBidResponse" type="tns:createNewProxyBidResponse"/>
+
 <xs:element name="createNewSnipingBid" type="tns:createNewSnipingBid"/>
 
 <xs:element name="createNewSnipingBidResponse" type="tns:createNewSnipingBidResponse"/>
@@ -121,6 +125,16 @@
 <xs:sequence>
 <xs:element name="message" type="xs:string" minOccurs="0"/>
 </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="createNewProxyBid">
+<xs:sequence>
+<xs:element name="newProxyBidEntity" type="tns:bidEntity" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="createNewProxyBidResponse">
+<xs:sequence/>
 </xs:complexType>
 
 <xs:complexType name="createNewSnipingBid">
