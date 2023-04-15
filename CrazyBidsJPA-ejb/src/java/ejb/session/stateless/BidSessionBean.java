@@ -12,6 +12,7 @@ import entity.TransactionEntity;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -22,9 +23,11 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.exception.AuctionListingAlreadyClosedException;
 import util.exception.AuctionListingNotFoundException;
 import util.exception.CustomerNotfoundException;
 import util.exception.InputDataValidationException;
+import util.exception.InsufficientCreditException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -56,16 +59,22 @@ public class BidSessionBean implements BidSessionBeanRemote, BidSessionBeanLocal
     // "Insert Code > Add Business Method")
     
     @Override
-    public Long createNewBid(Long customerId, Long auctionListingId, BidEntity newBidEntity) throws CustomerNotfoundException, AuctionListingNotFoundException, UnknownPersistenceException, InputDataValidationException {
+    public Long createNewBid(Long customerId, Long auctionListingId, BidEntity newBidEntity) throws CustomerNotfoundException, AuctionListingNotFoundException, UnknownPersistenceException, InputDataValidationException, InsufficientCreditException, AuctionListingAlreadyClosedException {
         Set<ConstraintViolation<BidEntity>> constraintViolations = validator.validate(newBidEntity);
 
         if (constraintViolations.isEmpty()) {
             try {
-                em.persist(newBidEntity);
-                em.flush();
-                
                 CustomerEntity customerEntity = customerSessionBeanLocal.retrieveCustomerByCustomerId(customerId);
                 AuctionListingEntity auctionListingEntity = auctionListingSessionBeanLocal.retrieveAuctionListingByAuctionListingId(auctionListingId);
+                
+                if (customerEntity.getAvailableBalance().compareTo(newBidEntity.getBidPrice()) == -1){
+                    throw new InsufficientCreditException("You do not have enough balancce in your wallet." + "\n");
+                }
+                if (Objects.equals(auctionListingEntity.getActive(), "false")){
+                    throw new AuctionListingAlreadyClosedException("Auction Listing is closed " + "\n");
+                }
+                em.persist(newBidEntity);
+                em.flush();
                 
                 List<BidEntity> customerBidEntities = customerEntity.getBids();
                 customerBidEntities.add(newBidEntity);
