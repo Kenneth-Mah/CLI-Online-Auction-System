@@ -66,6 +66,7 @@ public class BidSessionBean implements BidSessionBeanRemote, BidSessionBeanLocal
 
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")
+
     @Override
     public BigDecimal getMinNextBidPrice(Long auctionListingId) throws AuctionListingNotFoundException {
         AuctionListingEntity auctionListingEntity = auctionListingSessionBeanLocal.retrieveAuctionListingByAuctionListingId(auctionListingId);
