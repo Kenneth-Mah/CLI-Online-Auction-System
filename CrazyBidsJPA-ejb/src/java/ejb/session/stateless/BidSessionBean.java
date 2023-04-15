@@ -14,6 +14,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -28,9 +29,11 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.exception.AuctionListingAlreadyClosedException;
 import util.exception.AuctionListingNotFoundException;
 import util.exception.CustomerNotfoundException;
 import util.exception.InputDataValidationException;
+import util.exception.InsufficientCreditException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -55,7 +58,7 @@ public class BidSessionBean implements BidSessionBeanRemote, BidSessionBeanLocal
 
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
-    
+
     public BidSessionBean() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
@@ -63,7 +66,6 @@ public class BidSessionBean implements BidSessionBeanRemote, BidSessionBeanLocal
 
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")
-    
     @Override
     public BigDecimal getMinNextBidPrice(Long auctionListingId) throws AuctionListingNotFoundException {
         AuctionListingEntity auctionListingEntity = auctionListingSessionBeanLocal.retrieveAuctionListingByAuctionListingId(auctionListingId);
@@ -97,50 +99,55 @@ public class BidSessionBean implements BidSessionBeanRemote, BidSessionBeanLocal
     }
     
     @Override
-    public Long createNewBid(Long customerId, Long auctionListingId, BidEntity newBidEntity) throws CustomerNotfoundException, AuctionListingNotFoundException, UnknownPersistenceException, InputDataValidationException {
+    public Long createNewBid(Long customerId, Long auctionListingId, BidEntity newBidEntity) throws CustomerNotfoundException, AuctionListingNotFoundException, UnknownPersistenceException, InputDataValidationException, InsufficientCreditException, AuctionListingAlreadyClosedException {
         Set<ConstraintViolation<BidEntity>> constraintViolations = validator.validate(newBidEntity);
 
         if (constraintViolations.isEmpty()) {
             try {
-                em.persist(newBidEntity);
-                em.flush();
-                
                 CustomerEntity customerEntity = customerSessionBeanLocal.retrieveCustomerByCustomerId(customerId);
                 AuctionListingEntity auctionListingEntity = auctionListingSessionBeanLocal.retrieveAuctionListingByAuctionListingId(auctionListingId);
-                
+
+                if (customerEntity.getAvailableBalance().compareTo(newBidEntity.getBidPrice()) == -1) {
+                    throw new InsufficientCreditException("Insufficient credit balance");
+                }
+                if (!auctionListingEntity.getActive()) {
+                    throw new AuctionListingAlreadyClosedException("Bid failed, Auction Listing has already closed");
+                }
+                em.persist(newBidEntity);
+
                 List<BidEntity> customerBidEntities = customerEntity.getBids();
                 customerBidEntities.add(newBidEntity);
                 customerEntity.setBids(customerBidEntities);
-                
+
                 List<BidEntity> auctionListingBidEntities = auctionListingEntity.getBids();
                 Collections.sort(auctionListingBidEntities);
-                
+
                 // Refunding the previous highest bid's credits to the respective customer!
                 if (auctionListingBidEntities.size() > 0) {
                     BidEntity previousHighestBidEntity = auctionListingBidEntities.get(auctionListingBidEntities.size() - 1);
                     CustomerEntity previousHighestBidCustomerEntity = previousHighestBidEntity.getCustomer();
-                    
+
                     TransactionEntity newRefundTransactionEntity = new TransactionEntity();
                     newRefundTransactionEntity.setTimeOfTransaction(new Date());
                     // Refunding a bid has a positive transaction amount
                     newRefundTransactionEntity.setTransactionAmount(previousHighestBidEntity.getBidPrice());
                     newRefundTransactionEntity.setCustomer(previousHighestBidCustomerEntity);
                     newRefundTransactionEntity.setBid(previousHighestBidEntity);
-                    
+
                     transactionSessionBeanLocal.createNewTransaction(previousHighestBidCustomerEntity.getCustomerId(), newRefundTransactionEntity);
                 }
-                
+
                 auctionListingBidEntities.add(newBidEntity);
                 auctionListingEntity.setBids(auctionListingBidEntities);
                 auctionListingEntity.setHighestBidPrice(newBidEntity.getBidPrice());
-                
+
                 TransactionEntity newTransactionEntity = new TransactionEntity();
                 newTransactionEntity.setTimeOfTransaction(new Date());
                 // Placing a bid has a negative transaction amount
                 newTransactionEntity.setTransactionAmount(newBidEntity.getBidPrice().negate());
                 newTransactionEntity.setCustomer(customerEntity);
                 newTransactionEntity.setBid(newBidEntity);
-                
+
                 Long newTransactionId = transactionSessionBeanLocal.createNewTransaction(customerId, newTransactionEntity);
 
                 return newTransactionId;
@@ -205,5 +212,5 @@ public class BidSessionBean implements BidSessionBeanRemote, BidSessionBeanLocal
 
         return msg;
     }
-    
+
 }

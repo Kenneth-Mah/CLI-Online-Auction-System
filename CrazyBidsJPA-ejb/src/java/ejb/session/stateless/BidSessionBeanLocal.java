@@ -8,9 +8,11 @@ package ejb.session.stateless;
 import entity.BidEntity;
 import java.math.BigDecimal;
 import javax.ejb.Local;
+import util.exception.AuctionListingAlreadyClosedException;
 import util.exception.AuctionListingNotFoundException;
 import util.exception.CustomerNotfoundException;
 import util.exception.InputDataValidationException;
+import util.exception.InsufficientCreditException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -22,6 +24,6 @@ public interface BidSessionBeanLocal {
     
     public BigDecimal getMinNextBidPrice(Long auctionListingId) throws AuctionListingNotFoundException;
 
-    public Long createNewBid(Long customerId, Long auctionListingId, BidEntity newBidEntity) throws CustomerNotfoundException, AuctionListingNotFoundException, UnknownPersistenceException, InputDataValidationException;
+    public Long createNewBid(Long customerId, Long auctionListingId, BidEntity newBidEntity) throws CustomerNotfoundException, AuctionListingNotFoundException, UnknownPersistenceException, InputDataValidationException, InsufficientCreditException, AuctionListingAlreadyClosedException;
     
 }

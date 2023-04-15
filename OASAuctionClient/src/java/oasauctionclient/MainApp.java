@@ -29,11 +29,13 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.AddressNotFoundException;
+import util.exception.AuctionListingAlreadyClosedException;
 import util.exception.AuctionListingNotFoundException;
 import util.exception.CreditPackageNotFoundException;
 import util.exception.CustomerNotfoundException;
 import util.exception.CustomerUsernameExistException;
 import util.exception.InputDataValidationException;
+import util.exception.InsufficientCreditException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateAddressException;
@@ -47,7 +49,7 @@ public class MainApp {
 
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
-    
+
     private DecimalFormat decimalFormat;
 
     private CustomerSessionBeanRemote customerSessionBeanRemote;
@@ -437,29 +439,29 @@ public class MainApp {
 
     private void doViewCreditTransactionHistory() {
         Scanner scanner = new Scanner(System.in);
-        
+
         System.out.println("*** OAS Auction Client :: View Credit Transaction History ***\n");
 
         List<TransactionEntity> transactionEntities = transactionSessionBeanRemote.retrieveAllTransactionsByCustomerId(globalCustomerEntity.getCustomerId());
         Collections.sort(transactionEntities);
         System.out.printf("%14s%21s%31s\n", "Transaction ID", "Transaction Amount", "Time Of Transaction");
-        
+
         for (TransactionEntity transactionEntity : transactionEntities) {
             System.out.printf("%14s%21s%31s\n", transactionEntity.getTransactionid(), decimalFormat.format(transactionEntity.getTransactionAmount()), transactionEntity.getTimeOfTransaction());
         }
-        
+
         System.out.print("Press any key to continue...> ");
         scanner.nextLine();
     }
 
     private void doPurchaseCreditPackage() {
         Scanner scanner = new Scanner(System.in);
-        
+
         System.out.println("*** OAS Auction Client :: Purchase Credit Package ***\n");
-        
+
         List<CreditPackageEntity> creditPackageEntities = creditPackageSessionBeanRemote.retrieveAllAvailableCreditPackages();
         System.out.printf("%17s%22s%21s\n", "Credit Package ID", "Credit Package Type", "Credit Price");
-        
+
         for (CreditPackageEntity creditPackageEntity : creditPackageEntities) {
             System.out.printf("%17s%22s%21s\n", creditPackageEntity.getCreditPackageId(), creditPackageEntity.getCreditPackageType(), decimalFormat.format(creditPackageEntity.getCreditPrice()));
         }
@@ -471,15 +473,15 @@ public class MainApp {
                 CreditPackageEntity creditPackageEntity = creditPackageSessionBeanRemote.retrieveCreditPackageByCreditPackageType(creditPackageType);
                 TransactionEntity newTransactionEntity = new TransactionEntity();
                 newTransactionEntity.setTimeOfTransaction(new Date());
-                
+
                 System.out.print("Enter Quantity Of This Credit Package Type To Purchase> ");
                 Integer integerInput = scanner.nextInt();
-                
+
                 newTransactionEntity.setQuantity(integerInput);
                 newTransactionEntity.setTransactionAmount(creditPackageEntity.getCreditPrice().multiply(BigDecimal.valueOf(integerInput)));
                 newTransactionEntity.setCustomer(globalCustomerEntity);
                 newTransactionEntity.setCreditPackage(creditPackageEntity);
-                
+
                 try {
                     Long newTransactionId = transactionSessionBeanRemote.createNewTransaction(globalCustomerEntity.getCustomerId(), newTransactionEntity);
                     System.out.println("Credit package purchased successfully!: " + newTransactionId + "\n");
@@ -496,12 +498,12 @@ public class MainApp {
 
     private void doBrowseAllAuctionListings() {
         Scanner scanner = new Scanner(System.in);
-        
+
         System.out.println("*** OAS Auction Client :: Browse All Auction Listings ***\n");
-        
+
         List<AuctionListingEntity> autionListingEntities = auctionListingSessionBeanRemote.retrieveAllActiveAuctionListings();
         System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
-        
+
         for (AuctionListingEntity auctionListingEntity : autionListingEntities) {
             String reservePriceString;
             if (auctionListingEntity.getReservePrice() != null) {
@@ -511,25 +513,25 @@ public class MainApp {
             }
             System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
         }
-        
+
         System.out.print("Press any key to continue...> ");
         scanner.nextLine();
     }
-    
+
     private void doViewAuctionListingDetails() {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("*** OAS Auction Client :: View Auction Listing Details ***\n");
         System.out.print("Enter Auction Listing Name> ");
         String auctionListingName = scanner.nextLine().trim();
-        
+
         doViewAuctionListingDetails(auctionListingName);
     }
 
     private void doViewAuctionListingDetails(String auctionListingName) {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
-        
+
         try {
             AuctionListingEntity auctionListingEntity = auctionListingSessionBeanRemote.retrieveAuctionListingByAuctionListingName(auctionListingName);
             System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
@@ -556,59 +558,43 @@ public class MainApp {
             System.out.println("An error has occurred while retrieving auction listing: " + ex.getMessage() + "\n");
         }
     }
-    
+
     private void doPlaceNewBid(AuctionListingEntity auctionListingEntity) {
         Scanner scanner = new Scanner(System.in);
-        
+
         System.out.println("*** OAS Auction Client :: Place New Bid ***\n");
         System.out.print("Enter Bid Price> ");
         BigDecimal bidPrice = scanner.nextBigDecimal();
-        
-        BigDecimal minBidIncrement;
-        BigDecimal currentHighestBidPrice = auctionListingEntity.getHighestBidPrice();
-        if (currentHighestBidPrice.compareTo(new BigDecimal("0.00")) >= 0 && currentHighestBidPrice.compareTo(new BigDecimal("0.99")) <= 0) {
-            minBidIncrement = new BigDecimal("0.05");
-        } else if (currentHighestBidPrice.compareTo(new BigDecimal("1.00")) >= 0 && currentHighestBidPrice.compareTo(new BigDecimal("4.99")) <= -1) {
-            minBidIncrement = new BigDecimal("0.25");
-        } else if (currentHighestBidPrice.compareTo(new BigDecimal("5.00")) >= 0 && currentHighestBidPrice.compareTo(new BigDecimal("24.99")) <= -1) {
-            minBidIncrement = new BigDecimal("0.50");
-        } else if (currentHighestBidPrice.compareTo(new BigDecimal("25.00")) >= 0 && currentHighestBidPrice.compareTo(new BigDecimal("99.99")) <= -1) {
-            minBidIncrement = new BigDecimal("1.00");
-        } else if (currentHighestBidPrice.compareTo(new BigDecimal("100.00")) >= 0 && currentHighestBidPrice.compareTo(new BigDecimal("249.99")) <= -1) {
-            minBidIncrement = new BigDecimal("2.50");
-        } else if (currentHighestBidPrice.compareTo(new BigDecimal("250.00")) >= 0 && currentHighestBidPrice.compareTo(new BigDecimal("499.99")) <= -1) {
-            minBidIncrement = new BigDecimal("5.00");
-        } else if (currentHighestBidPrice.compareTo(new BigDecimal("500.00")) >= 0 && currentHighestBidPrice.compareTo(new BigDecimal("999.99")) <= -1) {
-            minBidIncrement = new BigDecimal("10.00");
-        } else if (currentHighestBidPrice.compareTo(new BigDecimal("1000.00")) >= 0 && currentHighestBidPrice.compareTo(new BigDecimal("2499.99")) <= -1) {
-            minBidIncrement = new BigDecimal("25.00");
-        } else if (currentHighestBidPrice.compareTo(new BigDecimal("2500.00")) >= 0 && currentHighestBidPrice.compareTo(new BigDecimal("4999.99")) <= -1) {
-            minBidIncrement = new BigDecimal("50.00");
-        } else { // currentHighestBidPrice.compareTo(new BigDecimal("5000.00")) >= 0
-            minBidIncrement = new BigDecimal("100.00");
-        }
 
-        BigDecimal minBidPrice = currentHighestBidPrice.add(minBidIncrement);
-        if (bidPrice.compareTo(minBidPrice) >= 0) {
-            BidEntity newBidEntity = new BidEntity(bidPrice, globalCustomerEntity, auctionListingEntity);// might be wrong
-            try {
-                Long newTransactionId = bidSessionBeanRemote.createNewBid(globalCustomerEntity.getCustomerId(), auctionListingEntity.getAuctionListingId(), newBidEntity);
-                System.out.println("New bid placed successfully!: " + newTransactionId + "\n");
-            } catch (CustomerNotfoundException | AuctionListingNotFoundException | UnknownPersistenceException ex) {
-                    System.out.println("An unknown error has occurred while placing a new bid!: " + ex.getMessage() + "\n");
-                } catch (InputDataValidationException ex) {
-                    System.out.println(ex.getMessage() + "\n");
+        try {
+            BigDecimal minBidPrice = bidSessionBeanRemote.getMinNextBidPrice(auctionListingEntity.getAuctionListingId());
+            if (bidPrice.compareTo(minBidPrice) >= 0) {
+                BidEntity newBidEntity = new BidEntity(bidPrice, globalCustomerEntity, auctionListingEntity);// might be wrong
+                if (auctionListingEntity.getActive()) {
+                    try {
+                        Long newTransactionId = bidSessionBeanRemote.createNewBid(globalCustomerEntity.getCustomerId(), auctionListingEntity.getAuctionListingId(), newBidEntity);
+                        System.out.println("New bid placed successfully!: " + newTransactionId + "\n");
+                    } catch (CustomerNotfoundException | AuctionListingNotFoundException | UnknownPersistenceException ex) {
+                        System.out.println("An unknown error has occurred while placing a new bid!: " + ex.getMessage() + "\n");
+                    } catch (InputDataValidationException | InsufficientCreditException | AuctionListingAlreadyClosedException ex) {
+                        System.out.println(ex.getMessage() + "\n");
+                    }
+                } else {
+                    System.out.println("Error! The auction listing has already closed!\n");
                 }
-        } else {
-            System.out.println("Bid price is too small! The minimum bid price is " + minBidPrice + "\n");
+            } else {
+                System.out.println("Bid price is too small! The minimum bid price is " + minBidPrice + "\n");
+            }
+        } catch (AuctionListingNotFoundException ex) {
+            System.out.println("An error has occurred while placing a new bid: " + ex.getMessage()  + "\n");
         }
     }
-    
+
     private void doBrowseWonAuctionListings() {
         Scanner scanner = new Scanner(System.in);
-        
+
         System.out.println("*** OAS Auction Client :: Browse Won Auction Listings ***\n");
-        
+
         try {
             List<AuctionListingEntity> autionListingEntities = customerSessionBeanRemote.retrieveWonAuctionsByCustomerId(globalCustomerEntity.getCustomerId());
             System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
@@ -622,7 +608,7 @@ public class MainApp {
                 }
                 System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
             }
-            
+
             System.out.print("To Select Delivery Address For A Won Auction Listing, Enter Auction Listing Name (blank to exit)> ");
             String auctionListingName = scanner.nextLine().trim();
 
@@ -633,12 +619,12 @@ public class MainApp {
             System.out.println("An error has occurred while retrieving won auction listings: " + ex.getMessage() + "\n");
         }
     }
-    
+
     private void doSelectDeliveryAddressForWonAuctionListing(String auctionListingName) {
         Scanner scanner = new Scanner(System.in);
-        
+
         System.out.println("*** OAS Auction Client :: Select Delivery Address For Won Auction Listing ***\n");
-        
+
         try {
             AuctionListingEntity auctionListingEntity = auctionListingSessionBeanRemote.retrieveAuctionListingByAuctionListingName(auctionListingName);
             System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
@@ -655,7 +641,7 @@ public class MainApp {
             if (addressId > 0) {
                 AddressEntity addressEntity = customerSessionBeanRemote.retrieveAddressByCustomerIdAndAddressId(globalCustomerEntity.getCustomerId(), addressId);
                 addressSessionBeanRemote.selectDeliveryAddressForWonAuctionListing(addressEntity.getAddressId(), auctionListingEntity.getAuctionListingId());
-                
+
                 System.out.println("Address set successfully!\n");
             }
         } catch (AuctionListingNotFoundException | CustomerNotfoundException | AddressNotFoundException ex) {
