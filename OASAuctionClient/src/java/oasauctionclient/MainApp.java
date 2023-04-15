@@ -22,11 +22,8 @@ import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -534,28 +531,39 @@ public class MainApp {
     private void doViewAuctionListingDetails(String auctionListingName) {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
-
         try {
             AuctionListingEntity auctionListingEntity = auctionListingSessionBeanRemote.retrieveAuctionListingByAuctionListingName(auctionListingName);
-            System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
-            String reservePriceString;
-            if (auctionListingEntity.getReservePrice() != null) {
-                reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
-            } else {
-                reservePriceString = "null";
-            }
-            System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
-            System.out.println("------------------------");
-            System.out.println("1: Place New Bid");
-            System.out.println("2: Refresh Auction Listing Bids");
-            System.out.println("3: Back\n");
-            System.out.print("> ");
-            response = scanner.nextInt();
+            if (auctionListingEntity.getActive()) {
+                System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
+                String reservePriceString;
+                if (auctionListingEntity.getReservePrice() != null) {
+                    reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
+                } else {
+                    reservePriceString = "null";
+                }
+                System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toString(), auctionListingEntity.getEndDateTime().toString(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
+                System.out.println("------------------------");
+                System.out.println("1: Place New Bid");
+                System.out.println("2: Refresh Auction Listing Bids");
+                System.out.println("3: Back\n");
+                System.out.print("> ");
+                response = scanner.nextInt();
 
-            if (response == 1) {
-                doPlaceNewBid(auctionListingEntity);
-            } else if (response == 2) {
-                doViewAuctionListingDetails(auctionListingName);
+                if (response == 1) {
+                    doPlaceNewBid(auctionListingEntity);
+                } else if (response == 2) {
+                    doViewAuctionListingDetails(auctionListingName);
+                }
+            } else {
+                Date currentDateTime = new Date(System.currentTimeMillis());
+                Date startDateTime = auctionListingEntity.getStartDateTime();
+                Date endDateTime = auctionListingEntity.getEndDateTime();
+                if (currentDateTime.compareTo(endDateTime) == 1) {
+                    System.out.println("Listing has ended on: " + auctionListingEntity.getEndDateTime() + "\n");
+                } 
+                if (currentDateTime.compareTo(startDateTime) == -1) {
+                    System.out.println("Listing has not yet began. It will start on: " + auctionListingEntity.getStartDateTime() + "\n");
+                }
             }
         } catch (AuctionListingNotFoundException ex) {
             System.out.println("An error has occurred while retrieving auction listing: " + ex.getMessage() + "\n");
@@ -589,7 +597,7 @@ public class MainApp {
                 System.out.println("Bid price is too small! The minimum bid price is " + minBidPrice + "\n");
             }
         } catch (AuctionListingNotFoundException ex) {
-            System.out.println("An error has occurred while placing a new bid: " + ex.getMessage()  + "\n");
+            System.out.println("An error has occurred while placing a new bid: " + ex.getMessage() + "\n");
         }
     }
 

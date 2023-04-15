@@ -105,7 +105,7 @@ public class SalesAdministrationModule {
             Date startDateTime;
             Date endDateTime;
             while (true) {
-                System.out.print("Enter Start Date-time (dd/MM/yyyy at HH:mm:ss)> ");
+                System.out.print("Enter Start Date-time (DD/MM/YYYY at HH:mm:ss)> ");
                 try {
                     startDateTime = simpleDateFormat.parse(scanner.nextLine().trim());
                     break;
@@ -114,7 +114,7 @@ public class SalesAdministrationModule {
                 }
             }
             while (true) {
-                System.out.print("Enter End Date-time (dd/MM/yyyy at HH:mm:ss)> ");
+                System.out.print("Enter End Date-time (DD/MM/YYYY at HH:mm:ss)> ");
                 try {
                     endDateTime = simpleDateFormat.parse(scanner.nextLine().trim());
                     break;
@@ -398,5 +398,4 @@ public class SalesAdministrationModule {
 
         System.out.println("\nPlease try again......\n");
     }
-    
 }
