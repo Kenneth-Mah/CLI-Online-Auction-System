@@ -4,9 +4,10 @@
 | Yeo Wei Han | A0234774X | e0726774@u.nus.edu |
 
 Project class diagram
-![IS2103project drawio](https://user-images.githubusercontent.com/36888332/232276620-5fb79bb8-704d-4838-a38b-6e4d0cd1a140.png)
+![IS2103project drawio](https://user-images.githubusercontent.com/36888332/232276724-66b29c3a-7f15-4e01-b610-5f71c30fd071.png)
 
-IS2103 Pair Project Architecture and Design
+
+### IS2103 Pair Project Architecture and Design
 
 When designing the logical data model, we chose to incorporate unidirectional relationships whenever possible. This is because we realise that a unidirectional relationship would be easier to maintain than a bidirectional relationship when data is modified over the course of business processes.
 
