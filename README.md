@@ -1,5 +1,5 @@
 | Full Name | Email |
-| --- | --- | --- |
+| --- | --- |
 | Mah Hoy Ping, Kenneth | e0943059@u.nus.edu |
 | Yeo Wei Han | e0726774@u.nus.edu |
 
