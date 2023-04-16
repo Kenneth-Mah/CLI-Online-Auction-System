@@ -7,6 +7,7 @@ package proxybiddingcumsnipingagent;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import ws.soap.customer.AuctionListingEntity;
@@ -182,25 +183,37 @@ public class MainApp {
         
         try {
             AuctionListingEntity auctionListingEntity = port.retrieveAuctionListingByAuctionListingName(auctionListingName);
-            System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
-            String reservePriceString;
-            if (auctionListingEntity.getReservePrice() != null) {
-                reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
-            } else {
-                reservePriceString = "null";
-            }
-            System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toGregorianCalendar().getTime(), auctionListingEntity.getEndDateTime().toGregorianCalendar().getTime(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
-            System.out.println("------------------------");
-            System.out.println("1: Configure Proxy Bidding For Auction Listing");
-            System.out.println("2: Configure Sniping For Auction Listing");
-            System.out.println("3: Back\n");
-            System.out.print("> ");
-            response = scanner.nextInt();
+            if (auctionListingEntity.isActive()) {
+                System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
+                String reservePriceString;
+                if (auctionListingEntity.getReservePrice() != null) {
+                    reservePriceString = decimalFormat.format(auctionListingEntity.getReservePrice());
+                } else {
+                    reservePriceString = "null";
+                }
+                System.out.printf("%18s%26s%34s%34s%20s%20s\n", auctionListingEntity.getAuctionListingId().toString(), auctionListingEntity.getAuctionListingName(), auctionListingEntity.getStartDateTime().toGregorianCalendar().getTime(), auctionListingEntity.getEndDateTime().toGregorianCalendar().getTime(), reservePriceString, decimalFormat.format(auctionListingEntity.getHighestBidPrice()));
+                System.out.println("------------------------");
+                System.out.println("1: Configure Proxy Bidding For Auction Listing");
+                System.out.println("2: Configure Sniping For Auction Listing");
+                System.out.println("3: Back\n");
+                System.out.print("> ");
+                response = scanner.nextInt();
 
-            if (response == 1) {
-                doConfigureProxyBiddingForAuctionListing(auctionListingEntity);
-            } else if (response == 2) {
-                doConfigureSnipingForAuctionListing(auctionListingEntity);
+                if (response == 1) {
+                    doConfigureProxyBiddingForAuctionListing(auctionListingEntity);
+                } else if (response == 2) {
+                    doConfigureSnipingForAuctionListing(auctionListingEntity);
+                }
+            } else {
+                Date currentDateTime = new Date(System.currentTimeMillis());
+                Date startDateTime = auctionListingEntity.getStartDateTime().toGregorianCalendar().getTime();
+                Date endDateTime = auctionListingEntity.getEndDateTime().toGregorianCalendar().getTime();
+                if (currentDateTime.compareTo(endDateTime) == 1) {
+                    System.out.println("Listing has ended on: " + auctionListingEntity.getEndDateTime() + "\n");
+                } 
+                if (currentDateTime.compareTo(startDateTime) == -1) {
+                    System.out.println("Listing has not yet began. It will start on: " + auctionListingEntity.getStartDateTime() + "\n");
+                }
             }
         } catch (AuctionListingNotFoundException_Exception ex) {
             System.out.println("An error has occurred while retrieving auction listing: " + ex.getMessage() + "\n");
