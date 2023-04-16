@@ -1,7 +1,7 @@
-| Full Name | Matriculation Number | Email |
+| Full Name | Email |
 | --- | --- | --- |
-| Mah Hoy Ping, Kenneth | A0249775J | e0943059@u.nus.edu |
-| Yeo Wei Han | A0234774X | e0726774@u.nus.edu |
+| Mah Hoy Ping, Kenneth | e0943059@u.nus.edu |
+| Yeo Wei Han | e0726774@u.nus.edu |
 
 Project class diagram
 ![IS2103project drawio](https://user-images.githubusercontent.com/36888332/232276724-66b29c3a-7f15-4e01-b610-5f71c30fd071.png)
