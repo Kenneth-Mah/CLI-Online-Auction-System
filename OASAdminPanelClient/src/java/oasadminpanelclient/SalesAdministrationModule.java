@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -32,13 +33,13 @@ import util.exception.UpdateAuctionListingException;
  * @author yeowh
  */
 public class SalesAdministrationModule {
-    
+
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
-    
+
     private DecimalFormat decimalFormat;
     private SimpleDateFormat simpleDateFormat;
-    
+
     private AuctionListingSessionBeanRemote auctionListingSessionBeanRemote;
 
     public SalesAdministrationModule() {
@@ -52,7 +53,7 @@ public class SalesAdministrationModule {
         this();
         this.auctionListingSessionBeanRemote = auctionListingSessionBeanRemote;
     }
-    
+
     public void menuSalesAdministration() {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -91,7 +92,7 @@ public class SalesAdministrationModule {
             }
         }
     }
-    
+
     private void doCreateNewAuctionListing() {
         Scanner scanner = new Scanner(System.in);
         AuctionListingEntity newAuctionListingEntity = new AuctionListingEntity();
@@ -99,31 +100,44 @@ public class SalesAdministrationModule {
         System.out.println("*** OAS Administration Panel :: Sales Administration :: Create New Auction Listing ***\n");
         System.out.print("Enter Auction Listing Name> ");
         newAuctionListingEntity.setAuctionListingName(scanner.nextLine().trim());
-        
+
         while (true) {
             Date currentDateTime = new Date();
+            String startDateTimeString = "";
+            String endDateTimeString = "";
             Date startDateTime;
             Date endDateTime;
+
             while (true) {
                 System.out.print("Enter Start Date-time (DD/MM/YYYY at HH:mm:ss)> ");
-                try {
-                    startDateTime = simpleDateFormat.parse(scanner.nextLine().trim());
-                    break;
-                } catch (ParseException ex) {
-                    System.out.println("Invalid date, please try again!\n");
+                startDateTimeString = scanner.nextLine().trim();
+                if (isValidDateTime(startDateTimeString)) {
+                    try {
+                        startDateTime = simpleDateFormat.parse(startDateTimeString);
+                        break;
+                    } catch (ParseException ex) {
+                        System.out.println("Invalid date, please try again!\n");
+                    }
+                } else {
+                    System.out.println("Invalid date-time format, please try again!\n");
                 }
             }
             while (true) {
                 System.out.print("Enter End Date-time (DD/MM/YYYY at HH:mm:ss)> ");
-                try {
-                    endDateTime = simpleDateFormat.parse(scanner.nextLine().trim());
-                    break;
-                } catch (ParseException ex) {
-                    System.out.println("Invalid date, please try again!\n");
+                endDateTimeString = scanner.nextLine().trim();
+                if (isValidDateTime(endDateTimeString)) {
+                    try {
+                        endDateTime = simpleDateFormat.parse(endDateTimeString);
+                        break;
+                    } catch (ParseException ex) {
+                        System.out.println("Invalid date, please try again!\n");
+                    }
+                } else {
+                    System.out.println("Invalid date-time format, please try again!\n");
                 }
             }
-            if (currentDateTime.compareTo(startDateTime) < 0 && 
-                    startDateTime.compareTo(endDateTime) < 0) {
+            if (currentDateTime.compareTo(startDateTime) < 0
+                    && startDateTime.compareTo(endDateTime) < 0) {
                 newAuctionListingEntity.setStartDateTime(startDateTime);
                 newAuctionListingEntity.setEndDateTime(endDateTime);
                 break;
@@ -131,7 +145,7 @@ public class SalesAdministrationModule {
                 System.out.println("Invalid dates! Start date-time and end date-time must be in the future and start date must be must be before the end date-time!");
             }
         }
-        
+
         System.out.print("Enter Reserve Price (blank if none)> ");
         String input = scanner.nextLine().trim();
         if (input.length() > 0) {
@@ -162,7 +176,14 @@ public class SalesAdministrationModule {
             showInputDataValidationErrorsForAuctionListingEntity(constraintViolations);
         }
     }
-    
+
+    private boolean isValidDateTime(String dateTime) {
+        String dateFormat = "\\d{2}/\\d{2}/\\d{4}";
+        String timeFormat = "\\d{2}:\\d{2}:\\d{2}";
+        String dateTimeFormat = dateFormat + " at " + timeFormat;
+        return Pattern.matches(dateTimeFormat, dateTime);
+    }
+
     private void doViewAuctionListingDetails() {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -205,13 +226,13 @@ public class SalesAdministrationModule {
             System.out.println("An error has occurred while retrieving auction listing: " + ex.getMessage() + "\n");
         }
     }
-    
+
     private void doUpdateAuctionListing(AuctionListingEntity auctionListingEntity) {
         Scanner scanner = new Scanner(System.in);
         String input;
 
         System.out.println("*** OAS Administration Panel :: Sales Administration :: View Auction Listing Details :: Update Auction Listing ***\n");
-        
+
         while (true) {
             Date currentDateTime = new Date();
             Date startDateTime = auctionListingEntity.getStartDateTime();
@@ -244,8 +265,8 @@ public class SalesAdministrationModule {
                     break;
                 }
             }
-            if (currentDateTime.compareTo(startDateTime) < 0 && 
-                    startDateTime.compareTo(endDateTime) < 0) {
+            if (currentDateTime.compareTo(startDateTime) < 0
+                    && startDateTime.compareTo(endDateTime) < 0) {
                 auctionListingEntity.setStartDateTime(startDateTime);
                 auctionListingEntity.setEndDateTime(endDateTime);
                 break;
@@ -253,7 +274,7 @@ public class SalesAdministrationModule {
                 System.out.println("Invalid dates! Start date-time and end date-time must be in the future and start date-time must be must be before the end date-time!");
             }
         }
-        
+
         System.out.print("Enter Reserve Price (blank if none)> ");
         input = scanner.nextLine().trim();
         if (input.length() > 0) {
@@ -275,7 +296,7 @@ public class SalesAdministrationModule {
             showInputDataValidationErrorsForAuctionListingEntity(constraintViolations);
         }
     }
-    
+
     private void doDeleteAuctionListing(AuctionListingEntity auctionListingEntity) {
         Scanner scanner = new Scanner(System.in);
         String input;
@@ -300,7 +321,7 @@ public class SalesAdministrationModule {
             System.out.println("Auction listing NOT deleted!\n");
         }
     }
-    
+
     private void doViewAllAuctionListings() {
         Scanner scanner = new Scanner(System.in);
 
@@ -322,7 +343,7 @@ public class SalesAdministrationModule {
         System.out.print("Press any key to continue...> ");
         scanner.nextLine();
     }
-    
+
     private void doViewAllAuctionListingsWithBidsButBelowReservePrice() {
         Scanner scanner = new Scanner(System.in);
 
@@ -348,13 +369,13 @@ public class SalesAdministrationModule {
             doAssignWinningBidForListingsWithBidsButBelowReservePrice(auctionListingName);
         }
     }
-    
+
     private void doAssignWinningBidForListingsWithBidsButBelowReservePrice(String auctionListingName) {
         Scanner scanner = new Scanner(System.in);
         String input;
 
         System.out.println("*** OAS Administration Panel :: Sales Administration :: Assign Winning Bid For Listing With Bids But Below Reserve Price ***\n");
-        
+
         try {
             AuctionListingEntity auctionListingEntity = auctionListingSessionBeanRemote.retrieveAuctionListingByAuctionListingName(auctionListingName);
             System.out.printf("%18s%26s%34s%34s%20s%20s\n", "Auction Listing ID", "Auction Listing Name", "Start Date-time", "End Date-time", "Reserve Price", "Highest Bid Price");
@@ -388,7 +409,7 @@ public class SalesAdministrationModule {
             System.out.println("An error has occurred while retrieving the auction listing: " + ex.getMessage() + "\n");
         }
     }
-    
+
     private void showInputDataValidationErrorsForAuctionListingEntity(Set<ConstraintViolation<AuctionListingEntity>> constraintViolations) {
         System.out.println("\nInput data validation error!:");
 
