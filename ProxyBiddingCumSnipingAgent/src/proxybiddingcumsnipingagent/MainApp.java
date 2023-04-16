@@ -209,10 +209,10 @@ public class MainApp {
                 Date startDateTime = auctionListingEntity.getStartDateTime().toGregorianCalendar().getTime();
                 Date endDateTime = auctionListingEntity.getEndDateTime().toGregorianCalendar().getTime();
                 if (currentDateTime.compareTo(endDateTime) == 1) {
-                    System.out.println("Listing has ended on: " + auctionListingEntity.getEndDateTime() + "\n");
+                    System.out.println("Listing has ended on: " + auctionListingEntity.getEndDateTime().toGregorianCalendar().getTime() + "\n");
                 } 
                 if (currentDateTime.compareTo(startDateTime) == -1) {
-                    System.out.println("Listing has not yet began. It will start on: " + auctionListingEntity.getStartDateTime() + "\n");
+                    System.out.println("Listing has not yet began. It will start on: " + auctionListingEntity.getStartDateTime().toGregorianCalendar().getTime() + "\n");
                 }
             }
         } catch (AuctionListingNotFoundException_Exception ex) {
