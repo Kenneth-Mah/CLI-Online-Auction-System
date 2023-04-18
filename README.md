@@ -4,7 +4,7 @@
 ## Pair Project
 ![image](https://user-images.githubusercontent.com/36888332/232277531-f381d42e-0eb4-4eb4-a216-12fbdecf8b9a.png)
 
-##Project class diagram
+## Project class diagram
 ![IS2103project drawio](https://user-images.githubusercontent.com/36888332/232276724-66b29c3a-7f15-4e01-b610-5f71c30fd071.png)
 
 
