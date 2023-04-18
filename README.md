@@ -2,7 +2,6 @@
 # IS2103 – Enterprise Systems Server-side Design and Development AY 2022/23 Semester 2
 
 ## Pair Project
-
 ![image](https://user-images.githubusercontent.com/36888332/232277531-f381d42e-0eb4-4eb4-a216-12fbdecf8b9a.png)
 
 ##Project class diagram
