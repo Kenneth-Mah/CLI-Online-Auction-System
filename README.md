@@ -21,5 +21,5 @@ We created a session bean for each entity class so that we can simply encapsulat
 ## Contributors
 | Full Name | Email |
 | --- | --- |
-| Mah Hoy Ping, Kenneth | e0943059@u.nus.edu |
-| Yeo Wei Han | e0726774@u.nus.edu |
+| Mah Hoy Ping, Kenneth | kenneth_mah@u.nus.edu |
+| Yeo Wei Han | yeoweihan@u.nus.edu |
